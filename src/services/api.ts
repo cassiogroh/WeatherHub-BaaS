@@ -1,7 +1,12 @@
-import axios from 'axios';
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
 
-const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL,
-})
+import { firebaseConfig } from "./environments/production";
 
-export default api;
+const firebaseSDK = initializeApp(firebaseConfig);
+
+const firestore = getFirestore(firebaseSDK);
+const functions = getFunctions(firebaseSDK);
+
+export { firestore, functions };
