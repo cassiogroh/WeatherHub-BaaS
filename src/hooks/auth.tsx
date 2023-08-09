@@ -1,7 +1,8 @@
 import  React, { createContext, useCallback, useState, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import api from '../services/api';
-import { decode } from 'jsonwebtoken';
+// import api from '../services/api';
+import { auth } from '../services/api';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
 interface User {
   id: string,
@@ -22,12 +23,6 @@ interface SignInCredentials {
   password: string;
 };
 
-interface TokenProps {
-  exp: number;
-  iat: number;
-  sub: string;
-}
-
 interface AuthContextData {
   user: User;
   signIn(credentials: SignInCredentials): Promise<void>;
@@ -37,33 +32,36 @@ interface AuthContextData {
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
+// @TODO
+const api = {} as any;
+
 export const AuthProvider: React.FC = ({ children }) => {
   const history = useHistory();
-  const [ data, setData ] = useState<AuthState>( () => {
-    const token = localStorage.getItem('@WeatherHub:token');
-    const user = localStorage.getItem('@WeatherHub:user');
+  const [ data, setData ] = useState<AuthState>(() => {
+    // const token = localStorage.getItem('@WeatherHub:token');
+    // const user = localStorage.getItem('@WeatherHub:user');
 
-    if (token && user) {
-      const expiration = decode(token) as TokenProps;
+    // if (token && user) {
+    //   const expiration = decode(token) as TokenProps;
 
-      if (expiration.exp*1000 > Date.now()) {
-        api.defaults.headers.authorization = `Bearer ${token}`;
-        return { token, user: JSON.parse(user) };
-      } else {
-        const { id } = JSON.parse(user);
+    //   if (expiration.exp*1000 > Date.now()) {
+    //     api.defaults.headers.authorization = `Bearer ${token}`;
+    //     return { token, user: JSON.parse(user) };
+    //   } else {
+    //     const { id } = JSON.parse(user);
 
-        api.put('sessions', { id }).then(response => {
-          const { token, user } = response.data;
+    //     api.put('sessions', { id }).then((response: any) => {
+    //       const { token, user } = response.data;
     
-          localStorage.setItem('@WeatherHub:token', token);
-          localStorage.setItem('@WeatherHub:user', JSON.stringify(user));
+    //       localStorage.setItem('@WeatherHub:token', token);
+    //       localStorage.setItem('@WeatherHub:user', JSON.stringify(user));
       
-          api.defaults.headers.authorization = `Bearer ${token}`;
+    //       api.defaults.headers.authorization = `Bearer ${token}`;
       
-          setData({ token, user });
-        })
-      }
-    }
+    //       setData({ token, user });
+    //     })
+    //   }
+    // }
 
     return {} as AuthState;
   });

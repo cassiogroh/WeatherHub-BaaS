@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef } from 'react';
 
 import { FiTrash2, FiEdit, FiFrown, FiEdit3 } from 'react-icons/fi';
 
-import api from '../../services/api';
+// import api from '../../services/api';
 
 import { Container, CardStats, CardBottom, RenameField } from './styles';
 
@@ -161,6 +161,8 @@ const StationCard: React.FC<RequestProps> = ({
   const confirmRenameStation = 
   useCallback(async (stationId: string, newName: string | undefined, currentName: string): Promise<void> => {
     if (currentName !== newName && newName !== '') {
+      // @TODO
+      const api = {} as any;
       await api.put('/users/stations', {
           stationId,
           newName,

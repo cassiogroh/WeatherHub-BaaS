@@ -14,7 +14,7 @@ import Input from '../../components/Input';
 
 import { useAuth } from '../../hooks/auth';
 import { useToast } from '../../hooks/toast';
-import api from '../../services/api';
+// import api from '../../services/api';
 import getValidationErrors from '../../utils/getValidationErrors';
 
 import { Container, Content } from './styles';
@@ -76,6 +76,8 @@ const Profile: React.FC = () => {
         : {})
       };
 
+      // @TODO
+      const api = {} as any;
       const response = await api.put('users', formData);
 
       updateUser(response.data);

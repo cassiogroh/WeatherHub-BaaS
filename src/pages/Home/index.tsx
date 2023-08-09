@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import api from '../../services/api';
+import { callableFunction } from '../../services/api';
 
 import Header from '../../components/Header';
 import ForecastCard, { DaylyForecast, ForecastToday } from '../../components/ForecastCard';
@@ -8,10 +8,16 @@ import { Container, AskLocation, ForecastTodayContainer, DaylyForecastContainer 
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Loader from 'react-loader-spinner';
+import mock from './mock.json';
 
 interface Location {
   latitude: number;
   longitude: number;
+}
+
+interface ResponseProps {
+  forecastToday: ForecastToday;
+  daylyForecast: DaylyForecast[];
 }
 
 const Home: React.FC = () => {
@@ -24,14 +30,10 @@ const Home: React.FC = () => {
     const latitude = location.latitude;
     const longitude = location.longitude;
 
-    const response = await api.get('/', {
-      headers: {
-        latitude: latitude,
-        longitude: longitude,
-      }
-    });
-    setForecastToday(response.data[0]);
-    setDaylyForecast(response.data[1]);
+    const responseData: ResponseProps = await callableFunction("getForecast", { latitude, longitude }, mock);
+
+    setForecastToday(responseData.forecastToday);
+    setDaylyForecast(responseData.daylyForecast);
   }, []);
 
   useEffect(() => {
