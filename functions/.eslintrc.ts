@@ -1,4 +1,4 @@
-module.exports = {
+const eslintConfig = {
   root: true,
   env: {
     es6: true,
@@ -14,7 +14,7 @@ module.exports = {
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    project: ["tsconfig.json", "tsconfig.dev.json"],
+    project: ["tsconfig.json"],
     sourceType: "module",
   },
   ignorePatterns: [
@@ -28,5 +28,12 @@ module.exports = {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
     "indent": ["error", 2],
+    "linebreak-style": ["error", "windows"],
+    "require-jsdoc": "off",
+    "object-curly-spacing": ["error", "always"],
+    "no-var": "off",
+    "max-len": "off",
   },
 };
+
+export default eslintConfig;
