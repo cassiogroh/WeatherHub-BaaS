@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FormEvent, useCallback, useMemo, useState } from 'react';
 import Loader from 'react-loader-spinner';
 import Header from '../../components/Header';
 import ProfileHeader from '../../components/ProfileHeader';
@@ -6,12 +6,7 @@ import StationCard, { StationCurrentProps, StationHistoricProps, ViewProps } fro
 import ToggleStats from '../../components/ToggleStats';
 import { useAuth } from '../../hooks/auth';
 import { useToast } from '../../hooks/toast';
-// import api from '../../services/api';
 import { Container, StationsStats } from './styles';
-
-
-
-
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -42,15 +37,14 @@ const Dashboard: React.FC = () => {
     elev: false,
   });
 
-  // @TODO
   const api = {} as any;
   
-  useEffect(() => {
-    api.get('/users/stations').then((response: any) => {
-      setStationsCurrent(response.data[0]);
-      setStationsHistoric(response.data[1]);
-    })
-  }, [api]);
+  // useEffect(() => {
+    // api.get('/users/stations').then((response: any) => {
+    //   setStationsCurrent(response.data[0]);
+    //   setStationsHistoric(response.data[1]);
+    // })
+  // }, [api]);
 
   const handleInputCheck = useCallback((value: boolean, propName: keyof(typeof propsView)): void => {
     const changedPropsView = {...propsView};
@@ -95,7 +89,7 @@ const Dashboard: React.FC = () => {
         return;
       }
 
-  }, [addToast, api, stationsCurrent.length]);
+  }, [addToast, stationsCurrent.length, api]);
 
   const handleAddStation = useCallback(async (event: FormEvent, stationId: string): Promise<void> => {
     event.preventDefault();
@@ -149,7 +143,7 @@ const Dashboard: React.FC = () => {
     }
 
     setTriggerAddLoader(false)
-  }, [addToast, api, stationsCurrent]);
+  }, [addToast, stationsCurrent, api]);
 
   const data = useMemo(() => {
     interface dataInfo {

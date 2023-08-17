@@ -9,7 +9,7 @@ export async function registerUser(name: string, email: string, password: string
     const { user } = await createUserWithEmailAndPassword(auth, email, password);
 
     const newUser: User = {
-      id: user.uid,
+      userId: user.uid,
       name,
       email,
       stations: [],
@@ -17,7 +17,7 @@ export async function registerUser(name: string, email: string, password: string
       created_at: new Date(),
     };
 
-    await setDoc(doc(collection(firestore, 'users'), newUser.id), newUser);
+    await setDoc(doc(collection(firestore, 'users'), newUser.userId), newUser);
 
     return newUser;
   } catch (error) {

@@ -1,21 +1,18 @@
-import  React, { createContext, useCallback, useState, useContext } from 'react';
+import  React, { createContext, useCallback, useState, useContext, useEffect } from 'react';
+import { onAuthStateChanged, signOut as signOutFromFirebase } from 'firebase/auth';
 import { useHistory } from 'react-router-dom';
-// import api from '../services/api';
-import { auth } from '../services/api';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 
-interface User {
-  id: string,
+import { auth } from '../services/api';
+import { signIntoFirebase } from '../functions/signIn';
+import { getUserFromFirestore } from '../functions/getUser';
+
+export interface User {
+  userId: string,
   name: string,
   email: string,
   stations: string[],
   stations_names: string[],
   created_at: Date
-};
-
-interface AuthState {
-  token: string;
-  user: User;
 };
 
 interface SignInCredentials {
@@ -32,61 +29,48 @@ interface AuthContextData {
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-// @TODO
-const api = {} as any;
-
 export const AuthProvider: React.FC = ({ children }) => {
   const history = useHistory();
-  const [ data, setData ] = useState<AuthState>(() => {
-    // const token = localStorage.getItem('@WeatherHub:token');
-    // const user = localStorage.getItem('@WeatherHub:user');
+  const userMock = {} as User;
+  const [user, setUser] = useState<User>(userMock);
 
-    // if (token && user) {
-    //   const expiration = decode(token) as TokenProps;
+  useEffect(() => {
+    const fetchData = async () => {
+      const storedUser = localStorage.getItem('@WeatherHub:user');
 
-    //   if (expiration.exp*1000 > Date.now()) {
-    //     api.defaults.headers.authorization = `Bearer ${token}`;
-    //     return { token, user: JSON.parse(user) };
-    //   } else {
-    //     const { id } = JSON.parse(user);
+      if (!storedUser) return;
 
-    //     api.put('sessions', { id }).then((response: any) => {
-    //       const { token, user } = response.data;
-    
-    //       localStorage.setItem('@WeatherHub:token', token);
-    //       localStorage.setItem('@WeatherHub:user', JSON.stringify(user));
+      const { userId } = JSON.parse(storedUser);
       
-    //       api.defaults.headers.authorization = `Bearer ${token}`;
-      
-    //       setData({ token, user });
-    //     })
-    //   }
-    // }
+      onAuthStateChanged(auth, async (authUser) => {
+        if (authUser) {
+          const firestoreUser = await getUserFromFirestore(userId);
+          localStorage.setItem('@WeatherHub:user', JSON.stringify(firestoreUser));
+          setUser(firestoreUser as any);
+        } else {
+          setUser({} as User);
+        }
+      });
+    };
 
-    return {} as AuthState;
-  });
-
-  const signIn = useCallback(async ({ email, password }) => {
-    const response = await api.post('sessions', {
-      email,
-      password
-    });
-
-    const { token, user } = response.data;
-
-    localStorage.setItem('@WeatherHub:token', token);
-    localStorage.setItem('@WeatherHub:user', JSON.stringify(user));
-
-    api.defaults.headers.authorization = `Bearer ${token}`;
-
-    setData({ token, user });
+    fetchData();
   }, []);
 
-  const signOut = useCallback(() => {
-    localStorage.removeItem('@WeatherHub:token');
+  const signIn = useCallback(async ({ email, password }) => {
+    const authUser = await signIntoFirebase(email, password);
+
+    const firestoreUser = await getUserFromFirestore(authUser.uid);
+
+    localStorage.setItem('@WeatherHub:user', JSON.stringify(firestoreUser));
+
+    setUser(firestoreUser  as any);
+  }, []);
+
+  const signOut = useCallback(async () => {
+    await signOutFromFirebase(auth)
     localStorage.removeItem('@WeatherHub:user');
 
-    setData({} as AuthState);
+    setUser({} as User);
 
     history.push('/');
   }, [history]);
@@ -94,14 +78,11 @@ export const AuthProvider: React.FC = ({ children }) => {
   const updateUser = useCallback((user: User) => {
     localStorage.setItem('@WeatherHub:user', JSON.stringify(user));
 
-    setData({
-      token: data.token,
-      user
-    })
-  }, [setData, data.token]);
+    setUser(user)
+  }, [setUser]);
 
   return (
-    <AuthContext.Provider value={{ user: data.user, signIn, signOut, updateUser }}>
+    <AuthContext.Provider value={{ user, signIn, signOut, updateUser }}>
       {children}
     </AuthContext.Provider>
   )
