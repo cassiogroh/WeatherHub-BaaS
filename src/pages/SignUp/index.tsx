@@ -18,6 +18,7 @@ import Input from '../../components/Input';
 import Button from '../../components/Button';
 
 import { Container, Background, Content, AnimationContainer } from './styles';
+import { registerUser } from '../../functions/registerUser';
 
 interface SignUpFormData {
   name: string;
@@ -48,9 +49,9 @@ const SignUp: React.FC = () => {
         abortEarly: false
       });
 
-      // @TODO
-      const api = {} as any;
-      await api.post('users', data);
+      const { name, email, password } = data;
+
+      await registerUser(name, email, password);
 
       history.push('signin');
 
