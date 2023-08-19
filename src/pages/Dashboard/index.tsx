@@ -79,25 +79,30 @@ const Dashboard: React.FC = () => {
 
       return
     }
-      try {
-        await callableFunction("deleteStation", { stationId, userId: user.userId });
 
-        addToast({
-          type: 'success',
-          title: 'ID: ' + stationId,
-          description: 'Estação removida com sucesso'
-        });
-        
-        setStationsCurrent(state => state.filter(station => station.stationID !== stationId));
-      } catch {
-        addToast({
-          type: 'error',
-          title: 'ID: ' + stationId,
-          description: 'Algo deu errado. Recarrege a página e tente novamente'
-        });
+    setTriggerAddLoader(true);
 
-        return;
-      }
+    try {
+      await callableFunction("deleteStation", { stationId, userId: user.userId });
+
+      addToast({
+        type: 'success',
+        title: 'ID: ' + stationId,
+        description: 'Estação removida com sucesso'
+      });
+      
+      setStationsCurrent(state => state.filter(station => station.stationID !== stationId));
+    } catch {
+      addToast({
+        type: 'error',
+        title: 'ID: ' + stationId,
+        description: 'Algo deu errado. Recarrege a página e tente novamente'
+      });
+
+      return;
+    }
+
+    setTriggerAddLoader(false);
   }, [addToast, stationsCurrent.length, user]);
 
   const handleAddStation = useCallback(async (event: FormEvent, stationId: string): Promise<void> => {
@@ -161,13 +166,12 @@ const Dashboard: React.FC = () => {
     let d: dataInfo[] = [] as dataInfo[];
 
     try {
-      stationsHistoric.map((stationData, index) => {
+      stationsHistoric.forEach((stationData) => {
         d.push({
           low: String(stationData[currentHistoricDay + 6].tempLow).replace(/\./g, ','),
           max: String(stationData[currentHistoricDay + 6].tempHigh).replace(/\./g, ','),
           prec: Number(stationData[currentHistoricDay + 6].precipTotalHistoric) === 0 ? '' : String(stationData[currentHistoricDay + 6].precipTotalHistoric).replace(/\./g, ',')
         });
-        return true;
       });
     } catch (err) {
       console.log(err)
@@ -248,7 +252,6 @@ const Dashboard: React.FC = () => {
                 historicData={stationsHistoric[index]}
                 propsView={station.status === 'online' ? propsView : undefined}
                 handleDeleteStation={handleDeleteStation}
-                user={user}
                 currentOrHistoric={toggleInputSlider}
                 minStatus={minStatus}
                 medStatus={medStatus}

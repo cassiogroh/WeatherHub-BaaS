@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useRef } from 'react';
-
 import { FiTrash2, FiEdit, FiFrown, FiEdit3 } from 'react-icons/fi';
 
-// import api from '../../services/api';
+import { callableFunction } from '../../services/api';
+import { useAuth } from '../../hooks/auth';
 
 import { Container, CardStats, CardBottom, RenameField } from './styles';
 
@@ -72,7 +72,6 @@ export interface RequestProps {
   historicData: Array<StationHistoricProps>;
   propsView?: ViewProps;
   handleDeleteStation?: any;
-  user?: object;
   currentOrHistoric: boolean; // false=current true=historic
   minStatus: boolean;
   medStatus: boolean;
@@ -85,13 +84,13 @@ const StationCard: React.FC<RequestProps> = ({
   historicData,
   propsView,
   handleDeleteStation,
-  user,
   currentOrHistoric,
   minStatus,
   medStatus,
   maxStatus,
   currentHistoricDay
 }: RequestProps ) => {
+  const { user } = useAuth();
 
   const {
     status,
@@ -161,19 +160,13 @@ const StationCard: React.FC<RequestProps> = ({
   const confirmRenameStation = 
   useCallback(async (stationId: string, newName: string | undefined, currentName: string): Promise<void> => {
     if (currentName !== newName && newName !== '') {
-      // @TODO
-      const api = {} as any;
-      await api.put('/users/stations', {
-          stationId,
-          newName,
-        }
-      );
+      await callableFunction("renameStation", { stationId, newName, userId: user.userId });
       
       !!newName && setStationName(newName);
     };
 
     setRename(false);
-  }, []);
+  }, [user.userId]);
 
   const handleFocus = useCallback((focusedVariable: string) => {
     switch (focusedVariable) {
