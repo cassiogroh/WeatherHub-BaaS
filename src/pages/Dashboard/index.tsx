@@ -135,9 +135,7 @@ const Dashboard: React.FC = () => {
     }
 
     try {
-      const response = await api.post('users/stations', {
-        stationId
-      });
+      const data: ResponseProps = await callableFunction("addNewStation", { stationId, userId: user.userId }, mock);
 
       addToast({
         type: 'success',
@@ -147,8 +145,8 @@ const Dashboard: React.FC = () => {
 
       setInputValue('');
 
-      setStationsCurrent(oldStations => [...oldStations, response.data[0][0]]);
-      setStationsHistoric(oldStations => [...oldStations, response.data[1][1]]);
+      setStationsHistoric(oldStations => [...oldStations, data.stationsHistoric[0]]);
+      setStationsCurrent(oldStations => [...oldStations, data.stationsCurrent[0]]);
 
     } catch {
       addToast({
@@ -159,7 +157,7 @@ const Dashboard: React.FC = () => {
     }
 
     setTriggerAddLoader(false)
-  }, [addToast, stationsCurrent, api]);
+  }, [stationsCurrent, addToast, user.userId]);
 
   const data = useMemo(() => {
     interface dataInfo {
@@ -250,10 +248,7 @@ const Dashboard: React.FC = () => {
         />
 
         <StationsStats>
-          {stationsCurrent.map((station: StationCurrentProps, index: number) => {
-            // console.log(stationsHistoric[index])
-
-            return (
+          {stationsCurrent.map((station: StationCurrentProps, index: number) => (
               <StationCard
                 key={station.stationID}
                 currentData={station}
@@ -267,7 +262,7 @@ const Dashboard: React.FC = () => {
                 maxStatus={maxStatus}
                 currentHistoricDay={currentHistoricDay + 6}
               />
-            )}
+            )
           )}
         </StationsStats>
 
