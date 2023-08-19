@@ -47,8 +47,6 @@ const Dashboard: React.FC = () => {
     elev: false,
   });
 
-  const api = {} as any;
-  
   useEffect(() => {
     const loadStationsData = async () => {
       const userId = user.userId;
@@ -82,11 +80,7 @@ const Dashboard: React.FC = () => {
       return
     }
       try {
-        await api.delete('/users/stations', {
-          headers: {
-            'stationId': stationId
-          }
-        });
+        await callableFunction("deleteStation", { stationId, userId: user.userId });
 
         addToast({
           type: 'success',
@@ -104,8 +98,7 @@ const Dashboard: React.FC = () => {
 
         return;
       }
-
-  }, [addToast, stationsCurrent.length, api]);
+  }, [addToast, stationsCurrent.length, user]);
 
   const handleAddStation = useCallback(async (event: FormEvent, stationId: string): Promise<void> => {
     event.preventDefault();
