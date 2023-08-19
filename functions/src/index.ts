@@ -5,13 +5,16 @@ import { loadStationsFunction } from "./loadStations";
 import { addNewStationFunction } from "./addNewStation";
 import { deleteStationFunction } from "./deleteStation";
 import { renameStationFunction } from "./renameStation";
+import { updateProfileFunction } from "./updateProfile";
 
 admin.initializeApp();
 
 export const firestore = admin.firestore();
+export const auth = admin.auth();
 
 export const getForecast = getForecastFunction;
 export const loadStations = loadStationsFunction;
 export const addNewStation = addNewStationFunction;
 export const deleteStation = deleteStationFunction;
 export const renameStation = renameStationFunction;
+export const updateProfile = updateProfileFunction;

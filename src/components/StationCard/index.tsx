@@ -160,7 +160,7 @@ const StationCard: React.FC<RequestProps> = ({
   const confirmRenameStation = 
   useCallback(async (stationId: string, newName: string | undefined, currentName: string): Promise<void> => {
     if (currentName !== newName && newName !== '') {
-      await callableFunction("renameStation", { stationId, newName, userId: user.userId });
+      await callableFunction("renameStation", { stationId, newName, userId: user.userId }, "Testing rename");
       
       !!newName && setStationName(newName);
     };

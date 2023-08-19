@@ -12,7 +12,7 @@ export interface User {
   email: string,
   stations: string[],
   stations_names: string[],
-  created_at: Date
+  created_at: string
 };
 
 interface SignInCredentials {

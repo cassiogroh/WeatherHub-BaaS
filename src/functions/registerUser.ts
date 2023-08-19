@@ -14,7 +14,7 @@ export async function registerUser(name: string, email: string, password: string
       email,
       stations: [],
       stations_names: [],
-      created_at: new Date(),
+      created_at: (new Date()).toUTCString()
     };
 
     await setDoc(doc(collection(firestore, 'users'), newUser.userId), newUser);

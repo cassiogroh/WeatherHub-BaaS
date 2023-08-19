@@ -1,6 +1,6 @@
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 import * as Yup from 'yup';
@@ -14,10 +14,10 @@ import Input from '../../components/Input';
 
 import { useAuth } from '../../hooks/auth';
 import { useToast } from '../../hooks/toast';
-// import api from '../../services/api';
 import getValidationErrors from '../../utils/getValidationErrors';
 
 import { Container, Content } from './styles';
+import { callableFunction } from '../../services/api';
 
 interface ProfileFormData {
   name: string;
@@ -31,6 +31,9 @@ const Profile: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const { addToast } = useToast();
   const { user, updateUser } = useAuth();
+
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
   const history  = useHistory();
 
   const handleSubmit = useCallback(async (data: ProfileFormData) => {
@@ -76,11 +79,15 @@ const Profile: React.FC = () => {
         : {})
       };
 
-      // @TODO
-      const api = {} as any;
-      const response = await api.put('users', formData);
+      setIsUpdatingProfile(true);
+      await callableFunction("updateProfile", formData);
 
-      updateUser(response.data);
+      const mockUser = { ...user };
+
+      mockUser.name = name;
+      mockUser.email = email;
+
+      updateUser(mockUser);
 
       history.push('/dashboard');
 
@@ -113,9 +120,13 @@ const Profile: React.FC = () => {
         history.push('/signin');
       }
     }
-  }, [addToast, history, updateUser]);
+
+    setIsUpdatingProfile(false);
+  }, [addToast, history, updateUser, user]);
 
   const user_since = useMemo(() => {
+    if (!user.created_at) return "";
+
     const date = format(
       new Date(user.created_at),
       `dd '/' MMM '/' yyyy`,
@@ -166,7 +177,7 @@ const Profile: React.FC = () => {
             placeholder='Confirmar senha'
           />
 
-          <Button type='submit'>Confirmar alterações</Button>
+          <Button disabled={isUpdatingProfile} type='submit'>{isUpdatingProfile ? "Atualizando perfil..." : "Confirmar alterações"}</Button>
         </Form>
         <p>Conta criada em: {user_since}</p>
       </Content>
