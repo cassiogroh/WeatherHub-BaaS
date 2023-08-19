@@ -62,7 +62,7 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ currentPage }) => {
         type='button'
         onClick={signOut}
       >
-        <p>Logout</p>
+        <p>Sair</p>
       </Button>
     </Container>
   )

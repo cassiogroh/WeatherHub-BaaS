@@ -118,9 +118,9 @@ const ToggleStats: React.FC<Request> = ({
           </div>
 
           <div>
-            <FiArrowLeftCircle title='Dia anterior' size={20} color='#FFF' onClick={() => changeDay(-1)} />
+            <FiArrowLeftCircle title='Dia anterior' size={20} color={currentHistoricDay -1 >= -6 ? "#FFF" : "transparent"} onClick={() => changeDay(-1)} />
             <p>{currentHistoricDayView}</p>
-            <FiArrowRightCircle title='Próximo dia'  size={20} color='#FFF' onClick={() => changeDay(1)} />
+            <FiArrowRightCircle title='Próximo dia' size={20} color={currentHistoricDay + 1 <= 0 ? "#FFF" : "transparent"} onClick={() => changeDay(1)} />
           </div>
         </HistoricOptions>
       
@@ -160,6 +160,7 @@ const ToggleStats: React.FC<Request> = ({
 
           <button
             type='submit'
+            title="Adicionar estação"
           >
             <FiPlus size={20} color='#3b5998' strokeWidth={5} />
           </button>

@@ -1,12 +1,22 @@
-import React, { FormEvent, useCallback, useMemo, useState } from 'react';
+import React, { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import Loader from 'react-loader-spinner';
+
 import Header from '../../components/Header';
 import ProfileHeader from '../../components/ProfileHeader';
 import StationCard, { StationCurrentProps, StationHistoricProps, ViewProps } from '../../components/StationCard';
 import ToggleStats from '../../components/ToggleStats';
+
 import { useAuth } from '../../hooks/auth';
 import { useToast } from '../../hooks/toast';
+import { callableFunction } from '../../services/api';
+import mock from './mock.json';
+
 import { Container, StationsStats } from './styles';
+
+interface ResponseProps {
+  stationsCurrent: StationCurrentProps[];
+  stationsHistoric: Array<StationHistoricProps[]>;
+}
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -39,12 +49,18 @@ const Dashboard: React.FC = () => {
 
   const api = {} as any;
   
-  // useEffect(() => {
-    // api.get('/users/stations').then((response: any) => {
-    //   setStationsCurrent(response.data[0]);
-    //   setStationsHistoric(response.data[1]);
-    // })
-  // }, [api]);
+  useEffect(() => {
+    const loadStationsData = async () => {
+      const userId = user.userId;
+
+      const data: ResponseProps = await callableFunction("loadStations", { userId }, mock);
+
+      setStationsHistoric(data.stationsHistoric);
+      setStationsCurrent(data.stationsCurrent);
+    }
+
+    loadStationsData();
+  }, [user.userId]);
 
   const handleInputCheck = useCallback((value: boolean, propName: keyof(typeof propsView)): void => {
     const changedPropsView = {...propsView};
@@ -234,21 +250,24 @@ const Dashboard: React.FC = () => {
         />
 
         <StationsStats>
-          {stationsCurrent.map((station: StationCurrentProps, index: number) => (
-            <StationCard
-              key={station.stationID}
-              currentData={station}
-              historicData={stationsHistoric[index]}
-              propsView={station.status === 'online' ? propsView : undefined}
-              handleDeleteStation={handleDeleteStation}
-              user={user}
-              currentOrHistoric={toggleInputSlider}
-              minStatus={minStatus}
-              medStatus={medStatus}
-              maxStatus={maxStatus}
-              currentHistoricDay={currentHistoricDay + 6}
-            />
-          )
+          {stationsCurrent.map((station: StationCurrentProps, index: number) => {
+            // console.log(stationsHistoric[index])
+
+            return (
+              <StationCard
+                key={station.stationID}
+                currentData={station}
+                historicData={stationsHistoric[index]}
+                propsView={station.status === 'online' ? propsView : undefined}
+                handleDeleteStation={handleDeleteStation}
+                user={user}
+                currentOrHistoric={toggleInputSlider}
+                minStatus={minStatus}
+                medStatus={medStatus}
+                maxStatus={maxStatus}
+                currentHistoricDay={currentHistoricDay + 6}
+              />
+            )}
           )}
         </StationsStats>
 
