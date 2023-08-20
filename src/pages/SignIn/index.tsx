@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useState } from 'react';
 import { FiLogIn, FiMail, FiLock } from 'react-icons/fi';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
@@ -28,9 +28,13 @@ const SignIn: React.FC = () => {
   const { signIn } = useAuth();
   const { addToast } = useToast();
 
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
   const history = useHistory();
 
   const handleSubmit= useCallback(async (data: SignInFormData) => {
+    setIsSigningIn(true);
+
     try {
       formRef.current?.setErrors({});
 
@@ -51,9 +55,11 @@ const SignIn: React.FC = () => {
         password: data.password
       });
 
+      setIsSigningIn(false);
       history.push('/dashboard');
-
     } catch (err) {
+      setIsSigningIn(false);
+
       if (err instanceof Yup.ValidationError) {
         const errors = getValidationErrors(err)
         formRef.current?.setErrors(errors);
@@ -87,7 +93,7 @@ const SignIn: React.FC = () => {
               placeholder='Senha'
             />
 
-            <Button type='submit'>Entrar</Button>
+            <Button disabled={isSigningIn} type='submit'>{isSigningIn ? "Entrando..." : "Entrar"}</Button>
 
             {/* <a href="forgot">Esqueci minha senha</a> */}
           </Form>

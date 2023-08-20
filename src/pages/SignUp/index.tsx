@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 
 import { FiMail, FiUser, FiLock, FiArrowLeft } from 'react-icons/fi';
 import { FormHandles } from '@unform/core';
@@ -29,7 +29,11 @@ const SignUp: React.FC = () => {
   const { addToast } = useToast();
   const history = useHistory();
 
+  const [isRegistering, setIsRegistering] = useState(false);
+
   const handleSubmit = useCallback(async (data: SignUpFormData) => {
+    setIsRegistering(true);
+
     try {
       formRef.current?.setErrors({});
 
@@ -51,6 +55,7 @@ const SignUp: React.FC = () => {
 
       await registerUser(name, email, password);
 
+      setIsRegistering(false);
       history.push('signin');
 
       addToast({
@@ -60,6 +65,8 @@ const SignUp: React.FC = () => {
       });
 
     } catch (err) {
+      setIsRegistering(false);
+
       if (err instanceof Yup.ValidationError) {
         const errors = getValidationErrors(err);
         formRef.current?.setErrors(errors);
@@ -97,7 +104,7 @@ const SignUp: React.FC = () => {
               placeholder='Senha'
             />
 
-            <Button type='submit'>Cadastrar</Button>
+            <Button disabled={isRegistering} type='submit'>{isRegistering ? "Cadastrando..." : "Cadastrar"}</Button>
           </Form>
 
           <Link to="/signin">
