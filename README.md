@@ -9,23 +9,23 @@
 <p align="center">The best way to keep track of weather on your region!</p>
 
 <p align="center">
-  <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/cassiogroh/WeatherHub?color=%233B5998">
+  <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/cassiogroh/WeatherHub-BaaS?color=%233B5998">
 
   <a href="https://www.linkedin.com/in/cassiogroh/" target="_blank" rel="noopener noreferrer">
     <img alt="Made by" src="https://img.shields.io/badge/made%20by-cassiogroh-%233B5998">
   </a>
 
-  <img alt="Repository size" src="https://img.shields.io/github/repo-size/cassiogroh/WeatherHub?color=%233B5998">
+  <img alt="Repository size" src="https://img.shields.io/github/repo-size/cassiogroh/WeatherHub-BaaS?color=%233B5998">
 
-  <a href="https://github.com/cassiogroh/WeatherHub/commits/master">
-    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/cassiogroh/WeatherHub?color=%233B5998">
+  <a href="https://github.com/cassiogroh/WeatherHub-BaaS/commits/master">
+    <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/cassiogroh/WeatherHub-BaaS?color=%233B5998">
   </a>
 
-  <a href="https://github.com/cassiogroh/WeatherHub/issues">
-    <img alt="Repository issues" src="https://img.shields.io/github/issues/cassiogroh/WeatherHub?color=%233B5998">
+  <a href="https://github.com/cassiogroh/WeatherHub-BaaS/issues">
+    <img alt="Repository issues" src="https://img.shields.io/github/issues/cassiogroh/WeatherHub-BaaS?color=%233B5998">
   </a>
 
-  <img alt="GitHub" src="https://img.shields.io/github/license/cassiogroh/WeatherHub?color=%233B5998">
+  <img alt="GitHub" src="https://img.shields.io/github/license/cassiogroh/WeatherHub-BaaS?color=%233B5998">
 </p>
 
 <p align="center">
@@ -35,7 +35,7 @@
 </p>
 
 <p align="center">
-  <img alt="WeatherHub" src=".github/view.png" width="70%">
+  <img alt="WeatherHub-BaaS" src=".github/view.png" width="70%">
 </p>
 
 ## 💇🏻‍♂️ About the project
