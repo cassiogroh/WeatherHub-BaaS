@@ -8,7 +8,6 @@ import { Container, AskLocation, ForecastTodayContainer, DaylyForecastContainer 
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import Loader from 'react-loader-spinner';
-import mock from './mock.json';
 
 interface Location {
   latitude: number;
@@ -30,7 +29,7 @@ const Home: React.FC = () => {
     const latitude = location.latitude;
     const longitude = location.longitude;
 
-    const responseData: ResponseProps = await callableFunction("getForecast", { latitude, longitude }, mock);
+    const responseData: ResponseProps = await callableFunction("getForecast", { latitude, longitude });
 
     setForecastToday(responseData.forecastToday);
     setDaylyForecast(responseData.daylyForecast);

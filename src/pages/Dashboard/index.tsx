@@ -9,7 +9,6 @@ import ToggleStats from '../../components/ToggleStats';
 import { useAuth } from '../../hooks/auth';
 import { useToast } from '../../hooks/toast';
 import { callableFunction } from '../../services/api';
-import mock from './mock.json';
 
 import { Container, StationsStats } from './styles';
 
@@ -51,7 +50,7 @@ const Dashboard: React.FC = () => {
     const loadStationsData = async () => {
       const userId = user.userId;
 
-      const data: ResponseProps = await callableFunction("loadStations", { userId }, mock);
+      const data: ResponseProps = await callableFunction("loadStations", { userId });
 
       setStationsHistoric(data.stationsHistoric);
       setStationsCurrent(data.stationsCurrent);
@@ -133,8 +132,7 @@ const Dashboard: React.FC = () => {
     }
 
     try {
-      const data: ResponseProps = await callableFunction("addNewStation", { stationId, userId: user.userId }, mock);
-
+      const data: ResponseProps = await callableFunction("addNewStation", { stationId, userId: user.userId });
       addToast({
         type: 'success',
         title: 'ID: ' + stationId,
