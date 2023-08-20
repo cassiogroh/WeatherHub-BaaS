@@ -16,4 +16,9 @@ export const Container = styled.button`
   &:hover { 
     filter: brightness(80%);
   }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 `;

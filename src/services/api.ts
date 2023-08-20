@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { connectFunctionsEmulator, getFunctions, httpsCallable } from "firebase/functions";
+import { getFunctions, httpsCallable } from "firebase/functions";
 
 import { firebaseConfig } from "./environments/production";
 
@@ -21,6 +21,6 @@ const callableFunction = async (functionName: string, params?: any, mockData?: a
 }
 
 // Use functions emulator (comment out for production)
-connectFunctionsEmulator(functions, '127.0.0.1', 5001); // import from "firebase/functions"
+// connectFunctionsEmulator(functions, '127.0.0.1', 5001); // import from "firebase/functions"
 
 export { firestore, functions, auth, callableFunction };

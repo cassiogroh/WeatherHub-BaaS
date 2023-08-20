@@ -17,6 +17,7 @@ import getValidationErrors from '../../utils/getValidationErrors';
 
 import { Container, Content } from './styles';
 import { callableFunction } from '../../services/api';
+import { signIntoFirebase } from '../../functions/signIn';
 
 interface ProfileFormData {
   name: string;
@@ -76,8 +77,22 @@ const Profile: React.FC = () => {
           }
         : {})
       };
-
+      
       setIsUpdatingProfile(true);
+      if (old_password) {
+        try {
+          await signIntoFirebase(user.email, old_password);
+        } catch (err) {
+          addToast({
+            type: 'error',
+            title: 'Senha atual incorreta.',
+            description: 'Tente novamente.'
+          });
+          setIsUpdatingProfile(false);
+          return;
+        }
+      }
+
       await callableFunction("updateProfile", formData);
 
       const mockUser = { ...user };
