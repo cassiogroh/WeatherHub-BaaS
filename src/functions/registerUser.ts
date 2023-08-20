@@ -12,8 +12,8 @@ export async function registerUser(name: string, email: string, password: string
       userId: user.uid,
       name,
       email,
-      stations: [],
-      stations_names: [],
+      stations: ["ISANTACA85"],
+      stations_names: ["Brusque - Centro"],
       created_at: (new Date()).toUTCString()
     };
 

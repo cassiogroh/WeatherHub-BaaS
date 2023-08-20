@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
 
   return (
     <Container>
-      <p>Copyrights
+      <p>
         <a href={process.env.REACT_APP_URL}>©WeatherHub</a>
         {currentYear}
         <img src={logoImg} alt="WeatherHub"/>
