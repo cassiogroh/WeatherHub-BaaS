@@ -2,7 +2,6 @@ import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FiUser, FiMail, FiLock } from 'react-icons/fi';
-import { useHistory } from 'react-router-dom';
 import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -33,8 +32,6 @@ const Profile: React.FC = () => {
   const { user, updateUser } = useAuth();
 
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
-
-  const history  = useHistory();
 
   const handleSubmit = useCallback(async (data: ProfileFormData) => {
     try {
@@ -68,6 +65,7 @@ const Profile: React.FC = () => {
       const { name, email, old_password, password, password_confirmation } = data;
 
       const formData = {
+        userId: user.userId,
         name,
         email,
         ...(old_password
@@ -89,8 +87,6 @@ const Profile: React.FC = () => {
 
       updateUser(mockUser);
 
-      history.push('/dashboard');
-
       addToast({
         type: 'success',
         title: 'Perfil atualizado!',
@@ -100,29 +96,18 @@ const Profile: React.FC = () => {
       if (err instanceof Yup.ValidationError) {
         const errors = getValidationErrors(err)
         formRef.current?.setErrors(errors);
-
-        addToast({
-          type: 'error',
-          title: 'Erro na atualização do perfil.',
-          description: 'Tente novamente.'
-        });
-
         return;
-      } else {
-        addToast({
-          type: 'info',
-          title: 'A sessão expirou.',
-          description: 'Faça login novamente.'
-        });
-
-        localStorage.removeItem('@WeatherHub:token');
-        localStorage.removeItem('@WeatherHub:user');
-        history.push('/signin');
       }
+
+      addToast({
+        type: 'error',
+        title: 'Erro na atualização do perfil.',
+        description: 'Tente novamente.'
+      });
     }
 
     setIsUpdatingProfile(false);
-  }, [addToast, history, updateUser, user]);
+  }, [addToast, updateUser, user]);
 
   const user_since = useMemo(() => {
     if (!user.created_at) return "";

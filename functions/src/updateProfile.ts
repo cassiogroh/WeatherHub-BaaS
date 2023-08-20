@@ -1,7 +1,6 @@
-
+import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
-import { updateEmail, updatePassword, getAuth } from "firebase/auth";
-import { firestore } from ".";
+import { firestore } from "./index";
 
 interface Request {
   userId: string;
@@ -13,25 +12,23 @@ interface Request {
 export const updateProfileFunction = onCall(async (request) => {
   const { userId, name, email, password } = request.data as Request;
 
-  const auth = getAuth();
+  const auth = admin.auth();
+  const authUser = await auth.getUser(userId);
 
-  const authUser = auth.currentUser;
+  const userRef = firestore.collection('users').doc(userId);
 
-  if (!authUser) return { error: "User not found" };
-  
   try {
     if (name) {
-      await firestore
-        .collection('users')
-        .doc(userId)
-        .update({ name });
+      await userRef.update({ name });
     }
 
     if (email) {
-      await updateEmail(authUser, email);
+      await auth.updateUser(authUser.uid, { email });
+      await userRef.update({ email });
     }
+
     if (password) {
-      await updatePassword(authUser, password);
+      await auth.updateUser(authUser.uid, { password });
     }
 
     return { success: true };
