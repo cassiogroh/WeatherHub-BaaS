@@ -111,35 +111,35 @@ const StationCard: React.FC<RequestProps> = ({
     windSpeed
   } = currentData;
 
-  //@TODO Attribute variables even if there's not historic data
-  // if (historicData && historicData[currentHistoricDay]) {
-  var {
-    humidityHigh,
-    humidityLow,
-    humidityAvg,
-    tempHigh,
-    tempLow,
-    tempAvg,
-    windspeedHigh,
-    windspeedLow,
-    windspeedAvg,
-    windgustHigh,
-    windgustLow,
-    windgustAvg,
-    dewptHigh,
-    dewptLow,
-    dewptAvg,
-    windchillHigh,
-    windchillLow,
-    windchillAvg,
-    heatindexHigh,
-    heatindexLow,
-    heatindexAvg,
-    pressureMax,
-    pressureMin,
-    precipTotalHistoric,
-  } = historicData[currentHistoricDay];
-  // }
+  //@TODO Attribute variables even if there's no historic data
+  if (historicData && historicData[currentHistoricDay]) {
+    var {
+      humidityHigh,
+      humidityLow,
+      humidityAvg,
+      tempHigh,
+      tempLow,
+      tempAvg,
+      windspeedHigh,
+      windspeedLow,
+      windspeedAvg,
+      windgustHigh,
+      windgustLow,
+      windgustAvg,
+      dewptHigh,
+      dewptLow,
+      dewptAvg,
+      windchillHigh,
+      windchillLow,
+      windchillAvg,
+      heatindexHigh,
+      heatindexLow,
+      heatindexAvg,
+      pressureMax,
+      pressureMin,
+      precipTotalHistoric,
+    } = historicData[currentHistoricDay];
+  }
 
   const [inputFocus, setInputFocus] = useState(false);
   const [renameButtonFocus, setRenameButtonFocus] = useState(false);
