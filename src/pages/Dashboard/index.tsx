@@ -163,22 +163,21 @@ const Dashboard: React.FC = () => {
     }
     let d: dataInfo[] = [] as dataInfo[];
 
-    try {
-      stationsHistoric.forEach((stationData) => {
+    stationsHistoric.forEach((stationData) => {
+      if (!stationData[currentHistoricDay + 6]) {
+        d.push({
+          low: '',
+          max: '',
+          prec: ''
+        });
+      } else {
         d.push({
           low: String(stationData[currentHistoricDay + 6].tempLow).replace(/\./g, ','),
           max: String(stationData[currentHistoricDay + 6].tempHigh).replace(/\./g, ','),
           prec: Number(stationData[currentHistoricDay + 6].precipTotalHistoric) === 0 ? '' : String(stationData[currentHistoricDay + 6].precipTotalHistoric).replace(/\./g, ',')
         });
-      });
-    } catch (err) {
-      console.log(err)
-      d.push({
-        low: '',
-        max: '',
-        prec: ''
-      });
-    };
+      }
+    })
 
     let formattedData = '';
 
