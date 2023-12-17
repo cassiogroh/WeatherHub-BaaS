@@ -3,7 +3,7 @@ import { FiLogIn, FiMail, FiLock } from 'react-icons/fi';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/auth';
 import { useToast } from '../../hooks/toast';
@@ -30,7 +30,7 @@ const SignIn: React.FC = () => {
 
   const [isSigningIn, setIsSigningIn] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleSubmit= useCallback(async (data: SignInFormData) => {
     setIsSigningIn(true);
@@ -56,7 +56,7 @@ const SignIn: React.FC = () => {
       });
 
       setIsSigningIn(false);
-      history.push('/dashboard');
+      navigate('/dashboard');
     } catch (err) {
       setIsSigningIn(false);
 
@@ -73,7 +73,7 @@ const SignIn: React.FC = () => {
         description: 'Ocorreu um erro ao fazer login. Cheque suas credenciais e tente novamente.'
       });
     }
-  }, [signIn, addToast, history]);
+  }, [signIn, addToast, navigate]);
 
   return (
     <Container>

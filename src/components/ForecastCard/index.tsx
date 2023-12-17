@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import icons from '../../assets/png-icons';
 
 import { Container } from './styles';
 
@@ -73,12 +74,15 @@ const ForecastCard: React.FC<Request> = ({ daylyForecast }: Request) => {
     return formattedCurrentDay
   }, [daylyForecast.sunsetTimeLocal]);
 
+  const dayIcon = ('0' + daylyForecast.iconCode[0]).slice(-2) as keyof typeof icons;
+  const nightIcon = ('0' + daylyForecast.iconCode[1]).slice(-2) as keyof typeof icons;
+
   return (
     <Container >
       <h2>{daylyForecast.dayOfWeek}, {currentDay}</h2>
       <main>
         <div>
-          <img src={require(`../../assets/png-icons/${('0' + daylyForecast.iconCode[0]).slice(-2)}.png`)} alt="Forecast icon"/>
+          <img src={icons[dayIcon ?? 'na']} alt="Forecast icon"/>
           <h3>Dia</h3>
           <p>Temperatura: {daylyForecast.temperature[0]} °C</p>
           <p>{daylyForecast.windPhrase[0]}</p>
@@ -86,7 +90,7 @@ const ForecastCard: React.FC<Request> = ({ daylyForecast }: Request) => {
         </div>
 
         <div>
-          <img src={require(`../../assets/png-icons/${('0' + daylyForecast.iconCode[1]).slice(-2)}.png`)} alt="Forecast icon"/>
+          <img src={icons[nightIcon ?? 'na']} alt="Forecast icon"/>
           <h3>Noite</h3>
           <p>Temperatura: {daylyForecast.temperature[1]} °C</p>
           <p>{daylyForecast.windPhrase[1]}</p>

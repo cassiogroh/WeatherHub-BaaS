@@ -6,7 +6,7 @@ import { Container, NavBar } from './styles';
 
 interface HeaderProps {
   currentPage: string;
-};
+}
 
 const Header: React.FC<HeaderProps> = ({ currentPage }: HeaderProps) => {
   const user = localStorage.getItem('@WeatherHub:user');
@@ -35,16 +35,16 @@ const Header: React.FC<HeaderProps> = ({ currentPage }: HeaderProps) => {
         </div>
 
         <div>
-          {!!user ? 
-          <Link to="dashboard" pageName='Painel do usuário' currentPage={currentPage} activateNavbar={activateNavbar} onClick={setScrollToZero} />
+          {user ? 
+          <Link to="/dashboard" pageName='Painel do usuário' currentPage={currentPage} activateNavbar={activateNavbar} onClick={setScrollToZero} />
           : (
             <>
-              <Link to="signin" pageName='Login' currentPage={currentPage} activateNavbar={activateNavbar} />
-              <Link to="signup" pageName='Registrar' currentPage={currentPage} activateNavbar={activateNavbar} />
+              <Link to="/signin" pageName='Login' currentPage={currentPage} activateNavbar={activateNavbar} />
+              <Link to="/signup" pageName='Registrar' currentPage={currentPage} activateNavbar={activateNavbar} />
             </>
           )
           }
-          <Link to="about" pageName='Sobre' currentPage={currentPage} activateNavbar={activateNavbar} />
+          <Link to="/about" pageName='Sobre' currentPage={currentPage} activateNavbar={activateNavbar} />
         </div>
       </NavBar>
     </Container>
