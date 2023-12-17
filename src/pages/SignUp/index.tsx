@@ -4,7 +4,7 @@ import { FiMail, FiUser, FiLock, FiArrowLeft } from 'react-icons/fi';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { useToast } from '../../hooks/toast';
 import getValidationErrors from '../../utils/getValidationErrors';
@@ -27,7 +27,7 @@ interface SignUpFormData {
 const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const { addToast } = useToast();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const [isRegistering, setIsRegistering] = useState(false);
 
@@ -56,7 +56,7 @@ const SignUp: React.FC = () => {
       await registerUser(name, email, password);
 
       setIsRegistering(false);
-      history.push('signin');
+      navigate('signin');
 
       addToast({
         type: 'success',
@@ -79,7 +79,7 @@ const SignUp: React.FC = () => {
         description: 'Ocorreu um erro ao fazer o cadastro. Tente novamente.'
       })
     }
-  }, [addToast, history]);
+  }, [addToast, navigate]);
 
   return (
     <Container>

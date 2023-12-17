@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/auth';
 
@@ -7,23 +7,23 @@ import { Container, Button } from './styles';
 
 interface ProfileHeaderProps {
   currentPage: string;
-};
+}
 
 const ProfileHeader: React.FC<ProfileHeaderProps> = ({ currentPage }) => {
   const { signOut } = useAuth();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleNavigateToStationsPage = useCallback(() => {
-    history.push('dashboard')
-  }, [history]);
+    navigate('dashboard')
+  }, [navigate]);
 
   const handleNavigateToProfileInfo = useCallback(() => {
-    history.push('profile')
-  }, [history]);
+    navigate('profile')
+  }, [navigate]);
 
   const handleNavigateToInfo = useCallback(() => {
-    history.push('info')
-  }, [history]);
+    navigate('info')
+  }, [navigate]);
 
   return (
     <Container>

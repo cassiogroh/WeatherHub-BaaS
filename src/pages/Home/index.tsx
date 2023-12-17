@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { callableFunction } from '../../services/api';
+import icons from '../../assets/png-icons';
 
 import Header from '../../components/Header';
 import ForecastCard, { DaylyForecast, ForecastToday } from '../../components/ForecastCard';
@@ -36,7 +37,7 @@ const Home: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    window.navigator.geolocation.getCurrentPosition(position => setLocation(position.coords), err => setEnableLocation(false));
+    window.navigator.geolocation.getCurrentPosition(position => setLocation(position.coords), () => setEnableLocation(false));
   }, [setLocation, setEnableLocation]);
 
   const sunRiseTime = useMemo(() => {
@@ -80,6 +81,9 @@ const Home: React.FC = () => {
       return null;
     }
   }, [forecastToday.sunsetTimeLocal]);
+
+  const iconCode = ('0' + forecastToday.iconCode).slice(-2) as keyof typeof icons;
+  const icon = icons[iconCode ?? 'na'];
   
   return (
     <>
@@ -94,11 +98,8 @@ const Home: React.FC = () => {
         </AskLocation>
         : (
           forecastToday.dayOrNight ?
-            <ForecastTodayContainer>
-            {forecastToday.iconCode ?
-              <img src={require(`../../assets/png-icons/${('0' + forecastToday.iconCode).slice(-2)}.png`)} alt="Forecast icon"/> :
-              <img src={require(`../../assets/png-icons/na.png`)} alt="Forecast icon"/>  
-            }
+          <ForecastTodayContainer>
+            <img src={icon} alt="Forecast icon"/>
             <main>
               <h2>{forecastToday.dayOfWeek} {currentDay ? ', ' + currentDay : ''}</h2>
 

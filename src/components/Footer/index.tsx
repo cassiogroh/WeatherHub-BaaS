@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
   return (
     <Container>
       <p>
-        <a href={process.env.REACT_APP_URL}>©WeatherHub</a>
+        <a href={import.meta.env.VITE_APP_URL}>©WeatherHub</a>
         {currentYear}
         <img src={logoImg} alt="WeatherHub"/>
       </p>

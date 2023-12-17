@@ -1,6 +1,6 @@
 import  React, { createContext, useCallback, useState, useContext, useEffect } from 'react';
 import { onAuthStateChanged, signOut as signOutFromFirebase } from 'firebase/auth';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { auth } from '../services/api';
 import { signIntoFirebase } from '../functions/signIn';
@@ -13,24 +13,24 @@ export interface User {
   stations: string[],
   stations_names: string[],
   created_at: string
-};
+}
 
 interface SignInCredentials {
   email: string;
   password: string;
-};
+}
 
 interface AuthContextData {
   user: User;
   signIn(credentials: SignInCredentials): Promise<void>;
   signOut(): void;
   updateUser(user: User): void;
-};
+}
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
 export const AuthProvider: React.FC = ({ children }) => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const userMock = {} as User;
   const [user, setUser] = useState<User>(userMock);
 
@@ -72,8 +72,8 @@ export const AuthProvider: React.FC = ({ children }) => {
 
     setUser({} as User);
 
-    history.push('/');
-  }, [history]);
+    navigate('/');
+  }, [navigate]);
   
   const updateUser = useCallback((user: User) => {
     localStorage.setItem('@WeatherHub:user', JSON.stringify(user));

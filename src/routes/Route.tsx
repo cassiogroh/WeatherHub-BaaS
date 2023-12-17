@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Route as ReactDOMRoute,
   RouteProps as ReactDOMRouteProps,
-  Redirect
+  useNavigate
 } from 'react-router-dom';
 
 import { useAuth } from '../hooks/auth';
@@ -10,10 +10,11 @@ import { useAuth } from '../hooks/auth';
 interface RouteProps extends ReactDOMRouteProps {
   isPrivate?: boolean;
   component: React.ComponentType;
-};
+}
 
 const Route: React.FC<RouteProps> = ({ isPrivate = false, component: Component, ...rest }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <ReactDOMRoute
@@ -23,15 +24,11 @@ const Route: React.FC<RouteProps> = ({ isPrivate = false, component: Component, 
           <Component />
         ) : (
           isPrivate && !user ?
-          <Redirect to={{
-            pathname: '/signin',
-            state: { from: location }
-          }}/> :
-          <Component />
-        )
+          navigate('/signin') : null
+        );
       }}
     />
-  )
+  );
 };
 
 export default Route;
