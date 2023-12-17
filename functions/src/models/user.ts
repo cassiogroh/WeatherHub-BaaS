@@ -5,4 +5,4 @@ export interface User {
   stations: string[],
   stations_names: string[],
   created_at: string
-};
+}

@@ -87,7 +87,7 @@ const ToggleStats: React.FC<Request> = ({
         title: 'Aguarde',
         description: 'Dados históricos estão disponíveis apenas após 00:15 h'
       })
-    };
+    }
 
     return permitedTime;
   }, [addToast]);

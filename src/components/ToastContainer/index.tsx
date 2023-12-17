@@ -7,7 +7,7 @@ import { Container } from './styles';
 
 interface ToastCointainer {
   messages: ToastMessage[];
-};
+}
 
 const ToastCointainer: React.FC<ToastCointainer> = ({ messages }) => {
   const messagesWithTransitions = useTransition(

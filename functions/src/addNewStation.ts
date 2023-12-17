@@ -20,15 +20,15 @@ export const addNewStationFunction = onCall(async (request) => {
 
   const checkStationExists = (): void => {
     const stationExists = user.stations.find(station => station === upperStationId);
-    if (!!stationExists) {
+    if (stationExists) {
       throw new Error('Station alredy included');
     }
   };
 
-  const checkStationIsValid = async (): Promise<any> => {
+  const checkStationIsValid = async () => {
     const response = 
       await fetch(getCurrentConditionsUrl(upperStationId))
-      .catch(err => {
+      .catch(() => {
         throw new Error('Invalid station ID or station is currently offline');
       });
 

@@ -33,6 +33,9 @@ const eslintConfig = {
     "object-curly-spacing": ["error", "always"],
     "no-var": "off",
     "max-len": "off",
+    "dot-location": ["error", "property"],
+    "comma-dangle": ["error", "always-multiline"], // enforce trailing comma
+    "eol-last": ["error", "always"], // enforce empty line at the end of files
   },
 };
 

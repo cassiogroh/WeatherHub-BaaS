@@ -24,7 +24,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
     urlArray.map((urls, index) =>
       fetch(urls.urlCurrent)
         .then(response => response.json())
-        .catch(err => offlineStations.push(urlArray[index].stationID))
+        .catch(() => offlineStations.push(urlArray[index].stationID))
     )
   )
 
@@ -48,10 +48,10 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
   }
 
   stationsCurrentData.forEach((data) => {
-    let station: StationProps = {} as StationProps;
+    const station: StationProps = {} as StationProps;
 
     if (data.status === 'fulfilled' && isNaN(data.value) ) {
-      let {
+      const {
         dewpt,
         elev,
         heatIndex,
@@ -64,7 +64,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
         windSpeed
       } = data.value.observations[0][unitSystem];
 
-      let { humidity } = data.value.observations[0]
+      const { humidity } = data.value.observations[0]
 
       station.neighborhood = data.value.observations[0].neighborhood;
       station.stationID = data.value.observations[0].stationID;
@@ -122,7 +122,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
 
   isQuarterAfterMidnight() && stationsHistoricData ?
   stationsHistoricData.forEach(data => {
-    let station: StationProps[] = [] as StationProps[];
+    const station: StationProps[] = [] as StationProps[];
 
     if (data.status === 'fulfilled' && isNaN(data.value) && data.value) {
       
@@ -182,10 +182,10 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
         })
       });
 
-      data.value.summaries.forEach((historicData: any, index: number) => {
-        let stationHistoric: StationProps = {} as StationProps;
+      data.value.summaries.forEach((historicData: any) => {
+        const stationHistoric: StationProps = {} as StationProps;
 
-        let {
+        const {
           tempHigh,
           tempLow,
           tempAvg,
@@ -210,7 +210,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
         }
         = historicData[unitSystem];
 
-        let {
+        const {
           humidityLow,
           humidityAvg,
           humidityHigh
@@ -247,7 +247,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
       stationsHistoric.push(station);
       
     } else {
-      let stationHistoric: StationProps = {} as StationProps;
+      const stationHistoric: StationProps = {} as StationProps;
 
       for (let index = 0; index < 7; index++) {
         stationHistoric.humidityHigh = '';

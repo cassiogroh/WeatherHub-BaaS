@@ -115,11 +115,11 @@ const Dashboard: React.FC = () => {
       });
 
       return;
-    };
+    }
     
     const alreadyExists = stationsCurrent.find(station => station.stationID === stationId);
 
-    if (!!alreadyExists) {
+    if (alreadyExists) {
       addToast({
         type: 'info',
         title: 'ID: ' + stationId,
@@ -161,7 +161,7 @@ const Dashboard: React.FC = () => {
       max: string | number;
       prec: string | number;
     }
-    let d: dataInfo[] = [] as dataInfo[];
+    const d: dataInfo[] = [] as dataInfo[];
 
     stationsHistoric.forEach((stationData) => {
       if (!stationData[currentHistoricDay + 6]) {

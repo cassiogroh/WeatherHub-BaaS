@@ -164,7 +164,7 @@ const StationCard: React.FC<RequestProps> = ({
       await callableFunction("renameStation", { stationId, newName, userId: user.userId });
       
       !!newName && setStationName(newName);
-    };
+    }
 
     setRename(false);
   }, [user.userId]);
@@ -179,7 +179,7 @@ const StationCard: React.FC<RequestProps> = ({
         return setDeleteButtonFocus(true);
       default:
         return null;
-    };
+    }
   }, []);
 
   const handleBlur = useCallback((focusedVariable: string) => {

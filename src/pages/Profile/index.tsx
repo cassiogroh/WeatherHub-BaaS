@@ -25,7 +25,7 @@ interface ProfileFormData {
   old_password: string;
   password: string;
   password_confirmation: string;
-};
+}
 
 const Profile: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
