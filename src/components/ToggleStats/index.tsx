@@ -1,13 +1,13 @@
-import React, { FormEvent, useCallback, useMemo, useRef } from 'react';
-import { FiArrowLeftCircle, FiArrowRightCircle, FiPlus } from 'react-icons/fi';
-import { format, isAfter, getDate, getMonth, getYear } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import React, { FormEvent, useCallback, useMemo, useRef } from "react";
+import { FiArrowLeftCircle, FiArrowRightCircle, FiPlus } from "react-icons/fi";
+import { format, isAfter, getDate, getMonth, getYear } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-import InputOption from './InputOption';
-import { useToast } from '../../hooks/toast';
+import InputOption from "./InputOption";
+import { useToast } from "../../hooks/toast";
 
-import { Container, Options, OptionsHeader, HistoricOptions, ExclusiveButton, AddStationForm } from './styles';
-import { useAuth } from '../../hooks/auth';
+import { Container, Options, OptionsHeader, HistoricOptions, ExclusiveButton, AddStationForm } from "./styles";
+import { useAuth } from "../../hooks/auth";
 
 interface Request {
   handleInputCheck(value: boolean | undefined, name: string): void;
@@ -51,8 +51,8 @@ const ToggleStats: React.FC<Request> = ({
   const formattedDate = useMemo(() => {
     const date = format(
       Date.now(),
-      `dd'/'MMM'/'yyyy 'às' HH':'mm 'h'`,
-      { locale: ptBR }
+      "dd'/'MMM'/'yyyy 'às' HH':'mm 'h'",
+      { locale: ptBR },
     );
 
     return date;
@@ -62,8 +62,8 @@ const ToggleStats: React.FC<Request> = ({
     const now = Date.now();
     const date = format(
       new Date(getYear(now), getMonth(now), getDate(now) + currentHistoricDay),
-      `dd'/'MMM'`,
-      { locale: ptBR }
+      "dd'/'MMM'",
+      { locale: ptBR },
     );
 
     return date;
@@ -83,9 +83,9 @@ const ToggleStats: React.FC<Request> = ({
 
     if (!permitedTime) {
       addToast({
-        type: 'info',
-        title: 'Aguarde',
-        description: 'Dados históricos estão disponíveis apenas após 00:15 h'
+        type: "info",
+        title: "Aguarde",
+        description: "Dados históricos estão disponíveis apenas após 00:15 h",
       })
     }
 
@@ -124,19 +124,19 @@ const ToggleStats: React.FC<Request> = ({
           </div>
         </HistoricOptions>
       
-        <InputOption name='Temperatura' propName={'temp'} handleInputCheck={handleInputCheck} checked />
-        <InputOption name='Ponto de orvalho' propName={'dewpt'} handleInputCheck={handleInputCheck} />
-        <InputOption name='Índice de calor' propName={'heatIndex'} handleInputCheck={handleInputCheck} />
-        <InputOption name='Sensação térmica' propName={'windChill'} handleInputCheck={handleInputCheck} />
-        <InputOption name='Humidade relativa' propName={'humidity'} handleInputCheck={handleInputCheck} checked />
-        <InputOption name='Precipitação total' propName={'precipTotal'} handleInputCheck={handleInputCheck} checked />
-        <InputOption name='Taxa de precipitação' propName={'precipRate'} handleInputCheck={handleInputCheck} disabled={toggleInputSlider} />
-        <InputOption name='Rajada de vento' propName={'windGust'} handleInputCheck={handleInputCheck} />
-        <InputOption name='Velocidade do vento' propName={'windSpeed'} handleInputCheck={handleInputCheck} />
-        <InputOption name='Pressão atmosférica' propName={'pressure'} handleInputCheck={handleInputCheck} />
-        <InputOption name='Elevação' propName={'elev'} handleInputCheck={handleInputCheck} disabled={toggleInputSlider} />
+        <InputOption name='Temperatura' propName={"temp"} handleInputCheck={handleInputCheck} checked />
+        <InputOption name='Ponto de orvalho' propName={"dewpt"} handleInputCheck={handleInputCheck} />
+        <InputOption name='Índice de calor' propName={"heatIndex"} handleInputCheck={handleInputCheck} />
+        <InputOption name='Sensação térmica' propName={"windChill"} handleInputCheck={handleInputCheck} />
+        <InputOption name='Humidade relativa' propName={"humidity"} handleInputCheck={handleInputCheck} checked />
+        <InputOption name='Precipitação total' propName={"precipTotal"} handleInputCheck={handleInputCheck} checked />
+        <InputOption name='Taxa de precipitação' propName={"precipRate"} handleInputCheck={handleInputCheck} disabled={toggleInputSlider} />
+        <InputOption name='Rajada de vento' propName={"windGust"} handleInputCheck={handleInputCheck} />
+        <InputOption name='Velocidade do vento' propName={"windSpeed"} handleInputCheck={handleInputCheck} />
+        <InputOption name='Pressão atmosférica' propName={"pressure"} handleInputCheck={handleInputCheck} />
+        <InputOption name='Elevação' propName={"elev"} handleInputCheck={handleInputCheck} disabled={toggleInputSlider} />
         {
-          (user.email === 'cirogroh@yahoo.com.br' || user.email === 'cassiogroh@gmail.com') &&
+          (user.email === "cirogroh@yahoo.com.br" || user.email === "cassiogroh@gmail.com") &&
           <ExclusiveButton
             onClick={copyData}
             type='button'

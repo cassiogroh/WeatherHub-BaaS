@@ -1,6 +1,6 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes } from "styled-components";
 
-import backgroundImg from '../../assets/thunder-storm.svg';
+import backgroundImg from "../../assets/thunder-storm.svg";
 
 export const Container = styled.div`
 `;

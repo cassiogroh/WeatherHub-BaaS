@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 import {
   Route as ReactDOMRoute,
   RouteProps as ReactDOMRouteProps,
-  useNavigate
-} from 'react-router-dom';
+  useNavigate,
+} from "react-router-dom";
 
-import { useAuth } from '../hooks/auth';
+import { useAuth } from "../hooks/auth";
 
 interface RouteProps extends ReactDOMRouteProps {
   isPrivate?: boolean;
@@ -24,7 +24,7 @@ const Route: React.FC<RouteProps> = ({ isPrivate = false, component: Component, 
           <Component />
         ) : (
           isPrivate && !user ?
-          navigate('/signin') : null
+            navigate("/signin") : null
         );
       }}
     />

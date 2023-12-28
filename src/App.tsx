@@ -1,11 +1,11 @@
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter as Router } from "react-router-dom";
 
-import AppProvider from './hooks';
-import Footer from './components/Footer';
+import AppProvider from "./hooks";
+import Footer from "./components/Footer";
 
-import GlobalStyle from './styles/global';
+import GlobalStyle from "./styles/global";
 
-import Routes from './routes';
+import Routes from "./routes";
 
 function App() {
   return (

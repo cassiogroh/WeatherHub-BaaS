@@ -14,7 +14,7 @@ export interface StationProps {
   windChill: number;
   windGust: number;
   windSpeed: number;
-  status: 'online' | 'offline';
+  status: "online" | "offline";
 
   humidityHigh: number | string;
   humidityLow: number | string;
@@ -43,7 +43,7 @@ export interface StationProps {
 }
 
 export interface StationCurrentProps {
-  status: 'online' | 'offline';
+  status: "online" | "offline";
   stationID: string;
   name: string;
   url: string;

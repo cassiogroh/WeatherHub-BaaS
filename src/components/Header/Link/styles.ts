@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled, { css } from "styled-components";
 
 interface RequestProps {
   currentPage: string;
@@ -35,15 +35,15 @@ export const Container = styled.div<RequestProps>`
       transition: width .2s ease-out;
       
       ${props => props.currentPage === props.pageName ?
-      css`width: 100%;` :
-      css`width: 0;`
-      }
+    css`width: 100%;` :
+    css`width: 0;`
+}
       
       ${props => props.activateNavbar ?
-      css`
+    css`
       background: var(--primary-color);
       ` :
-      css`
+    css`
       background: var(--text-color);
       `}
 

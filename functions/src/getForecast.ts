@@ -69,7 +69,7 @@ export const getForecastFunction = onCall(async (request) => {
     relativeHumidity,
     precipChance,
     qpf,
-    windPhrase
+    windPhrase,
   } = dayPart ? dayPart[0] : {} as ForecastToday
 
   const forecastToday: ForecastToday = {} as ForecastToday;

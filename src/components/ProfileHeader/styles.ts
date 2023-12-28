@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled, { css } from "styled-components";
 
 export const Container = styled.div`
   display: flex;
@@ -16,12 +16,12 @@ interface ButtonProps {
 
 const handleBorderRadius = (position: number) => {
   switch (position) {
-    case 1:
-      return css`border-radius: 8px 0 0 8px;`
-    case 4:
-      return css`border-radius: 0 8px 8px 0;`
-    default:
-      return css`border-radius: 0;`
+  case 1:
+    return css`border-radius: 8px 0 0 8px;`
+  case 4:
+    return css`border-radius: 0 8px 8px 0;`
+  default:
+    return css`border-radius: 0;`
   }
 }
 
@@ -70,12 +70,12 @@ export const Button = styled.button<ButtonProps>`
       background-color: var(--text-color);
 
       ${props => props.currentPage ? (
-        props.currentPage === props.pageName ?
-          css`width: 100%;` :
-          css`width: 0;`
-        ) :
-        css`width: 0;`
-      }
+    props.currentPage === props.pageName ?
+      css`width: 100%;` :
+      css`width: 0;`
+  ) :
+    css`width: 0;`
+}
     }
 
     &:hover::after {

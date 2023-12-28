@@ -1,21 +1,21 @@
-import React, { useRef, useCallback, useState } from 'react';
-import { FiLogIn, FiMail, FiLock } from 'react-icons/fi';
-import { FormHandles } from '@unform/core';
-import { Form } from '@unform/web';
-import * as Yup from 'yup';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useRef, useCallback, useState } from "react";
+import { FiLogIn, FiMail, FiLock } from "react-icons/fi";
+import { FormHandles } from "@unform/core";
+import { Form } from "@unform/web";
+import * as Yup from "yup";
+import { Link, useNavigate } from "react-router-dom";
 
-import { useAuth } from '../../hooks/auth';
-import { useToast } from '../../hooks/toast';
-import getValidationErrors from '../../utils/getValidationErrors';
+import { useAuth } from "../../hooks/auth";
+import { useToast } from "../../hooks/toast";
+import getValidationErrors from "../../utils/getValidationErrors";
 
-import logoImg from '../../assets/full-logo.png';
+import logoImg from "../../assets/full-logo.png";
 
-import Header from '../../components/Header';
-import Input from '../../components/Input';
-import Button from '../../components/Button';
+import Header from "../../components/Header";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
 
-import { Container, Content, AnimationContainer, Background } from './styles';
+import { Container, Content, AnimationContainer, Background } from "./styles";
 
 interface SignInFormData {
   email: string;
@@ -40,10 +40,10 @@ const SignIn: React.FC = () => {
 
       const schema = Yup.object().shape({
         email: Yup.string()
-          .required('E-mail obrigatório')
-          .email('Digite um e-mail válido'),
+          .required("E-mail obrigatório")
+          .email("Digite um e-mail válido"),
         password: Yup.string()
-          .required('Senha obrigatória'),
+          .required("Senha obrigatória"),
       });
 
       await schema.validate(data, {
@@ -52,11 +52,11 @@ const SignIn: React.FC = () => {
 
       await signIn({
         email: data.email,
-        password: data.password
+        password: data.password,
       });
 
       setIsSigningIn(false);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err) {
       setIsSigningIn(false);
 
@@ -68,9 +68,9 @@ const SignIn: React.FC = () => {
       }
 
       addToast({
-        type: 'error',
-        title: 'Erro na autenticação',
-        description: 'Ocorreu um erro ao fazer login. Cheque suas credenciais e tente novamente.'
+        type: "error",
+        title: "Erro na autenticação",
+        description: "Ocorreu um erro ao fazer login. Cheque suas credenciais e tente novamente.",
       });
     }
   }, [signIn, addToast, navigate]);

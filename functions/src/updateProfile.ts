@@ -15,7 +15,7 @@ export const updateProfileFunction = onCall(async (request) => {
   const auth = admin.auth();
   const authUser = await auth.getUser(userId);
 
-  const userRef = firestore.collection('users').doc(userId);
+  const userRef = firestore.collection("users").doc(userId);
 
   try {
     if (name) {

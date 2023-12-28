@@ -5,7 +5,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 
 import { firebaseConfig } from "./environments/production";
 
-import mocks from './mocks.json';
+import mocks from "./mocks.json";
 
 const firebaseApp = initializeApp(firebaseConfig);
 

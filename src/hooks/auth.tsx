@@ -1,10 +1,10 @@
-import  React, { createContext, useCallback, useState, useContext, useEffect } from 'react';
-import { onAuthStateChanged, signOut as signOutFromFirebase } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import  React, { createContext, useCallback, useState, useContext, useEffect } from "react";
+import { onAuthStateChanged, signOut as signOutFromFirebase } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
-import { auth } from '../services/api';
-import { signIntoFirebase } from '../functions/signIn';
-import { getUserFromFirestore } from '../functions/getUser';
+import { auth } from "../services/api";
+import { signIntoFirebase } from "../functions/signIn";
+import { getUserFromFirestore } from "../functions/getUser";
 
 export interface User {
   userId: string,
@@ -29,14 +29,14 @@ interface AuthContextData {
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
 
-export const AuthProvider: React.FC = ({ children }) => {
+const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const userMock = {} as User;
   const [user, setUser] = useState<User>(userMock);
 
   useEffect(() => {
     const fetchData = async () => {
-      const storedUser = localStorage.getItem('@WeatherHub:user');
+      const storedUser = localStorage.getItem("@WeatherHub:user");
 
       if (!storedUser) return;
 
@@ -45,7 +45,7 @@ export const AuthProvider: React.FC = ({ children }) => {
       onAuthStateChanged(auth, async (authUser) => {
         if (authUser) {
           const firestoreUser = await getUserFromFirestore(userId);
-          localStorage.setItem('@WeatherHub:user', JSON.stringify(firestoreUser));
+          localStorage.setItem("@WeatherHub:user", JSON.stringify(firestoreUser));
           setUser(firestoreUser as any);
         } else {
           setUser({} as User);
@@ -56,27 +56,27 @@ export const AuthProvider: React.FC = ({ children }) => {
     fetchData();
   }, []);
 
-  const signIn = useCallback(async ({ email, password }) => {
+  const signIn = useCallback(async ({ email, password }: SignInCredentials) => {
     const authUser = await signIntoFirebase(email, password);
 
     const firestoreUser = await getUserFromFirestore(authUser.uid);
 
-    localStorage.setItem('@WeatherHub:user', JSON.stringify(firestoreUser));
+    localStorage.setItem("@WeatherHub:user", JSON.stringify(firestoreUser));
 
     setUser(firestoreUser  as any);
   }, []);
 
   const signOut = useCallback(async () => {
     await signOutFromFirebase(auth)
-    localStorage.removeItem('@WeatherHub:user');
+    localStorage.removeItem("@WeatherHub:user");
 
     setUser({} as User);
 
-    navigate('/');
+    navigate("/");
   }, [navigate]);
   
   const updateUser = useCallback((user: User) => {
-    localStorage.setItem('@WeatherHub:user', JSON.stringify(user));
+    localStorage.setItem("@WeatherHub:user", JSON.stringify(user));
 
     setUser(user)
   }, [setUser]);
@@ -88,8 +88,11 @@ export const AuthProvider: React.FC = ({ children }) => {
   )
 };
 
-export function useAuth(): AuthContextData {
+function useAuth(): AuthContextData {
   const context = useContext(AuthContext);
-
+  
   return context;
 }
+
+// eslint-disable-next-line react-refresh/only-export-components
+export { AuthProvider, useAuth };

@@ -97,7 +97,7 @@ const icons = {
   "45": icon45,
   "46": icon46,
   "47": icon47,
-  "na": iconna
+  "na": iconna,
 };
 
 export default icons;

@@ -1,23 +1,23 @@
-import { FormHandles } from '@unform/core';
-import { Form } from '@unform/web';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { FiUser, FiMail, FiLock } from 'react-icons/fi';
-import * as Yup from 'yup';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { FormHandles } from "@unform/core";
+import { Form } from "@unform/web";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { FiUser, FiMail, FiLock } from "react-icons/fi";
+import * as Yup from "yup";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-import Header from '../../components/Header';
-import ProfileHeader from '../../components/ProfileHeader';
-import Button from '../../components/Button';
-import Input from '../../components/Input';
+import Header from "../../components/Header";
+import ProfileHeader from "../../components/ProfileHeader";
+import Button from "../../components/Button";
+import Input from "../../components/Input";
 
-import { useAuth } from '../../hooks/auth';
-import { useToast } from '../../hooks/toast';
-import getValidationErrors from '../../utils/getValidationErrors';
+import { useAuth } from "../../hooks/auth";
+import { useToast } from "../../hooks/toast";
+import getValidationErrors from "../../utils/getValidationErrors";
 
-import { Container, Content } from './styles';
-import { callableFunction } from '../../services/api';
-import { signIntoFirebase } from '../../functions/signIn';
+import { Container, Content } from "./styles";
+import { callableFunction } from "../../services/api";
+import { signIntoFirebase } from "../../functions/signIn";
 
 interface ProfileFormData {
   name: string;
@@ -40,23 +40,23 @@ const Profile: React.FC = () => {
 
       const schema = Yup.object().shape({
         name: Yup.string()
-          .required('Nome obrigatório'),
+          .required("Nome obrigatório"),
         email: Yup.string()
-          .required('E-mail obrigatório')
-          .email('Digite um e-mail válido'),
+          .required("E-mail obrigatório")
+          .email("Digite um e-mail válido"),
         old_password: Yup.string(),
-        password: Yup.string().when('old_password', {
+        password: Yup.string().when("old_password", {
           is: val => !!val.length,
-          then: Yup.string().min(6, 'Mínimo 6 dígitos').required('Campo obrigatório'),
-          otherwise: Yup.string()
+          then: Yup.string().min(6, "Mínimo 6 dígitos").required("Campo obrigatório"),
+          otherwise: Yup.string(),
         }),
         password_confirmation: Yup.string()
-        .when('old_password', {
-          is: val => !!val.length,
-          then: Yup.string().min(6, 'Mínimo 6 dígitos').required('Campo obrigatório'),
-          otherwise: Yup.string()
-        })
-        .oneOf([Yup.ref('password')], 'Confirmação incorreta')
+          .when("old_password", {
+            is: val => !!val.length,
+            then: Yup.string().min(6, "Mínimo 6 dígitos").required("Campo obrigatório"),
+            otherwise: Yup.string(),
+          })
+          .oneOf([Yup.ref("password")], "Confirmação incorreta"),
       });
 
       await schema.validate(data, {
@@ -70,12 +70,12 @@ const Profile: React.FC = () => {
         name,
         email,
         ...(old_password
-        ? {
+          ? {
             old_password,
             password,
-            password_confirmation
+            password_confirmation,
           }
-        : {})
+          : {}),
       };
       
       setIsUpdatingProfile(true);
@@ -84,9 +84,9 @@ const Profile: React.FC = () => {
           await signIntoFirebase(user.email, old_password);
         } catch (err) {
           addToast({
-            type: 'error',
-            title: 'Senha atual incorreta.',
-            description: 'Tente novamente.'
+            type: "error",
+            title: "Senha atual incorreta.",
+            description: "Tente novamente.",
           });
           setIsUpdatingProfile(false);
           return;
@@ -103,8 +103,8 @@ const Profile: React.FC = () => {
       updateUser(mockUser);
 
       addToast({
-        type: 'success',
-        title: 'Perfil atualizado!',
+        type: "success",
+        title: "Perfil atualizado!",
       });
 
     } catch (err) {
@@ -115,9 +115,9 @@ const Profile: React.FC = () => {
       }
 
       addToast({
-        type: 'error',
-        title: 'Erro na atualização do perfil.',
-        description: 'Tente novamente.'
+        type: "error",
+        title: "Erro na atualização do perfil.",
+        description: "Tente novamente.",
       });
     }
 
@@ -129,8 +129,8 @@ const Profile: React.FC = () => {
 
     const date = format(
       new Date(user.created_at),
-      `dd '/' MMM '/' yyyy`,
-      { locale: ptBR }
+      "dd '/' MMM '/' yyyy",
+      { locale: ptBR },
     )
     
     return date;
@@ -146,7 +146,7 @@ const Profile: React.FC = () => {
           ref={formRef}
           initialData={{
             name: user.name,
-            email: user.email
+            email: user.email,
           }}
           onSubmit={handleSubmit}
         >

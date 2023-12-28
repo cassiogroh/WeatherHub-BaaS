@@ -1,22 +1,22 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from "react";
 
-import { FiMail, FiUser, FiLock, FiArrowLeft } from 'react-icons/fi';
-import { FormHandles } from '@unform/core';
-import { Form } from '@unform/web';
-import * as Yup from 'yup';
-import { Link, useNavigate } from 'react-router-dom';
+import { FiMail, FiUser, FiLock, FiArrowLeft } from "react-icons/fi";
+import { FormHandles } from "@unform/core";
+import { Form } from "@unform/web";
+import * as Yup from "yup";
+import { Link, useNavigate } from "react-router-dom";
 
-import { useToast } from '../../hooks/toast';
-import getValidationErrors from '../../utils/getValidationErrors';
+import { useToast } from "../../hooks/toast";
+import getValidationErrors from "../../utils/getValidationErrors";
 
-import fullLogoImg from '../../assets/full-logo.png';
+import fullLogoImg from "../../assets/full-logo.png";
 
-import Header from '../../components/Header';
-import Input from '../../components/Input';
-import Button from '../../components/Button';
+import Header from "../../components/Header";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
 
-import { Container, Background, Content, AnimationContainer } from './styles';
-import { registerUser } from '../../functions/registerUser';
+import { Container, Background, Content, AnimationContainer } from "./styles";
+import { registerUser } from "../../functions/registerUser";
 
 interface SignUpFormData {
   name: string;
@@ -39,16 +39,16 @@ const SignUp: React.FC = () => {
 
       const schema = Yup.object().shape({
         name: Yup.string()
-          .required('Nome obrigatório'),
+          .required("Nome obrigatório"),
         email: Yup.string()
-          .required('E-mail obrigatório')
-          .email('Digite um e-mail válido'),
+          .required("E-mail obrigatório")
+          .email("Digite um e-mail válido"),
         password: Yup.string()
-          .min(6, 'Mínimo 6 dígitos')
+          .min(6, "Mínimo 6 dígitos"),
       });
 
       await schema.validate(data, {
-        abortEarly: false
+        abortEarly: false,
       });
 
       const { name, email, password } = data;
@@ -56,12 +56,12 @@ const SignUp: React.FC = () => {
       await registerUser(name, email, password);
 
       setIsRegistering(false);
-      navigate('signin');
+      navigate("signin");
 
       addToast({
-        type: 'success',
-        title: 'Cadastro realizado!',
-        description: 'Você já pode fazer seu login no WeatherHub'
+        type: "success",
+        title: "Cadastro realizado!",
+        description: "Você já pode fazer seu login no WeatherHub",
       });
 
     } catch (err) {
@@ -74,9 +74,9 @@ const SignUp: React.FC = () => {
       }
 
       addToast({
-        type: 'error',
-        title: 'Erro no cadastro',
-        description: 'Ocorreu um erro ao fazer o cadastro. Tente novamente.'
+        type: "error",
+        title: "Erro no cadastro",
+        description: "Ocorreu um erro ao fazer o cadastro. Tente novamente.",
       })
     }
   }, [addToast, navigate]);

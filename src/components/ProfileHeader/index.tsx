@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { useAuth } from '../../hooks/auth';
+import { useAuth } from "../../hooks/auth";
 
-import { Container, Button } from './styles';
+import { Container, Button } from "./styles";
 
 interface ProfileHeaderProps {
   currentPage: string;
@@ -14,15 +14,15 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ currentPage }) => {
   const navigate = useNavigate();
 
   const handleNavigateToStationsPage = useCallback(() => {
-    navigate('dashboard')
+    navigate("dashboard")
   }, [navigate]);
 
   const handleNavigateToProfileInfo = useCallback(() => {
-    navigate('profile')
+    navigate("profile")
   }, [navigate]);
 
   const handleNavigateToInfo = useCallback(() => {
-    navigate('info')
+    navigate("info")
   }, [navigate]);
 
   return (

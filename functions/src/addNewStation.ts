@@ -15,25 +15,25 @@ export const addNewStationFunction = onCall(async (request) => {
 
   const upperStationId = stationId.toUpperCase();
 
-  const userSnapshot = await firestore.collection('users').doc(userId).get();
+  const userSnapshot = await firestore.collection("users").doc(userId).get();
   const user = userSnapshot.data() as User;
 
   const checkStationExists = (): void => {
     const stationExists = user.stations.find(station => station === upperStationId);
     if (stationExists) {
-      throw new Error('Station alredy included');
+      throw new Error("Station alredy included");
     }
   };
 
   const checkStationIsValid = async () => {
     const response = 
       await fetch(getCurrentConditionsUrl(upperStationId))
-      .catch(() => {
-        throw new Error('Invalid station ID or station is currently offline');
-      });
+        .catch(() => {
+          throw new Error("Invalid station ID or station is currently offline");
+        });
 
     if (response.status !== 200) {
-      throw new Error('Invalid station ID or station is currently offline');
+      throw new Error("Invalid station ID or station is currently offline");
     } else {
       return response.json();
     }
@@ -46,14 +46,14 @@ export const addNewStationFunction = onCall(async (request) => {
   user.stations_names.push(response.observations[0].neighborhood);
 
   await firestore
-    .collection('users')
+    .collection("users")
     .doc(userId)
     .update({
       stations: user.stations,
-      stations_names: user.stations_names
+      stations_names: user.stations_names,
     });
 
-  const newStation = await loadStationsService({userId, singleStationId: upperStationId});
+  const newStation = await loadStationsService({ userId, singleStationId: upperStationId });
 
   return newStation;
 });

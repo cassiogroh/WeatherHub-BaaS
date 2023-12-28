@@ -1,7 +1,7 @@
-import React from 'react';
-import { Link as AnchorLink, LinkProps as LinkPropsDOM } from 'react-router-dom';
+import React from "react";
+import { Link as AnchorLink, LinkProps as LinkPropsDOM } from "react-router-dom";
 
-import { Container } from './styles';
+import { Container } from "./styles";
 
 interface LinkProps extends LinkPropsDOM {
   pageName: string;

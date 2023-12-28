@@ -1,11 +1,10 @@
-// @ts-nocheck
-import React, { useState, useCallback, useRef } from 'react';
-import { FiTrash2, FiEdit, FiFrown, FiEdit3 } from 'react-icons/fi';
+import React, { useState, useCallback, useRef } from "react";
+import { FiTrash2, FiEdit, FiFrown, FiEdit3 } from "react-icons/fi";
 
-import { callableFunction } from '../../services/api';
-import { useAuth } from '../../hooks/auth';
+import { callableFunction } from "../../services/api";
+import { useAuth } from "../../hooks/auth";
 
-import { Container, CardStats, CardBottom, RenameField } from './styles';
+import { Container, CardStats, CardBottom, RenameField } from "./styles";
 
 export interface ViewProps {
   temp: boolean,
@@ -22,7 +21,7 @@ export interface ViewProps {
 }
 
 export interface StationCurrentProps {
-  status: 'online' | 'offline';
+  status: "online" | "offline";
   stationID: string;
   name: string;
   url: string;
@@ -89,7 +88,7 @@ const StationCard: React.FC<RequestProps> = ({
   minStatus,
   medStatus,
   maxStatus,
-  currentHistoricDay
+  currentHistoricDay,
 }: RequestProps ) => {
   const { user } = useAuth();
 
@@ -109,38 +108,37 @@ const StationCard: React.FC<RequestProps> = ({
     temp,
     windChill,
     windGust,
-    windSpeed
+    windSpeed,
   } = currentData;
 
-  //@TODO Attribute variables even if there's no historic data and disable @ts-nocheck at the top of the file
-  if (historicData && historicData[currentHistoricDay]) {
-    var {
-      humidityHigh,
-      humidityLow,
-      humidityAvg,
-      tempHigh,
-      tempLow,
-      tempAvg,
-      windspeedHigh,
-      windspeedLow,
-      windspeedAvg,
-      windgustHigh,
-      windgustLow,
-      windgustAvg,
-      dewptHigh,
-      dewptLow,
-      dewptAvg,
-      windchillHigh,
-      windchillLow,
-      windchillAvg,
-      heatindexHigh,
-      heatindexLow,
-      heatindexAvg,
-      pressureMax,
-      pressureMin,
-      precipTotalHistoric,
-    } = historicData[currentHistoricDay];
-  }
+  const hasHistoricData = historicData && historicData[currentHistoricDay];
+
+  const {
+    humidityHigh,
+    humidityLow,
+    humidityAvg,
+    tempHigh,
+    tempLow,
+    tempAvg,
+    windspeedHigh,
+    windspeedLow,
+    windspeedAvg,
+    windgustHigh,
+    windgustLow,
+    windgustAvg,
+    dewptHigh,
+    dewptLow,
+    dewptAvg,
+    windchillHigh,
+    windchillLow,
+    windchillAvg,
+    heatindexHigh,
+    heatindexLow,
+    heatindexAvg,
+    pressureMax,
+    pressureMin,
+    precipTotalHistoric,
+  } = hasHistoricData ? historicData[currentHistoricDay] : {} as StationHistoricProps;
 
   const [inputFocus, setInputFocus] = useState(false);
   const [renameButtonFocus, setRenameButtonFocus] = useState(false);
@@ -160,7 +158,7 @@ const StationCard: React.FC<RequestProps> = ({
 
   const confirmRenameStation = 
   useCallback(async (stationId: string, newName: string | undefined, currentName: string): Promise<void> => {
-    if (currentName !== newName && newName !== '') {
+    if (currentName !== newName && newName !== "") {
       await callableFunction("renameStation", { stationId, newName, userId: user.userId });
       
       !!newName && setStationName(newName);
@@ -171,55 +169,55 @@ const StationCard: React.FC<RequestProps> = ({
 
   const handleFocus = useCallback((focusedVariable: string) => {
     switch (focusedVariable) {
-      case 'renameInput':
-        return setInputFocus(true);
-      case 'renameButton':
-        return setRenameButtonFocus(true);
-      case 'deleteButton':
-        return setDeleteButtonFocus(true);
-      default:
-        return null;
+    case "renameInput":
+      return setInputFocus(true);
+    case "renameButton":
+      return setRenameButtonFocus(true);
+    case "deleteButton":
+      return setDeleteButtonFocus(true);
+    default:
+      return null;
     }
   }, []);
 
   const handleBlur = useCallback((focusedVariable: string) => {
     switch (focusedVariable) {
-      case 'renameInput': {
-        confirmRenameStation(stationID, inputRef.current?.value, stationName);
-        return setInputFocus(false);
-      }
-      case 'renameButton':
-        return setRenameButtonFocus(false);
-      case 'deleteButton':
-        return setDeleteButtonFocus(false);
-      default:
-        return null;
+    case "renameInput": {
+      confirmRenameStation(stationID, inputRef.current?.value, stationName);
+      return setInputFocus(false);
+    }
+    case "renameButton":
+      return setRenameButtonFocus(false);
+    case "deleteButton":
+      return setDeleteButtonFocus(false);
+    default:
+      return null;
     }
   }, [confirmRenameStation, stationID, stationName]);
 
   return (
     <Container>
-        <CardStats>
-          {rename ?
+      <CardStats>
+        {rename ?
           <RenameField inputFocus={inputFocus}>
             <input
               ref={inputRef}
               defaultValue={stationName}
               type='text'
-              onFocus={() => handleFocus('renameInput')}
-              onBlur={() => handleBlur('renameInput')}
+              onFocus={() => handleFocus("renameInput")}
+              onBlur={() => handleBlur("renameInput")}
             />
             <button
               type='button'
               onClick={() => confirmRenameStation(stationID, inputRef.current?.value, stationName)}
             >
-              <FiEdit3 stroke={inputFocus ? '#3FCA87' : '#ddd'} />
+              <FiEdit3 stroke={inputFocus ? "#3FCA87" : "#ddd"} />
             </button>
           </RenameField>
           : <a href={url} target='blank'> { stationName } </a>
-          }          
+        }          
           
-          {status === 'online' && !!propsView && currentOrHistoric===false ?
+        {status === "online" && !!propsView && currentOrHistoric===false ?
           <>
             { propsView.temp && <p>Temperatura <span>{temp} °C</span></p>}
             { propsView.dewpt && <p>Ponto de orvalho <span>{dewpt} °C</span></p>}
@@ -233,81 +231,81 @@ const StationCard: React.FC<RequestProps> = ({
             { propsView.pressure && <p>Pressão atmosférica <span>{pressure} hPa</span></p>}
             { propsView.elev && <p>Elevação <span>{elev} m</span></p>}
           </> : (
-            status === 'online' && !!propsView && currentOrHistoric ?
-            <>
-              { propsView.temp && <h4>Temperatura</h4>}
-              { propsView.temp && minStatus && <p>Mín <span>{tempLow} °C</span></p>}
-              { propsView.temp && medStatus && <p>Méd <span>{tempAvg} °C</span></p>}
-              { propsView.temp && maxStatus && <p>Máx <span>{tempHigh} °C</span></p>}
+            status === "online" && !!propsView && currentOrHistoric ?
+              <>
+                { propsView.temp && <h4>Temperatura</h4>}
+                { propsView.temp && minStatus && <p>Mín <span>{tempLow} °C</span></p>}
+                { propsView.temp && medStatus && <p>Méd <span>{tempAvg} °C</span></p>}
+                { propsView.temp && maxStatus && <p>Máx <span>{tempHigh} °C</span></p>}
 
-              { propsView.dewpt && <h4>Ponto de orvalho</h4>}
-              { propsView.dewpt && minStatus && <p>Mín <span>{dewptLow} °C</span></p>}
-              { propsView.dewpt && medStatus && <p>Méd <span>{dewptAvg} °C</span></p>}
-              { propsView.dewpt && maxStatus && <p>Máx <span>{dewptHigh} °C</span></p>}
+                { propsView.dewpt && <h4>Ponto de orvalho</h4>}
+                { propsView.dewpt && minStatus && <p>Mín <span>{dewptLow} °C</span></p>}
+                { propsView.dewpt && medStatus && <p>Méd <span>{dewptAvg} °C</span></p>}
+                { propsView.dewpt && maxStatus && <p>Máx <span>{dewptHigh} °C</span></p>}
 
-              { propsView.heatIndex && <h4>Índice de calor</h4>}
-              { propsView.heatIndex && minStatus && <p>Mín <span>{heatindexLow} °C</span></p>}
-              { propsView.heatIndex && medStatus && <p>Méd <span>{heatindexAvg} °C</span></p>}
-              { propsView.heatIndex && maxStatus && <p>Máx <span>{heatindexHigh} °C</span></p>}
+                { propsView.heatIndex && <h4>Índice de calor</h4>}
+                { propsView.heatIndex && minStatus && <p>Mín <span>{heatindexLow} °C</span></p>}
+                { propsView.heatIndex && medStatus && <p>Méd <span>{heatindexAvg} °C</span></p>}
+                { propsView.heatIndex && maxStatus && <p>Máx <span>{heatindexHigh} °C</span></p>}
 
-              { propsView.windChill && <h4>Sensação térmica</h4>}
-              { propsView.windChill && minStatus && <p>Mín <span>{windchillLow} °C</span></p>}
-              { propsView.windChill && medStatus && <p>Méd <span>{windchillAvg} °C</span></p>}
-              { propsView.windChill && maxStatus && <p>Máx <span>{windchillHigh} °C</span></p>}
+                { propsView.windChill && <h4>Sensação térmica</h4>}
+                { propsView.windChill && minStatus && <p>Mín <span>{windchillLow} °C</span></p>}
+                { propsView.windChill && medStatus && <p>Méd <span>{windchillAvg} °C</span></p>}
+                { propsView.windChill && maxStatus && <p>Máx <span>{windchillHigh} °C</span></p>}
 
-              { propsView.humidity && <h4>Humidade relativa</h4>}
-              { propsView.humidity && minStatus && <p>Mín <span>{humidityLow} %</span></p>}
-              { propsView.humidity && medStatus && <p>Méd <span>{humidityAvg} %</span></p>}
-              { propsView.humidity && maxStatus && <p>Máx <span>{humidityHigh} %</span></p>}
+                { propsView.humidity && <h4>Humidade relativa</h4>}
+                { propsView.humidity && minStatus && <p>Mín <span>{humidityLow} %</span></p>}
+                { propsView.humidity && medStatus && <p>Méd <span>{humidityAvg} %</span></p>}
+                { propsView.humidity && maxStatus && <p>Máx <span>{humidityHigh} %</span></p>}
 
-              { propsView.precipTotal && <h4>Precipitação</h4>}
-              { propsView.precipTotal && minStatus && <p>Total <span>{precipTotalHistoric} mm</span></p>}
+                { propsView.precipTotal && <h4>Precipitação</h4>}
+                { propsView.precipTotal && minStatus && <p>Total <span>{precipTotalHistoric} mm</span></p>}
 
-              { propsView.windGust && <h4>Rajada de vento</h4>}
-              { propsView.windGust && minStatus && <p>Mín <span>{windgustLow} km/h</span></p>}
-              { propsView.windGust && medStatus && <p>Méd <span>{windgustAvg} km/h</span></p>}
-              { propsView.windGust && maxStatus && <p>Máx <span>{windgustHigh} km/h</span></p>}
+                { propsView.windGust && <h4>Rajada de vento</h4>}
+                { propsView.windGust && minStatus && <p>Mín <span>{windgustLow} km/h</span></p>}
+                { propsView.windGust && medStatus && <p>Méd <span>{windgustAvg} km/h</span></p>}
+                { propsView.windGust && maxStatus && <p>Máx <span>{windgustHigh} km/h</span></p>}
 
-              { propsView.windSpeed && <h4>Velocidade do vento</h4>}
-              { propsView.windSpeed && minStatus && <p>Mín <span>{windspeedLow} km/h</span></p>}
-              { propsView.windSpeed && medStatus && <p>Méd <span>{windspeedAvg} km/h</span></p>}
-              { propsView.windSpeed && maxStatus && <p>Máx <span>{windspeedHigh} km/h</span></p>}
+                { propsView.windSpeed && <h4>Velocidade do vento</h4>}
+                { propsView.windSpeed && minStatus && <p>Mín <span>{windspeedLow} km/h</span></p>}
+                { propsView.windSpeed && medStatus && <p>Méd <span>{windspeedAvg} km/h</span></p>}
+                { propsView.windSpeed && maxStatus && <p>Máx <span>{windspeedHigh} km/h</span></p>}
 
-              { propsView.pressure && <h4>Pressão atmosférica</h4>}
-              { propsView.pressure && minStatus && <p>Mín <span>{pressureMin} hPa</span></p>}
-              { propsView.pressure && maxStatus && <p>Máx <span>{pressureMax} hPa</span></p>}
-            </>
-            :
-            <div>
-              <p>Estação offline</p>
-              <FiFrown size={50} />
-            </div>
+                { propsView.pressure && <h4>Pressão atmosférica</h4>}
+                { propsView.pressure && minStatus && <p>Mín <span>{pressureMin} hPa</span></p>}
+                { propsView.pressure && maxStatus && <p>Máx <span>{pressureMax} hPa</span></p>}
+              </>
+              :
+              <div>
+                <p>Estação offline</p>
+                <FiFrown size={50} />
+              </div>
           )
         }
-        </CardStats>
+      </CardStats>
 
-        <CardBottom>
-          <p>ID: {stationID} </p>
+      <CardBottom>
+        <p>ID: {stationID} </p>
           
-          {!!user && 
+        {!!user && 
           <div>
             <button
               onClick={handleRenameStation}
-              onMouseEnter={() => handleFocus('renameButton')}
-              onMouseLeave={() => handleBlur('renameButton')}
+              onMouseEnter={() => handleFocus("renameButton")}
+              onMouseLeave={() => handleBlur("renameButton")}
               type='button'>
-              <FiEdit size={23} stroke={renameButtonFocus ? '#3FCA87' : '#ddd'} />
+              <FiEdit size={23} stroke={renameButtonFocus ? "#3FCA87" : "#ddd"} />
             </button>
             <button
               onClick={(() => handleDeleteStation(stationID))}
-              onMouseEnter={() => handleFocus('deleteButton')}
-              onMouseLeave={() => handleBlur('deleteButton')}
+              onMouseEnter={() => handleFocus("deleteButton")}
+              onMouseLeave={() => handleBlur("deleteButton")}
               type='button' >
-              <FiTrash2 size={23} stroke={deleteButtonFocus ? '#FF9077' : '#ddd'} />
+              <FiTrash2 size={23} stroke={deleteButtonFocus ? "#FF9077" : "#ddd"} />
             </button>
           </div>
-          }
-        </CardBottom>
+        }
+      </CardBottom>
     </Container>
   )
 };

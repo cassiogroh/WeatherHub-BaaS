@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import Header from '../../components/Header';
-import ProfileHeader from '../../components/ProfileHeader';
+import Header from "../../components/Header";
+import ProfileHeader from "../../components/ProfileHeader";
 
-import { Container, InfoIds, InfoContainer } from './styles';
+import { Container, InfoIds, InfoContainer } from "./styles";
 
 const Info: React.FC = () => {
   return (

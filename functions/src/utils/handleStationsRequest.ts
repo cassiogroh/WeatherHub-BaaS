@@ -7,7 +7,7 @@ interface HandleStationsRequestProps {
   singleStationId?: string;
 }
 
-export const handleStationsRequest = async ({ user, singleStationId}: HandleStationsRequestProps): Promise<UrlArray[]> => {
+export const handleStationsRequest = async ({ user, singleStationId }: HandleStationsRequestProps): Promise<UrlArray[]> => {
   const urlArray: UrlArray[] = [];
 
   if (user.stations) {
@@ -21,7 +21,7 @@ export const handleStationsRequest = async ({ user, singleStationId}: HandleStat
         urlArray[i] = {
           stationID: userStations[i],
           urlCurrent: getCurrentConditionsUrl(userStations[i]),
-          urlHistoric: getHistoricUrl(userStations[i])
+          urlHistoric: getHistoricUrl(userStations[i]),
         }
       }
 
@@ -31,7 +31,7 @@ export const handleStationsRequest = async ({ user, singleStationId}: HandleStat
       urlArray[0] = {
         stationID: singleStationId,
         urlCurrent: getCurrentConditionsUrl(singleStationId),
-          urlHistoric: getHistoricUrl(singleStationId)
+        urlHistoric: getHistoricUrl(singleStationId),
       }
     }
   } else {
@@ -40,7 +40,7 @@ export const handleStationsRequest = async ({ user, singleStationId}: HandleStat
       urlArray[i] = {
         stationID: apiInfo.stationsId[i],
         urlCurrent: getCurrentConditionsUrl(apiInfo.stationsId[i]),
-        urlHistoric: getHistoricUrl(apiInfo.stationsId[i])
+        urlHistoric: getHistoricUrl(apiInfo.stationsId[i]),
       }
     }
   }

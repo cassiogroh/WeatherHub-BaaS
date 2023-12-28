@@ -1,15 +1,15 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback } from "react";
 
-import Link from './Link';
+import Link from "./Link";
 
-import { Container, NavBar } from './styles';
+import { Container, NavBar } from "./styles";
 
 interface HeaderProps {
   currentPage: string;
 }
 
 const Header: React.FC<HeaderProps> = ({ currentPage }: HeaderProps) => {
-  const user = localStorage.getItem('@WeatherHub:user');
+  const user = localStorage.getItem("@WeatherHub:user");
 
   const [activateNavbar, setActivateNavbar] = useState(false);
 
@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage }: HeaderProps) => {
     }
   }, [])
 
-  window.addEventListener('scroll', changeNavbarBackground);
+  window.addEventListener("scroll", changeNavbarBackground);
 
   const setScrollToZero = useCallback(() => {
     window.scrollTo(0, 0);
@@ -36,13 +36,13 @@ const Header: React.FC<HeaderProps> = ({ currentPage }: HeaderProps) => {
 
         <div>
           {user ? 
-          <Link to="/dashboard" pageName='Painel do usuário' currentPage={currentPage} activateNavbar={activateNavbar} onClick={setScrollToZero} />
-          : (
-            <>
-              <Link to="/signin" pageName='Login' currentPage={currentPage} activateNavbar={activateNavbar} />
-              <Link to="/signup" pageName='Registrar' currentPage={currentPage} activateNavbar={activateNavbar} />
-            </>
-          )
+            <Link to="/dashboard" pageName='Painel do usuário' currentPage={currentPage} activateNavbar={activateNavbar} onClick={setScrollToZero} />
+            : (
+              <>
+                <Link to="/signin" pageName='Login' currentPage={currentPage} activateNavbar={activateNavbar} />
+                <Link to="/signup" pageName='Registrar' currentPage={currentPage} activateNavbar={activateNavbar} />
+              </>
+            )
           }
           <Link to="/about" pageName='Sobre' currentPage={currentPage} activateNavbar={activateNavbar} />
         </div>

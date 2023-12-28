@@ -2,7 +2,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, doc, setDoc } from "firebase/firestore";
 
 import { auth, firestore } from "../services/api";
-import { User } from '../hooks/auth';
+import { User } from "../hooks/auth";
 
 export async function registerUser(name: string, email: string, password: string): Promise<User> {
   try {
@@ -14,10 +14,10 @@ export async function registerUser(name: string, email: string, password: string
       email,
       stations: ["ISANTACA85"],
       stations_names: ["Brusque - Centro"],
-      created_at: (new Date()).toUTCString()
+      created_at: (new Date()).toUTCString(),
     };
 
-    await setDoc(doc(collection(firestore, 'users'), newUser.userId), newUser);
+    await setDoc(doc(collection(firestore, "users"), newUser.userId), newUser);
 
     return newUser;
   } catch (error) {

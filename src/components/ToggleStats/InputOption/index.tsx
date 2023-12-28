@@ -1,9 +1,9 @@
 import React, {
   InputHTMLAttributes,
-  useRef
-} from 'react';
+  useRef,
+} from "react";
 
-import { Container } from './styles';
+import { Container } from "./styles";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
@@ -13,7 +13,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   disabled?: boolean;
 }
 
-const InputOption: React.FC<InputProps> = ({ name, propName, handleInputCheck, checked = false, disabled = false}) => {
+const InputOption: React.FC<InputProps> = ({ name, propName, handleInputCheck, checked = false, disabled = false }) => {
   const inputRef =  useRef<HTMLInputElement>(null);
 
   return (

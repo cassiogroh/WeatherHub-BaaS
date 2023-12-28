@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 
-import { Container } from './styles';
+import { Container } from "./styles";
 
-import logoImg from '../../assets/logo.png';
+import logoImg from "../../assets/logo.png";
 
 const Footer: React.FC = () => {
   const currentYear =  new Date().getFullYear();

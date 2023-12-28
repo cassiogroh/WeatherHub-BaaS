@@ -13,7 +13,7 @@ export const loadStationsService = async (request: LoadStationsProps) => {
 
   let user = {} as User;
   if (userId) {
-    const userSnapshot = await firestore.collection('users').doc(userId).get();
+    const userSnapshot = await firestore.collection("users").doc(userId).get();
     user = userSnapshot.data() as User;
   }
   

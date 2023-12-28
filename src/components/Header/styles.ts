@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled, { css } from "styled-components";
 
 interface NavbarProps {
   activateNavbar: boolean;
@@ -28,11 +28,11 @@ export const NavBar = styled.div<NavbarProps>`
   transition: background-color .3s, padding .3s;
 
   ${props => props.activateNavbar ?
-  css`
+    css`
   background-color: rgba(45, 45, 45, .95);
   padding: 0 3px 3px 3px;
   ` :
-  css`
+    css`
   background-color: var(--primary-color);
   padding: 3px;
   `}

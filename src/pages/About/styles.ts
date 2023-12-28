@@ -1,6 +1,6 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes } from "styled-components";
 
-import logoImg from '../../assets/logo.png';
+import logoImg from "../../assets/logo.png";
 
 export const Container = styled.div`
   display: flex;

@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled, { css } from "styled-components";
 
 interface RequestProps {
   triggerAddLoader: boolean;
@@ -31,7 +31,7 @@ export const Container = styled.div<RequestProps>`
     css`
       visibility: hidden;
     `
-    }
+}
 
     @media (max-width: 600px) {
       margin-left: -20vw;
