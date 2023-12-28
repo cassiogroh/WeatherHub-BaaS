@@ -1,69 +1,17 @@
-import React, { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-
 import { useAuth } from "../../hooks/auth";
 
-import { Container, Button } from "./styles";
+import { Container } from "./styles";
+import Link from "../Link";
 
-interface ProfileHeaderProps {
-  currentPage: string;
-}
-
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({ currentPage }) => {
+const ProfileHeader = () => {
   const { signOut } = useAuth();
-  const navigate = useNavigate();
-
-  const handleNavigateToStationsPage = useCallback(() => {
-    navigate("dashboard")
-  }, [navigate]);
-
-  const handleNavigateToProfileInfo = useCallback(() => {
-    navigate("profile")
-  }, [navigate]);
-
-  const handleNavigateToInfo = useCallback(() => {
-    navigate("info")
-  }, [navigate]);
 
   return (
     <Container>
-      <Button
-        currentPage={currentPage}
-        pageName='Estações'
-        position={1}
-        type='button'
-        onClick={handleNavigateToStationsPage}
-      >
-        <p>Estações</p>
-      </Button>
-
-      <Button
-        currentPage={currentPage}
-        pageName='Perfil'
-        position={2}
-        type='button'
-        onClick={handleNavigateToProfileInfo}
-      >
-        <p>Perfil</p>
-      </Button>
-
-      <Button
-        currentPage={currentPage}
-        pageName='Info'
-        position={3}
-        type='button'
-        onClick={handleNavigateToInfo}
-      >
-        <p>Info</p>
-      </Button>
-
-      <Button
-        position={4}
-        type='button'
-        onClick={signOut}
-      >
-        <p>Sair</p>
-      </Button>
+      <Link to="/dashboard" isHeaderScrollActive={false} pageName="Estações" />
+      <Link to="/profile" isHeaderScrollActive={false} pageName="Perfil" />
+      <Link to="/info" isHeaderScrollActive={false} pageName="Info" />
+      <Link to="/" isHeaderScrollActive={false} pageName="Sair" onClick={signOut} />
     </Container>
   )
 }

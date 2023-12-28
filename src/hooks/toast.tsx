@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useContext,
   useCallback,
@@ -28,14 +28,14 @@ const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const addToast = useCallback(
     ({ type, title, description }: Omit<ToastMessage, "id">) => {
       const id = uuid();
-  
+
       const toast = {
         id,
         type,
         title,
         description,
       };
-  
+
       setMessages(state => [ ...state, toast ]);
     }, []);
 

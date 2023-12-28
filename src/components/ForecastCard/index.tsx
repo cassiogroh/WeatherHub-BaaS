@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import icons from "../../assets/png-icons";
@@ -43,7 +43,7 @@ interface Request {
   daylyForecast: DaylyForecast;
 }
 
-const ForecastCard: React.FC<Request> = ({ daylyForecast }: Request) => {
+const ForecastCard = ({ daylyForecast }: Request) => {
   const sunRiseTime = useMemo(() => {
     const formattedSunRiseTime = format(
       new Date(daylyForecast.sunriseTimeLocal),

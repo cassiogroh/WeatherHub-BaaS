@@ -1,9 +1,8 @@
 import styled, { css } from "styled-components";
 
 interface RequestProps {
-  currentPage: string;
-  pageName: string;
-  activateNavbar: boolean;
+  isActiveTab: boolean;
+  isHeaderScrollActive: boolean;
 }
 
 export const Container = styled.div<RequestProps>`
@@ -11,14 +10,16 @@ export const Container = styled.div<RequestProps>`
     font-size: 2.4rem;
     font-weight: 500;
     transition: background-color .2s, padding .3s;
+    width: 100%;
+    position: relative;
 
-    ${props => props.activateNavbar ?
+    ${props => props.isHeaderScrollActive ?
     css`
-    padding: 0 10px 0 10px;
+    padding: 2px;
     border-radius: 0 0 10px 10px;
     ` :
     css`
-    padding: 5px 10px 0 10px;
+    padding: 3px 5px;
     border-radius: 10px;
     `}
 
@@ -28,18 +29,22 @@ export const Container = styled.div<RequestProps>`
     }
 
     &::after {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+
       content: '';
       display: block;
       height: 3px;
       border-radius: 10px;
       transition: width .2s ease-out;
       
-      ${props => props.currentPage === props.pageName ?
+      ${({ isActiveTab }) => isActiveTab ?
     css`width: 100%;` :
     css`width: 0;`
 }
       
-      ${props => props.activateNavbar ?
+      ${props => props.isHeaderScrollActive ?
     css`
       background: var(--primary-color);
       ` :

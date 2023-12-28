@@ -1,6 +1,6 @@
 import { FormHandles } from "@unform/core";
 import { Form } from "@unform/web";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { FiUser, FiMail, FiLock } from "react-icons/fi";
 import * as Yup from "yup";
 import { format } from "date-fns";
@@ -27,7 +27,7 @@ interface ProfileFormData {
   password_confirmation: string;
 }
 
-const Profile: React.FC = () => {
+const Profile = () => {
   const formRef = useRef<FormHandles>(null);
   const { addToast } = useToast();
   const { user, updateUser } = useAuth();
@@ -77,7 +77,7 @@ const Profile: React.FC = () => {
           }
           : {}),
       };
-      
+
       setIsUpdatingProfile(true);
       if (old_password) {
         try {
@@ -132,13 +132,13 @@ const Profile: React.FC = () => {
       "dd '/' MMM '/' yyyy",
       { locale: ptBR },
     )
-    
+
     return date;
   }, [user]);
 
   return (
     <Container>
-      <Header currentPage='Dashboard' />
+      <Header />
       <ProfileHeader currentPage='Perfil' />
 
       <Content>

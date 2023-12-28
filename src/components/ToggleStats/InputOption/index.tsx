@@ -1,4 +1,4 @@
-import React, {
+import {
   InputHTMLAttributes,
   useRef,
 } from "react";
@@ -13,7 +13,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   disabled?: boolean;
 }
 
-const InputOption: React.FC<InputProps> = ({ name, propName, handleInputCheck, checked = false, disabled = false }) => {
+const InputOption = ({ name, propName, handleInputCheck, checked = false, disabled = false }: InputProps) => {
   const inputRef =  useRef<HTMLInputElement>(null);
 
   return (

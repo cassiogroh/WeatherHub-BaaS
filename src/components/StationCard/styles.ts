@@ -17,7 +17,6 @@ export const Container = styled.div`
 `;
 
 export const CardStats = styled.div`
-  text-align: left;
   width: 100%;
   
   a {

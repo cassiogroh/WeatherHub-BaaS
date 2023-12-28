@@ -1,17 +1,17 @@
-import React from "react";
 import { Link as AnchorLink, LinkProps as LinkPropsDOM } from "react-router-dom";
 
 import { Container } from "./styles";
 
 interface LinkProps extends LinkPropsDOM {
+  isHeaderScrollActive: boolean;
   pageName: string;
-  currentPage: string;
-  activateNavbar: boolean;
 }
 
-const Link: React.FC<LinkProps> = ({ to, pageName, currentPage, activateNavbar, ...rest }: LinkProps) => {
+const Link = ({ to, pageName, isHeaderScrollActive, ...rest }: LinkProps) => {
+  const currentPage = window.location.pathname;
+
   return (
-    <Container pageName={pageName} currentPage={currentPage} activateNavbar={activateNavbar}>
+    <Container isActiveTab={to === currentPage} isHeaderScrollActive={isHeaderScrollActive}>
       <AnchorLink to={to} {...rest}>{pageName}</AnchorLink>
     </Container>
   )

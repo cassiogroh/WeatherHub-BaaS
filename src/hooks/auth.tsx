@@ -1,4 +1,4 @@
-import  React, { createContext, useCallback, useState, useContext, useEffect } from "react";
+import { createContext, useCallback, useState, useContext, useEffect } from "react";
 import { onAuthStateChanged, signOut as signOutFromFirebase } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
@@ -41,7 +41,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!storedUser) return;
 
       const { userId } = JSON.parse(storedUser);
-      
+
       onAuthStateChanged(auth, async (authUser) => {
         if (authUser) {
           const firestoreUser = await getUserFromFirestore(userId);
@@ -74,7 +74,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     navigate("/");
   }, [navigate]);
-  
+
   const updateUser = useCallback((user: User) => {
     localStorage.setItem("@WeatherHub:user", JSON.stringify(user));
 
@@ -90,7 +90,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 function useAuth(): AuthContextData {
   const context = useContext(AuthContext);
-  
+
   return context;
 }
 

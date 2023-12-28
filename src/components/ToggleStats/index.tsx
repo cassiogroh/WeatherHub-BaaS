@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useMemo, useRef } from "react";
+import { FormEvent, useCallback, useMemo, useRef } from "react";
 import { FiArrowLeftCircle, FiArrowRightCircle, FiPlus } from "react-icons/fi";
 import { format, isAfter, getDate, getMonth, getYear } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -9,7 +9,7 @@ import { useToast } from "../../hooks/toast";
 import { Container, Options, OptionsHeader, HistoricOptions, ExclusiveButton, AddStationForm } from "./styles";
 import { useAuth } from "../../hooks/auth";
 
-interface Request {
+interface ToggleStatsProps {
   handleInputCheck(value: boolean | undefined, name: string): void;
   handleAddStation?(event: FormEvent, inputValue: string): void;
   toggleInputSlider: boolean;
@@ -27,7 +27,7 @@ interface Request {
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const ToggleStats: React.FC<Request> = ({
+const ToggleStats = ({
   handleInputCheck,
   handleAddStation,
   toggleInputSlider,
@@ -43,7 +43,7 @@ const ToggleStats: React.FC<Request> = ({
   setCurrentHistoricDay,
   inputValue,
   setInputValue,
-}: Request) => {
+}: ToggleStatsProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
   const { addToast } = useToast();
@@ -118,12 +118,24 @@ const ToggleStats: React.FC<Request> = ({
           </div>
 
           <div>
-            <FiArrowLeftCircle title='Dia anterior' size={20} color={currentHistoricDay -1 >= -6 ? "#FFF" : "transparent"} onClick={() => changeDay(-1)} />
+            <FiArrowLeftCircle
+              style={{ visibility: currentHistoricDay -1 >= -6 ? "visible" : "hidden" }}
+              title='Dia anterior'
+              size={20}
+              color={"#FFF"}
+              onClick={() => changeDay(-1)}
+            />
             <p>{currentHistoricDayView}</p>
-            <FiArrowRightCircle title='Próximo dia' size={20} color={currentHistoricDay + 1 <= 0 ? "#FFF" : "transparent"} onClick={() => changeDay(1)} />
+            <FiArrowRightCircle
+              style={{ visibility: currentHistoricDay + 1 <= 0 ? "visible" : "hidden" }}
+              title='Próximo dia'
+              size={20}
+              color={"#FFF"}
+              onClick={() => changeDay(1)}
+            />
           </div>
         </HistoricOptions>
-      
+
         <InputOption name='Temperatura' propName={"temp"} handleInputCheck={handleInputCheck} checked />
         <InputOption name='Ponto de orvalho' propName={"dewpt"} handleInputCheck={handleInputCheck} />
         <InputOption name='Índice de calor' propName={"heatIndex"} handleInputCheck={handleInputCheck} />

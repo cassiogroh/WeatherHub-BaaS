@@ -1,4 +1,4 @@
-import React, { useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState } from "react";
 import { FiLogIn, FiMail, FiLock } from "react-icons/fi";
 import { FormHandles } from "@unform/core";
 import { Form } from "@unform/web";
@@ -22,7 +22,7 @@ interface SignInFormData {
   password: string;
 }
 
-const SignIn: React.FC = () => {
+const SignIn = () => {
   const formRef = useRef<FormHandles>(null);
 
   const { signIn } = useAuth();
@@ -77,7 +77,7 @@ const SignIn: React.FC = () => {
 
   return (
     <Container>
-      <Header currentPage='Login' />
+      <Header />
       <Content>
         <AnimationContainer>
           <img src={logoImg} alt="WeatherHub" width={150} />

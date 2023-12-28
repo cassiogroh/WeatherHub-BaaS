@@ -1,4 +1,4 @@
-import React, { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Loader from "react-loader-spinner";
 
 import Header from "../../components/Header";
@@ -17,7 +17,7 @@ interface ResponseProps {
   stationsHistoric: Array<StationHistoricProps[]>;
 }
 
-const Dashboard: React.FC = () => {
+const Dashboard = () => {
   const { user } = useAuth();
   const { addToast } = useToast();
 
@@ -73,11 +73,14 @@ const Dashboard: React.FC = () => {
       addToast({
         type: "error",
         title: "ID: " + stationId,
-        description: "Você não pode deletar a sua única estação.",
+        description: "Você não pode remover a sua única estação.",
       });
 
       return
     }
+
+    const confirmDelete = window.confirm(`A estação ${stationId} será removida do seu dashboard.`);
+    if (!confirmDelete) return;
 
     setTriggerAddLoader(true);
 
@@ -89,7 +92,7 @@ const Dashboard: React.FC = () => {
         title: "ID: " + stationId,
         description: "Estação removida com sucesso",
       });
-      
+
       setStationsCurrent(state => state.filter(station => station.stationID !== stationId));
     } catch {
       addToast({
@@ -116,7 +119,7 @@ const Dashboard: React.FC = () => {
 
       return;
     }
-    
+
     const alreadyExists = stationsCurrent.find(station => station.stationID === stationId);
 
     if (alreadyExists) {
@@ -193,7 +196,7 @@ const Dashboard: React.FC = () => {
     dummy.select();
     document.execCommand("copy");
     document.body.removeChild(dummy);
-    
+
     if (stationsCurrent.length >= 12) {
       addToast({
         type: "success",
@@ -211,15 +214,15 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
-      <Header currentPage='Painel do usuário' />
-      <ProfileHeader currentPage='Estações' />
+      <Header />
+      <ProfileHeader />
 
       {!stationsCurrent.length
         ?
         <div style= {{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 130 }}>
           <p style= {{ marginBottom: 20, fontSize: "2.4rem" }}>Carregando estações</p>
           <Loader type='Circles' color='#3b5998' height={100} width={100} />
-        </div> 
+        </div>
         :
         <Container triggerAddLoader={triggerAddLoader}>
 
@@ -262,7 +265,7 @@ const Dashboard: React.FC = () => {
           <main>
             <p style= {{ marginBottom: 20, fontSize: "2.4rem" }}>Aguarde</p>
             <Loader type='Circles' color='#3b5998' height={100} width={100} />
-          </main> 
+          </main>
         </Container>
       }
     </>

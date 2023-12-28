@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { FiTrash2, FiEdit, FiFrown, FiEdit3 } from "react-icons/fi";
 
 import { callableFunction } from "../../services/api";
@@ -79,7 +79,7 @@ export interface RequestProps {
   currentHistoricDay: number;
 }
 
-const StationCard: React.FC<RequestProps> = ({
+const StationCard = ({
   currentData,
   historicData,
   propsView,
@@ -156,11 +156,11 @@ const StationCard: React.FC<RequestProps> = ({
     }, 5)
   }, [rename]);
 
-  const confirmRenameStation = 
+  const confirmRenameStation =
   useCallback(async (stationId: string, newName: string | undefined, currentName: string): Promise<void> => {
     if (currentName !== newName && newName !== "") {
       await callableFunction("renameStation", { stationId, newName, userId: user.userId });
-      
+
       !!newName && setStationName(newName);
     }
 
@@ -215,8 +215,8 @@ const StationCard: React.FC<RequestProps> = ({
             </button>
           </RenameField>
           : <a href={url} target='blank'> { stationName } </a>
-        }          
-          
+        }
+
         {status === "online" && !!propsView && currentOrHistoric===false ?
           <>
             { propsView.temp && <p>Temperatura <span>{temp} °C</span></p>}
@@ -286,8 +286,8 @@ const StationCard: React.FC<RequestProps> = ({
 
       <CardBottom>
         <p>ID: {stationID} </p>
-          
-        {!!user && 
+
+        {!!user &&
           <div>
             <button
               onClick={handleRenameStation}

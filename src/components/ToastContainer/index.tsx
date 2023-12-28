@@ -1,4 +1,3 @@
-import React from "react";
 import { useTransition } from "react-spring";
 
 import Toast from "./Toast";
@@ -9,7 +8,7 @@ interface ToastCointainer {
   messages: ToastMessage[];
 }
 
-const ToastCointainer: React.FC<ToastCointainer> = ({ messages }) => {
+const ToastCointainer = ({ messages }: ToastCointainer) => {
   const messagesWithTransitions = useTransition(
     messages,
     message => message.id,

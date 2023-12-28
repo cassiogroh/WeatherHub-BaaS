@@ -1,14 +1,12 @@
-import React from "react";
-
 import Header from "../../components/Header";
 import ProfileHeader from "../../components/ProfileHeader";
 
 import { Container, InfoIds, InfoContainer } from "./styles";
 
-const Info: React.FC = () => {
+const Info = () => {
   return (
     <Container>
-      <Header currentPage='Dashboard' />
+      <Header />
       <ProfileHeader currentPage='Info' />
 
       <InfoIds>
@@ -69,7 +67,7 @@ const Info: React.FC = () => {
       </InfoContainer>
 
       <p>Fonte: <a href="https://www.wikipedia.org/" >Wikipédia</a></p>
-      
+
     </Container>
   )
 }

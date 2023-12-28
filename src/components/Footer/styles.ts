@@ -6,16 +6,17 @@ export const Container = styled.footer`
   p {
     position: fixed;
     left: 50%;
-    margin-left: -150px;
-    width: 300px;
     bottom: 10px;
     z-index: 3;
+    transform: translateX(-50%);
 
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 5px;
+
     border-radius: 10px;
-    padding: 5px;
+    padding: 5px 10px;
     opacity: 10%;
     transition: opacity .3s, background-color .3s;
 
@@ -24,12 +25,7 @@ export const Container = styled.footer`
       background-color: rgba(45,45,45, 0.85);
     }
 
-    a {
-      margin: 0 5px;
-    }
-
     img {
-      margin-left: 15px;
       width: 20px;
     }
   }

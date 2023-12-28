@@ -21,9 +21,7 @@ export default createGlobalStyle`
   }
 
   html,
-  body,
-  #root {
-    height: 100vh;
+  body {
     width: 90vw;
     max-width: 1100px;
     margin: 0 auto;

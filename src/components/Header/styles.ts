@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 
 interface NavbarProps {
-  activateNavbar: boolean;
+  isHeaderScrollActive: boolean;
 }
 
 export const Container = styled.header`
@@ -27,17 +27,18 @@ export const NavBar = styled.div<NavbarProps>`
   
   transition: background-color .3s, padding .3s;
 
-  ${props => props.activateNavbar ?
+  ${props => props.isHeaderScrollActive ?
     css`
   background-color: rgba(45, 45, 45, .95);
-  padding: 0 3px 3px 3px;
+  padding: 0 10px 3px;
   ` :
     css`
   background-color: var(--primary-color);
-  padding: 3px;
+  padding: 3px 10px;
   `}
   
   div {
     display: flex;
+    gap: 10px;
   }
 `;

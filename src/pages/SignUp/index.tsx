@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { FiMail, FiUser, FiLock, FiArrowLeft } from "react-icons/fi";
 import { FormHandles } from "@unform/core";
@@ -24,7 +24,7 @@ interface SignUpFormData {
   password: string;
 }
 
-const SignUp: React.FC = () => {
+const SignUp = () => {
   const formRef = useRef<FormHandles>(null);
   const { addToast } = useToast();
   const navigate = useNavigate();
@@ -83,7 +83,7 @@ const SignUp: React.FC = () => {
 
   return (
     <Container>
-      <Header currentPage='Registrar' />
+      <Header />
       <Content>
         <Background>
           <h1>Junte-se a esta comunidade de apaixonados pelo clima!</h1>

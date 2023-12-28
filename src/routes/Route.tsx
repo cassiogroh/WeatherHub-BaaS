@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Route as ReactDOMRoute,
   RouteProps as ReactDOMRouteProps,
@@ -12,7 +11,7 @@ interface RouteProps extends ReactDOMRouteProps {
   component: React.ComponentType;
 }
 
-const Route: React.FC<RouteProps> = ({ isPrivate = false, component: Component, ...rest }) => {
+const Route = ({ isPrivate = false, component: Component, ...rest }: RouteProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
 

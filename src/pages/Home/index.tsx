@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { callableFunction } from "../../services/api";
 import icons from "../../assets/png-icons";
 
@@ -20,7 +20,7 @@ interface ResponseProps {
   daylyForecast: DaylyForecast[];
 }
 
-const Home: React.FC = () => {
+const Home = () => {
   const [forecastToday, setForecastToday] = useState<ForecastToday>({} as ForecastToday);
   const [daylyForecast, setDaylyForecast] = useState<DaylyForecast[]>([]);
   const [enableLocation, setEnableLocation] = useState(false);
@@ -47,7 +47,7 @@ const Home: React.FC = () => {
         "HH':'mm' h'",
         { locale: ptBR },
       );
-  
+
       return formattedSunRiseTime;
     } else {
       return null;
@@ -61,7 +61,7 @@ const Home: React.FC = () => {
         "HH':'mm' h'",
         { locale: ptBR },
       );
-  
+
       return formattedSunsetTime
     } else {
       return null;
@@ -75,7 +75,7 @@ const Home: React.FC = () => {
         "dd '/' MMM",
         { locale: ptBR },
       );
-  
+
       return formattedCurrentDay;
     } else {
       return null;
@@ -84,10 +84,10 @@ const Home: React.FC = () => {
 
   const iconCode = ("0" + forecastToday.iconCode).slice(-2) as keyof typeof icons;
   const icon = icons[iconCode ?? "na"];
-  
+
   return (
     <>
-      <Header currentPage={"Home"} />
+      <Header />
       <Container>
 
         {!enableLocation
@@ -112,7 +112,7 @@ const Home: React.FC = () => {
                     <p>Pôr do sol<span>{sunsetTime ? sunsetTime: "--"}</span></p>
                   </div>
                 </main>
-          
+
                 <footer>
                   <h2>{forecastToday.daypartName}</h2>
 
@@ -130,7 +130,7 @@ const Home: React.FC = () => {
               <div style= {{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 130 }}>
                 <p style= {{ marginBottom: 20, fontSize: "2.4rem" }}>Previsão do tempo a caminho</p>
                 <Loader type='Circles' color='#3b5998' height={100} width={100} />
-              </div> 
+              </div>
           )
         }
 
