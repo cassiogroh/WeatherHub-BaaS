@@ -125,7 +125,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
       const station: StationProps[] = [] as StationProps[];
 
       if (data.status === "fulfilled" && isNaN(data.value) && data.value) {
-      
+
         const indexToReplace: number[] = [];
         const seven_days_ago = subDays(new Date(), 6);
 
@@ -245,7 +245,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
         })
 
         stationsHistoric.push(station);
-      
+
       } else {
         const stationHistoric: StationProps = {} as StationProps;
 

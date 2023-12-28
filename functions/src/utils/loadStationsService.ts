@@ -16,7 +16,7 @@ export const loadStationsService = async (request: LoadStationsProps) => {
     const userSnapshot = await firestore.collection("users").doc(userId).get();
     user = userSnapshot.data() as User;
   }
-  
+
   const urlArray = await handleStationsRequest({ user, singleStationId });
   const stationsArray = await populateStations({ urlArray, user });
 

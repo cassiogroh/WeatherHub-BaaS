@@ -26,7 +26,7 @@ export const addNewStationFunction = onCall(async (request) => {
   };
 
   const checkStationIsValid = async () => {
-    const response = 
+    const response =
       await fetch(getCurrentConditionsUrl(upperStationId))
         .catch(() => {
           throw new Error("Invalid station ID or station is currently offline");

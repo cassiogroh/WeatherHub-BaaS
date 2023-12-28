@@ -37,6 +37,7 @@ const eslintConfig = {
     "comma-dangle": ["error", "always-multiline"], // enforce trailing comma
     "eol-last": ["error", "always"], // enforce empty line at the end of files
     "@typescript-eslint/no-explicit-any": "off",
+    "no-trailing-spaces": "error",
   },
 };
 
