@@ -214,7 +214,7 @@ const StationCard = ({
               <FiEdit3 stroke={inputFocus ? "#3FCA87" : "#ddd"} />
             </button>
           </RenameField>
-          : <a href={url} target='blank'> { stationName } </a>
+          : <a title="Abrir estação em nova aba" href={url} target='blank'>{stationName}</a>
         }
 
         {status === "online" && !!propsView && currentOrHistoric===false ?
@@ -285,7 +285,7 @@ const StationCard = ({
       </CardStats>
 
       <CardBottom>
-        <p>ID: {stationID} </p>
+        <p>{stationID}</p>
 
         {!!user &&
           <div>
@@ -294,14 +294,14 @@ const StationCard = ({
               onMouseEnter={() => handleFocus("renameButton")}
               onMouseLeave={() => handleBlur("renameButton")}
               type='button'>
-              <FiEdit size={23} stroke={renameButtonFocus ? "#3FCA87" : "#ddd"} />
+              <FiEdit title="Renomear estação" size={23} stroke={renameButtonFocus ? "#3FCA87" : "#ddd"} />
             </button>
             <button
               onClick={(() => handleDeleteStation(stationID))}
               onMouseEnter={() => handleFocus("deleteButton")}
               onMouseLeave={() => handleBlur("deleteButton")}
               type='button' >
-              <FiTrash2 size={23} stroke={deleteButtonFocus ? "#FF9077" : "#ddd"} />
+              <FiTrash2 title="Remover estação" size={23} stroke={deleteButtonFocus ? "#FF9077" : "#ddd"} />
             </button>
           </div>
         }
