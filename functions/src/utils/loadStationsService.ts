@@ -21,4 +21,4 @@ export const loadStationsService = async (request: LoadStationsProps) => {
   const stationsArray = await populateStations({ urlArray, user });
 
   return stationsArray;
-}
+};

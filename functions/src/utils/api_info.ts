@@ -21,18 +21,18 @@ export const apiInfo = {
   ],
 };
 
-export function getCurrentConditionsUrl( stationId: string): string {
-  const url = `https://api.weather.com/v2/pws/observations/current?stationId=${stationId}&format=json&units=${apiInfo.units}&apiKey=${apiInfo.apiKey}&numericPrecision=${apiInfo.numericPreicison}`;
+export function getCurrentConditionsUrl( stationId: string, apiKey: string): string {
+  const url = `https://api.weather.com/v2/pws/observations/current?stationId=${stationId}&format=json&units=${apiInfo.units}&apiKey=${apiKey}&numericPrecision=${apiInfo.numericPreicison}`;
   return url;
 }
 
-export function getHistoricUrl( stationId: string): string {
-  const url = `https://api.weather.com/v2/pws/dailysummary/7day?stationId=${stationId}&format=json&units=${apiInfo.units}&apiKey=${apiInfo.apiKey}&numericPrecision=${apiInfo.numericPreicison}`;
+export function getHistoricUrl( stationId: string, apiKey: string): string {
+  const url = `https://api.weather.com/v2/pws/dailysummary/7day?stationId=${stationId}&format=json&units=${apiInfo.units}&apiKey=${apiKey}&numericPrecision=${apiInfo.numericPreicison}`;
   return url;
 }
 
-export function getGeoCodeUrl( latitude: number, longitude: number): string {
-  const url = `https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${latitude},${longitude}&format=json&units=${apiInfo.units}&language=${apiInfo.language}&apiKey=${apiInfo.apiKey}`;
+export function getGeoCodeUrl( latitude: number, longitude: number, apiKey: string): string {
+  const url = `https://api.weather.com/v3/wx/forecast/daily/5day?geocode=${latitude},${longitude}&format=json&units=${apiInfo.units}&language=${apiInfo.language}&apiKey=${apiKey}`;
   return url;
 }
 

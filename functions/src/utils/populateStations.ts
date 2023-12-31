@@ -18,7 +18,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
     const now = Date.now();
     const quarterAfterMidnight = new Date(getYear(now), getMonth(now), getDate(now), 0, 15, 0);
     return isAfter(now, quarterAfterMidnight);
-  }
+  };
 
   const stationsCurrentData = await Promise.allSettled(
     urlArray.map((urls, index) =>
@@ -26,7 +26,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
         .then(response => response.json())
         .catch(() => offlineStations.push(urlArray[index].stationID)),
     ),
-  )
+  );
 
   let stationsHistoricData = null;
   isQuarterAfterMidnight() &&
@@ -34,11 +34,11 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
     stationsHistoricData = await Promise.allSettled(
       urlArray.map((urls) =>
         fetch(urls.urlHistoric)
-          .then(response => {return response.json()})
+          .then(response => {return response.json();})
           .catch(err => console.log("Error fetching historic data: ", err)),
       ),
     )
-  )
+  );
 
   const stationsCurrent: object[] = [];
   let stationsHistoric: object[] = [];
@@ -64,11 +64,11 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
         windSpeed,
       } = data.value.observations[0][unitSystem];
 
-      const { humidity } = data.value.observations[0]
+      const { humidity } = data.value.observations[0];
 
       station.neighborhood = data.value.observations[0].neighborhood;
       station.stationID = data.value.observations[0].stationID;
-      station.url = `http://www.wunderground.com/personal-weather-station/dashboard?ID=${station.stationID}`
+      station.url = `http://www.wunderground.com/personal-weather-station/dashboard?ID=${station.stationID}`;
       station.dewpt = dewpt || dewpt === 0 ? dewpt.toFixed(1) : "--";
       station.humidity = humidity || humidity === 0 ? humidity.toFixed(1) : "--";
       station.elev = elev || elev === 0 ? elev.toFixed(1) : "--";
@@ -85,7 +85,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
       if (!user.stations) {
         station.name = station.neighborhood;
       } else {
-        const stationIndex = user.stations.findIndex(userStationId => userStationId === station.stationID)
+        const stationIndex = user.stations.findIndex(userStationId => userStationId === station.stationID);
 
         if (stationIndex < 0) {
           throw new Error("Station index does not match");
@@ -102,12 +102,12 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
     } else {
       station.status = "offline";
       station.stationID = offlineStations[i];
-      station.url = `http://www.wunderground.com/personal-weather-station/dashboard?ID=${offlineStations[i]}`
+      station.url = `http://www.wunderground.com/personal-weather-station/dashboard?ID=${offlineStations[i]}`;
 
       if (!user.stations) {
         station.name = offlineStations[i];
       } else {
-        const stationIndex = user.stations.findIndex(userStationId => userStationId === station.stationID)
+        const stationIndex = user.stations.findIndex(userStationId => userStationId === station.stationID);
 
         if (stationIndex < 0) {
           throw new Error("Station index does not match");
@@ -179,7 +179,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
             windspeedHigh: null,
             windspeedLow: null,
           },
-        })
+        });
       });
 
         data.value.summaries.forEach((historicData: any) => {
@@ -242,7 +242,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
           stationHistoric.precipTotalHistoric = precipTotal || precipTotal === 0 ? precipTotal.toFixed(1) : "";
 
           station.push(stationHistoric);
-        })
+        });
 
         stationsHistoric.push(station);
 

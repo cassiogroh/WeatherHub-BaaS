@@ -38,6 +38,7 @@ const eslintConfig = {
     "eol-last": ["error", "always"], // enforce empty line at the end of files
     "@typescript-eslint/no-explicit-any": "off",
     "no-trailing-spaces": "error",
+    "semi": [2, "always"],
   },
 };
 

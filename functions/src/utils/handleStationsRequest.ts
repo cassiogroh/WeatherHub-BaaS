@@ -22,7 +22,7 @@ export const handleStationsRequest = async ({ user, singleStationId }: HandleSta
           stationID: userStations[i],
           urlCurrent: getCurrentConditionsUrl(userStations[i]),
           urlHistoric: getHistoricUrl(userStations[i]),
-        }
+        };
       }
 
     } else { // used when adding a station to dashboard
@@ -32,7 +32,7 @@ export const handleStationsRequest = async ({ user, singleStationId }: HandleSta
         stationID: singleStationId,
         urlCurrent: getCurrentConditionsUrl(singleStationId),
         urlHistoric: getHistoricUrl(singleStationId),
-      }
+      };
     }
   } else {
     // Grabing data for home page
@@ -41,9 +41,9 @@ export const handleStationsRequest = async ({ user, singleStationId }: HandleSta
         stationID: apiInfo.stationsId[i],
         urlCurrent: getCurrentConditionsUrl(apiInfo.stationsId[i]),
         urlHistoric: getHistoricUrl(apiInfo.stationsId[i]),
-      }
+      };
     }
   }
 
   return urlArray;
-}
+};
