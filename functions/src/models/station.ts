@@ -42,7 +42,7 @@ export interface HistoricConditions {
   lastFetchUnix: number;
   order: number;
   status: "online" | "offline";
-  conditions: {
+  conditions: Array<{
     tempHigh: string;
     tempLow: string;
     tempAvg: string;
@@ -65,11 +65,12 @@ export interface HistoricConditions {
     pressureMin: string;
     pressureTrend: string;
     precipTotal: string;
+    precipRate: string;
     solarRadiationHigh: string;
     uvHigh: string;
     winddirAvg: string;
     humidityHigh: string;
     humidityLow: string;
     humidityAvg: string;
-  }
+  }>
 }

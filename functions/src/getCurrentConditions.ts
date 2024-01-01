@@ -10,7 +10,7 @@ interface MetricProps {
   dewpt: number;
   windChill: number;
   windSpeed: number;
-  windGust: null | number;
+  windGust: number;
   pressure: number;
   precipRate: number;
   precipTotal: number;
@@ -43,11 +43,11 @@ interface ApiResponse {
 
 interface WeatherDataFetchUrlsProps {
   station: CurrentConditions;
-  urlCurrent: string;
+  fetchUrl: string;
   shouldFetchNewData: boolean;
 }
 
-interface GetUserCurrentConditionsProps {
+interface GetCurrentConditionsProps {
   userId: string;
   currentPage: number;
 }
@@ -56,10 +56,10 @@ function formatValue(value: number | null | undefined): string {
   return value || value === 0 ? value.toFixed(1) : "--";
 }
 
-export const getUserCurrentConditionsFunction = async ({
+export const getCurrentConditionsFunction = async ({
   userId,
   currentPage,
-}: GetUserCurrentConditionsProps,
+}: GetCurrentConditionsProps,
 ) => {
   // Get user stations from DB
   const startAt = (currentPage - 1) * PAGE_SIZE;
@@ -91,7 +91,7 @@ export const getUserCurrentConditionsFunction = async ({
 
     weatherDataFetchUrls.push({
       station,
-      urlCurrent: getCurrentConditionsUrl(station.stationID, apiKey),
+      fetchUrl: getCurrentConditionsUrl(station.stationID, apiKey),
       shouldFetchNewData: minutesSinceLastFetch > MINUTES_TO_FETCH_NEW_DATA,
     });
   });
@@ -100,11 +100,11 @@ export const getUserCurrentConditionsFunction = async ({
 
   // Fetch data from WU API, or return the current data from DB if the data is not outdated
   const currentConditionsData = await Promise.allSettled(
-    weatherDataFetchUrls.map(async ({ station, urlCurrent, shouldFetchNewData }) => {
+    weatherDataFetchUrls.map(async ({ station, fetchUrl, shouldFetchNewData }) => {
 
       try {
         if (shouldFetchNewData) {
-          const response = await fetch(urlCurrent);
+          const response = await fetch(fetchUrl);
           const responseData = await response.json();
           return {
             newData: true,

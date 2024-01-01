@@ -9,24 +9,14 @@ interface RequestProps {
   user: User;
 }
 
-export const populateStations = (async ({ urlArray, user }: RequestProps) => {
+export const populateStations = (async ({ urlArray }: RequestProps) => {
   const unitSystem = apiInfo.units === "m" ? "metric" : "imperial";
-
-  const offlineStations: string[] = [];
 
   const isQuarterAfterMidnight = () => {
     const now = Date.now();
     const quarterAfterMidnight = new Date(getYear(now), getMonth(now), getDate(now), 0, 15, 0);
     return isAfter(now, quarterAfterMidnight);
   };
-
-  const stationsCurrentData = await Promise.allSettled(
-    urlArray.map((urls, index) =>
-      fetch(urls.urlCurrent)
-        .then(response => response.json())
-        .catch(() => offlineStations.push(urlArray[index].stationID)),
-    ),
-  );
 
   let stationsHistoricData = null;
   isQuarterAfterMidnight() &&
@@ -40,87 +30,9 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
     )
   );
 
-  const stationsCurrent: object[] = [];
-  let stationsHistoric: object[] = [];
+  const stationsHistoric: object[] = [];
 
-  if (offlineStations.length) {
-    var i = 0;
-  }
-
-  stationsCurrentData.forEach((data) => {
-    const station: StationProps = {} as StationProps;
-
-    if (data.status === "fulfilled" && isNaN(data.value) ) {
-      const {
-        dewpt,
-        elev,
-        heatIndex,
-        precipRate,
-        precipTotal,
-        pressure,
-        temp,
-        windChill,
-        windGust,
-        windSpeed,
-      } = data.value.observations[0][unitSystem];
-
-      const { humidity } = data.value.observations[0];
-
-      station.neighborhood = data.value.observations[0].neighborhood;
-      station.stationID = data.value.observations[0].stationID;
-      station.url = `http://www.wunderground.com/personal-weather-station/dashboard?ID=${station.stationID}`;
-      station.dewpt = dewpt || dewpt === 0 ? dewpt.toFixed(1) : "--";
-      station.humidity = humidity || humidity === 0 ? humidity.toFixed(1) : "--";
-      station.elev = elev || elev === 0 ? elev.toFixed(1) : "--";
-      station.heatIndex = heatIndex || heatIndex === 0 ? heatIndex.toFixed(1) : "--";
-      station.precipRate = precipRate || precipRate === 0 ? precipRate.toFixed(1) : "--";
-      station.precipTotal = precipTotal || precipTotal === 0 ? precipTotal.toFixed(1) : "--";
-      station.pressure = pressure || pressure === 0 ? pressure.toFixed(1) : "--";
-      station.temp = temp || temp === 0 ? temp.toFixed(1) : "--";
-      station.windChill = windChill || windChill === 0 ? windChill.toFixed(1) : "--";
-      station.windGust = windGust || windGust === 0 ? windGust.toFixed(1) : "--";
-      station.windSpeed = windSpeed || windSpeed === 0 ? windSpeed.toFixed(1) : "--";
-      station.status = "online";
-
-      if (!user.stations) {
-        station.name = station.neighborhood;
-      } else {
-        const stationIndex = user.stations.findIndex(userStationId => userStationId === station.stationID);
-
-        if (stationIndex < 0) {
-          throw new Error("Station index does not match");
-        }
-
-        if (user.stations === user.stations_names) {
-          station.name = station.neighborhood;
-        } else {
-          station.name = user.stations_names[stationIndex];
-        }
-      }
-
-      stationsCurrent.push(station);
-    } else {
-      station.status = "offline";
-      station.stationID = offlineStations[i];
-      station.url = `http://www.wunderground.com/personal-weather-station/dashboard?ID=${offlineStations[i]}`;
-
-      if (!user.stations) {
-        station.name = offlineStations[i];
-      } else {
-        const stationIndex = user.stations.findIndex(userStationId => userStationId === station.stationID);
-
-        if (stationIndex < 0) {
-          throw new Error("Station index does not match");
-        }
-        station.name = user.stations_names[stationIndex];
-      }
-
-      stationsCurrent.push(station);
-      i++;
-    }
-  });
-
-  isQuarterAfterMidnight() && stationsHistoricData ?
+  if (isQuarterAfterMidnight() && stationsHistoricData) {
     stationsHistoricData.forEach(data => {
       const station: StationProps[] = [] as StationProps[];
 
@@ -149,38 +61,38 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
         }
 
         indexToReplace.length &&
-      indexToReplace.forEach(index => {
-        data.value.summaries.splice(index, 0, {
-          humidityAvg: null,
-          humidityHigh: null,
-          humidityLow: null,
-          metric: {
-            dewptAvg: null,
-            dewptHigh: null,
-            dewptLow: null,
-            heatindexAvg: null,
-            heatindexHigh: null,
-            heatindexLow: null,
-            precipRate: null,
-            precipTotal: null,
-            pressureMax: null,
-            pressureMin: null,
-            pressureTrend: null,
-            tempAvg: null,
-            tempHigh: null,
-            tempLow: null,
-            windchillAvg: null,
-            windchillHigh: null,
-            windchillLow: null,
-            windgustAvg: null,
-            windgustHigh: null,
-            windgustLow: null,
-            windspeedAvg: null,
-            windspeedHigh: null,
-            windspeedLow: null,
-          },
+        indexToReplace.forEach(index => {
+          data.value.summaries.splice(index, 0, {
+            humidityAvg: null,
+            humidityHigh: null,
+            humidityLow: null,
+            metric: {
+              dewptAvg: null,
+              dewptHigh: null,
+              dewptLow: null,
+              heatindexAvg: null,
+              heatindexHigh: null,
+              heatindexLow: null,
+              precipRate: null,
+              precipTotal: null,
+              pressureMax: null,
+              pressureMin: null,
+              pressureTrend: null,
+              tempAvg: null,
+              tempHigh: null,
+              tempLow: null,
+              windchillAvg: null,
+              windchillHigh: null,
+              windchillLow: null,
+              windgustAvg: null,
+              windgustHigh: null,
+              windgustLow: null,
+              windspeedAvg: null,
+              windspeedHigh: null,
+              windspeedLow: null,
+            },
+          });
         });
-      });
 
         data.value.summaries.forEach((historicData: any) => {
           const stationHistoric: StationProps = {} as StationProps;
@@ -208,7 +120,7 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
             pressureMin,
             precipTotal,
           }
-        = historicData[unitSystem];
+          = historicData[unitSystem];
 
           const {
             humidityLow,
@@ -280,9 +192,9 @@ export const populateStations = (async ({ urlArray, user }: RequestProps) => {
 
         stationsHistoric.push(station);
       }
-    })
-    : stationsHistoric = [{ ...Array(stationsCurrent.length).keys() }];
+    });
+  }
 
-  return { stationsCurrent, stationsHistoric };
+  return { stationsHistoric };
 });
 

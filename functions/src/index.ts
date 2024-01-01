@@ -6,7 +6,8 @@ import { addNewStationFunction } from "./addNewStation";
 import { deleteStationFunction } from "./deleteStation";
 import { renameStationFunction } from "./renameStation";
 import { updateProfileFunction } from "./updateProfile";
-import { getUserCurrentConditionsFunction } from "./getUserCurrentConditions";
+import { getCurrentConditionsFunction } from "./getCurrentConditions";
+import { getHistoricConditionsFunction } from "./getHistoricConditions";
 
 admin.initializeApp();
 
@@ -18,4 +19,5 @@ export const addNewStation = addNewStationFunction;
 export const deleteStation = deleteStationFunction;
 export const renameStation = renameStationFunction;
 export const updateProfile = updateProfileFunction;
-export const getUserCurrentConditions = getUserCurrentConditionsFunction;
+export const getUserCurrentConditions = getCurrentConditionsFunction;
+export const getHistoricConditions = getHistoricConditionsFunction;
