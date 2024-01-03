@@ -5,6 +5,7 @@ export interface User {
   created_at: string;
   subscription: SubscriptionStatus;
   lastDataFetchUnix: number;
+  stationsIds: string[];
 }
 
 export enum SubscriptionStatus {

@@ -1,5 +1,5 @@
 import { CurrentConditions } from "./models/station";
-import { currentConditions } from "./utils/collections";
+import { currentConditions, users } from "./utils/collections";
 import { retrieveApiKey } from "./utils/getConditions/retrieveApiKey";
 import { getUrlsToFetch } from "./utils/getConditions/getUrlsToFetch";
 import { fetchDbConditions } from "./utils/getConditions/fetchDbConditions";
@@ -7,6 +7,8 @@ import { fetchWuConditions } from "./utils/getConditions/fetchWuConditions";
 import { verifyUserSubscription } from "./utils/getConditions/verifyUserSubscription";
 import { updateStationsDb } from "./utils/getConditions/updateStationsDb";
 import { updateUserDb } from "./utils/getConditions/updateUserDb";
+import { User } from "./models/user";
+import { subscriptionStatus } from "./utils/subscriptionInfo";
 
 interface MetricProps {
   temp: number;
@@ -47,7 +49,6 @@ interface ApiResponse {
 
 interface GetCurrentConditionsProps {
   userId: string;
-  stationsIds: string[];
   currentPage: number;
 }
 
@@ -57,12 +58,19 @@ function formatValue(value: number | null): string {
 
 export const getCurrentConditionsFunction = async ({
   userId,
-  stationsIds,
   currentPage,
 }: GetCurrentConditionsProps,
 ) => {
   const currentUnixTime = Date.now();
-  const { userCanFetchNewData, maxStationsToFetch } = await verifyUserSubscription({ userId, currentUnixTime });
+
+  // Fetch the user document from the database
+  const userSnapshot = await users.doc(userId).get();
+  const user = userSnapshot.data() as User;
+
+  const { stationsIds, subscription } = user;
+
+  const maxStationsToFetch = subscriptionStatus[subscription].maxStations;
+  const userCanFetchNewData = await verifyUserSubscription({ user, currentUnixTime });
 
   // Get stations from DB
   const dbCurrentConditions = await fetchDbConditions<CurrentConditions>({
