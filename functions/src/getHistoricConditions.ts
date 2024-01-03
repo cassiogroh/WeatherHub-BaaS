@@ -1,10 +1,15 @@
 import { subDays } from "date-fns";
 
-import { getApiKey } from "./utils/getApiKey";
-import { getHistoricUrl } from "./utils/api_info";
-import { historicConditions } from "./utils/collections";
 import { HistoricConditions } from "./models/station";
-import { PAGE_SIZE, MINUTES_TO_FETCH_NEW_DATA, historyConditionsMock } from "./utils/constans";
+import { historicConditions } from "./utils/collections";
+import { historyConditionsMock } from "./utils/constans";
+import { retrieveApiKey } from "./utils/getConditions/retrieveApiKey";
+import { getUrlsToFetch } from "./utils/getConditions/getUrlsToFetch";
+import { fetchDbConditions } from "./utils/getConditions/fetchDbConditions";
+import { fetchWuConditions } from "./utils/getConditions/fetchWuConditions";
+import { verifyUserSubscription } from "./utils/getConditions/verifyUserSubscription";
+import { updateStationsDb } from "./utils/getConditions/updateStationsDb";
+import { updateUserDb } from "./utils/getConditions/updateUserDb";
 
 interface MetricProps {
   tempHigh: number | null;
@@ -49,19 +54,14 @@ interface HistoricConditionsResponse {
   metric: MetricProps;
 }
 
-// Documentation: https://bit.ly/3TIaMNP
+// Documentation: https://bit.ly/3U1SVSr
 interface ApiResponse {
   summaries: HistoricConditionsResponse[];
 }
 
-interface WeatherDataFetchUrlsProps {
-  station: HistoricConditions;
-  fetchUrl: string;
-  shouldFetchNewData: boolean;
-}
-
 interface GetHistoricConditionsProps {
   userId: string;
+  stationsIds: string[];
   currentPage: number;
 }
 
@@ -71,74 +71,42 @@ function formatValue(value: number | null): string {
 
 export const getHistoricConditionsFunction = async ({
   userId,
+  stationsIds,
   currentPage,
 }: GetHistoricConditionsProps,
 ) => {
-  // Get user stations from DB
-  const startAt = (currentPage - 1) * PAGE_SIZE;
-  const userStationsSnapshot = await historicConditions.where("userId", "==", userId).orderBy("order").startAt(startAt).limit(PAGE_SIZE).get();
+  const currentUnixTime = Date.now();
+  const { userCanFetchNewData, maxStationsToFetch } = await verifyUserSubscription({ userId, currentUnixTime });
 
-  const userHistoricConditions: HistoricConditions[] = userStationsSnapshot.docs.map(doc => {
-    return {
-      ...doc.data() as HistoricConditions,
-    };
+  // Get stations from DB
+  const dbHistoricConditions = await fetchDbConditions<HistoricConditions>({
+    collection: historicConditions,
+    stationsIds,
+    currentPage,
+    maxStationsToFetch,
   });
+
+  // If the user can't fetch new data, return the current data from DB
+  if (!userCanFetchNewData) return { historicConditions: dbHistoricConditions };
+
+  const lastFetchUnixArray = dbHistoricConditions.map((station) => station.lastFetchUnix);
 
   // Verify how many api requests are needed and get an api key with enough available requests
-  const currentUnixTime = Date.now();
-  const lastFetchUnixArray = userHistoricConditions.map((station) => station.lastFetchUnix);
+  const apiKey = await retrieveApiKey({ currentUnixTime, lastFetchUnixArray });
 
-  const apiKey = await getApiKey({ currentUnixTime, lastFetchUnixArray });
-
-  // If no API key is available, return the current data from DB
-  if (!apiKey) return { historicConditions: userHistoricConditions };
+  // If there is no api key, return the current data from DB
+  if (!apiKey) return { historicConditions: dbHistoricConditions };
 
   // Create an array with the urls to fetch data from Weather Underground (WU)
-  const weatherDataFetchUrls: WeatherDataFetchUrlsProps[] = [];
-  userHistoricConditions.forEach((station) => {
-    const minutesSinceLastFetch = (currentUnixTime - station.lastFetchUnix) / 1000 / 60;
-
-    weatherDataFetchUrls.push({
-      station,
-      fetchUrl: getHistoricUrl(station.stationID, apiKey),
-      shouldFetchNewData: minutesSinceLastFetch > MINUTES_TO_FETCH_NEW_DATA,
-    });
-  });
-
-  const offlineStations: HistoricConditions[] = [];
+  const weatherDataFetchUrls = await getUrlsToFetch<HistoricConditions>({ dbConditions: dbHistoricConditions, currentUnixTime, apiKey });
 
   // Fetch data from WU API, or return the current data from DB if the data is not outdated
-  const stationsHistoricData = await Promise.allSettled(
-    weatherDataFetchUrls.map(async ({ station, fetchUrl, shouldFetchNewData }) => {
-      try {
-        if (shouldFetchNewData) {
-          const response = await fetch(fetchUrl);
-          const responseData = await response.json();
-          return {
-            newData: true,
-            responseData,
-            station,
-          };
-        }
-
-        return {
-          newData: false,
-          responseData: null,
-          station,
-        };
-      } catch (error) {
-        console.error(error);
-        offlineStations.push(station);
-        return;
-      }
-    },
-    ),
-  );
+  const { offlineStations, conditionsData } = await fetchWuConditions({ weatherDataFetchUrls });
 
   const historicConditionsArray: HistoricConditions[] = [];
 
   // Create an array with the current conditions
-  stationsHistoricData.forEach((data) => {
+  conditionsData.forEach((data) => {
     if (data.status !== "fulfilled" || !data.value?.responseData) {
       const station = offlineStations.shift();
       if (!station) return;
@@ -166,22 +134,25 @@ export const getHistoricConditionsFunction = async ({
     // offline for more than one day, the API will return less than seven days
     // of observations, so we need to fill the gaps with mock data (null).
     const indexToReplace: number[] = [];
-    const seven_days_ago = subDays(new Date(), 6);
+    const sevenDaysAgo = subDays(new Date(), 6);
 
     const isObservationsLessThanSeven = observations.length < 7;
-    const isObservationsFirstDayNotSevenDaysAgo = new Date(observations[0].obsTimeLocal).getDate() !== seven_days_ago.getDate();
+    const isObservationsFirstDayNotSevenDaysAgo = new Date(observations[0].obsTimeLocal).getDate() !== sevenDaysAgo.getDate();
     const isObservationsLastDayNotToday = new Date(observations[observations.length - 1].obsTimeLocal).getDate() !== new Date().getDate();
 
     if (isObservationsLessThanSeven) {
+      // Iterate over the observations array, excluding the last element
       for (let i = 0; i < observations.length - 1; i++) {
+        // Get the date (day of the month) of the current observation
         const date1 = new Date(observations[i].obsTimeLocal).getDate();
+        // Get the date (day of the month) of the next observation
         const date2 = new Date(observations[i + 1].obsTimeLocal).getDate();
 
+        // Check if the gap between the current observation date and the next observation date is more than one day
         const isDateGapMoreThanOneDay = date2 > date1 + 1;
 
-        if (isDateGapMoreThanOneDay) {
-          indexToReplace.push(i+1);
-        }
+        // If the date gap is more than one day, add the index of the next observation to the indexToReplace array
+        if (isDateGapMoreThanOneDay) indexToReplace.push(i+1);
       }
     }
 
@@ -198,30 +169,32 @@ export const getHistoricConditionsFunction = async ({
 
     // Populate the station with the last seven days of observations
     observations.forEach((historicData) => {
+      const { metric } = historicData;
+
       station.conditions.push({
-        tempHigh: formatValue(historicData.metric.tempHigh),
-        tempLow: formatValue(historicData.metric.tempLow),
-        tempAvg: formatValue(historicData.metric.tempAvg),
-        windspeedHigh: formatValue(historicData.metric.windspeedHigh),
-        windspeedLow: formatValue(historicData.metric.windspeedLow),
-        windspeedAvg: formatValue(historicData.metric.windspeedAvg),
-        windgustHigh: formatValue(historicData.metric.windgustHigh),
-        windgustLow: formatValue(historicData.metric.windgustLow),
-        windgustAvg: formatValue(historicData.metric.windgustAvg),
-        dewptHigh: formatValue(historicData.metric.dewptHigh),
-        dewptLow: formatValue(historicData.metric.dewptLow),
-        dewptAvg: formatValue(historicData.metric.dewptAvg),
-        windchillHigh: formatValue(historicData.metric.windchillHigh),
-        windchillLow: formatValue(historicData.metric.windchillLow),
-        windchillAvg: formatValue(historicData.metric.windchillAvg),
-        heatindexHigh: formatValue(historicData.metric.heatindexHigh),
-        heatindexLow: formatValue(historicData.metric.heatindexLow),
-        heatindexAvg: formatValue(historicData.metric.heatindexAvg),
-        pressureMax: formatValue(historicData.metric.pressureMax),
-        pressureMin: formatValue(historicData.metric.pressureMin),
-        precipTotal: formatValue(historicData.metric.precipTotal),
-        precipRate: formatValue(historicData.metric.precipRate),
-        pressureTrend: formatValue(historicData.metric.pressureTrend),
+        tempHigh: formatValue(metric.tempHigh),
+        tempLow: formatValue(metric.tempLow),
+        tempAvg: formatValue(metric.tempAvg),
+        windspeedHigh: formatValue(metric.windspeedHigh),
+        windspeedLow: formatValue(metric.windspeedLow),
+        windspeedAvg: formatValue(metric.windspeedAvg),
+        windgustHigh: formatValue(metric.windgustHigh),
+        windgustLow: formatValue(metric.windgustLow),
+        windgustAvg: formatValue(metric.windgustAvg),
+        dewptHigh: formatValue(metric.dewptHigh),
+        dewptLow: formatValue(metric.dewptLow),
+        dewptAvg: formatValue(metric.dewptAvg),
+        windchillHigh: formatValue(metric.windchillHigh),
+        windchillLow: formatValue(metric.windchillLow),
+        windchillAvg: formatValue(metric.windchillAvg),
+        heatindexHigh: formatValue(metric.heatindexHigh),
+        heatindexLow: formatValue(metric.heatindexLow),
+        heatindexAvg: formatValue(metric.heatindexAvg),
+        pressureMax: formatValue(metric.pressureMax),
+        pressureMin: formatValue(metric.pressureMin),
+        precipTotal: formatValue(metric.precipTotal),
+        precipRate: formatValue(metric.precipRate),
+        pressureTrend: formatValue(metric.pressureTrend),
         humidityLow: formatValue(historicData.humidityLow),
         humidityAvg: formatValue(historicData.humidityAvg),
         humidityHigh: formatValue(historicData.humidityHigh),
@@ -233,6 +206,9 @@ export const getHistoricConditionsFunction = async ({
 
     historicConditionsArray.push(station);
   });
+
+  await updateStationsDb<HistoricConditions>({ collection: historicConditions, stations: historicConditionsArray });
+  await updateUserDb({ userId, lastFetchUnix: currentUnixTime, lastFetchPage: currentPage });
 
   return { historicConditions: historicConditionsArray };
 };

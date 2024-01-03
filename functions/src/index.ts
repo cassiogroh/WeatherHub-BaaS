@@ -12,6 +12,8 @@ import { getHistoricConditionsFunction } from "./getHistoricConditions";
 admin.initializeApp();
 
 export const firestore = admin.firestore();
+export const fieldPath = admin.firestore.FieldPath;
+export const fieldValue = admin.firestore.FieldValue;
 
 export const getForecast = getForecastFunction;
 export const loadStations = loadStationsFunction;
@@ -19,5 +21,5 @@ export const addNewStation = addNewStationFunction;
 export const deleteStation = deleteStationFunction;
 export const renameStation = renameStationFunction;
 export const updateProfile = updateProfileFunction;
-export const getUserCurrentConditions = getCurrentConditionsFunction;
+export const getCurrentConditions = getCurrentConditionsFunction;
 export const getHistoricConditions = getHistoricConditionsFunction;

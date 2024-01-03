@@ -1,5 +1,5 @@
 import { onCall } from "firebase-functions/v2/https";
-import { getGeoCodeUrl } from "./utils/api_info";
+import { getGeoCodeUrl } from "./utils/apiInfo";
 
 interface DaylyForecast {
   dayOfWeek: string;

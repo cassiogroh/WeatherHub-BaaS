@@ -1,4 +1,4 @@
-import { getCurrentConditionsUrl, getHistoricUrl, apiInfo } from "./api_info";
+import { getCurrentConditionsUrl, getHistoricUrl, apiInfo } from "./apiInfo";
 import { UrlArray } from "../loadStations";
 import { User } from "../models/user";
 

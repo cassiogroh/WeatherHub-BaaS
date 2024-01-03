@@ -1,7 +1,7 @@
 import { getDate, getMonth, getYear, isAfter, subDays } from "date-fns";
 import { StationProps } from "../models/station";
 import { UrlArray } from "../loadStations";
-import { apiInfo } from "./api_info";
+import { apiInfo } from "./apiInfo";
 import { User } from "../models/user";
 
 interface RequestProps {

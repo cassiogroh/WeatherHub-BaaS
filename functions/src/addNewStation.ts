@@ -1,7 +1,7 @@
 import { onCall } from "firebase-functions/v2/https";
 
 import { loadStationsService } from "./utils/loadStationsService";
-import { getCurrentConditionsUrl } from "./utils/api_info";
+import { getCurrentConditionsUrl } from "./utils/apiInfo";
 import { User } from "./models/user";
 import { firestore } from "./index";
 

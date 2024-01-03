@@ -1,8 +1,12 @@
 import { CurrentConditions } from "./models/station";
-import { getCurrentConditionsUrl } from "./utils/api_info";
 import { currentConditions } from "./utils/collections";
-import { PAGE_SIZE, MINUTES_TO_FETCH_NEW_DATA } from "./utils/constans";
-import { getApiKey } from "./utils/getApiKey";
+import { retrieveApiKey } from "./utils/getConditions/retrieveApiKey";
+import { getUrlsToFetch } from "./utils/getConditions/getUrlsToFetch";
+import { fetchDbConditions } from "./utils/getConditions/fetchDbConditions";
+import { fetchWuConditions } from "./utils/getConditions/fetchWuConditions";
+import { verifyUserSubscription } from "./utils/getConditions/verifyUserSubscription";
+import { updateStationsDb } from "./utils/getConditions/updateStationsDb";
+import { updateUserDb } from "./utils/getConditions/updateUserDb";
 
 interface MetricProps {
   temp: number;
@@ -41,96 +45,54 @@ interface ApiResponse {
   observations: CurrentConditionsResponse[];
 }
 
-interface WeatherDataFetchUrlsProps {
-  station: CurrentConditions;
-  fetchUrl: string;
-  shouldFetchNewData: boolean;
-}
-
 interface GetCurrentConditionsProps {
   userId: string;
+  stationsIds: string[];
   currentPage: number;
 }
 
-function formatValue(value: number | null | undefined): string {
+function formatValue(value: number | null): string {
   return value || value === 0 ? value.toFixed(1) : "--";
 }
 
 export const getCurrentConditionsFunction = async ({
   userId,
+  stationsIds,
   currentPage,
 }: GetCurrentConditionsProps,
 ) => {
-  // Get user stations from DB
-  const startAt = (currentPage - 1) * PAGE_SIZE;
-  const userStationsSnapshot = await currentConditions.where("userId", "==", userId).orderBy("order").startAt(startAt).limit(PAGE_SIZE).get();
+  const currentUnixTime = Date.now();
+  const { userCanFetchNewData, maxStationsToFetch } = await verifyUserSubscription({ userId, currentUnixTime });
 
-  const userCurrentConditions: CurrentConditions[] = userStationsSnapshot.docs.map(doc => {
-    return {
-      ...doc.data() as CurrentConditions,
-    };
+  // Get stations from DB
+  const dbCurrentConditions = await fetchDbConditions<CurrentConditions>({
+    collection: currentConditions,
+    stationsIds,
+    currentPage,
+    maxStationsToFetch,
   });
+
+  // If the user can't fetch new data, return the current data from DB
+  if (!userCanFetchNewData) return { currentConditions: dbCurrentConditions };
+
+  const lastFetchUnixArray = dbCurrentConditions.map((station) => station.lastFetchUnix);
 
   // Verify how many api requests are needed and get an api key with enough available requests
-  const currentUnixTime = Date.now();
-  const lastFetchUnixArray = userCurrentConditions.map((station) => station.lastFetchUnix);
+  const apiKey = await retrieveApiKey({ currentUnixTime, lastFetchUnixArray });
 
-  const apiKey = await getApiKey({ currentUnixTime, lastFetchUnixArray });
-
-  if (!apiKey) {
-    return {
-      currentConditions: userCurrentConditions,
-      fetchUnix: currentUnixTime,
-    };
-  }
+  // If there is no api key, return the current data from DB
+  if (!apiKey) return { currentConditions: dbCurrentConditions };
 
   // Create an array with the urls to fetch data from Weather Underground (WU)
-  const weatherDataFetchUrls: WeatherDataFetchUrlsProps[] = [];
-  userCurrentConditions.forEach((station) => {
-    const minutesSinceLastFetch = (currentUnixTime - station.lastFetchUnix) / 1000 / 60;
-
-    weatherDataFetchUrls.push({
-      station,
-      fetchUrl: getCurrentConditionsUrl(station.stationID, apiKey),
-      shouldFetchNewData: minutesSinceLastFetch > MINUTES_TO_FETCH_NEW_DATA,
-    });
-  });
-
-  const offlineStations: CurrentConditions[] = [];
+  const weatherDataFetchUrls = await getUrlsToFetch<CurrentConditions>({ dbConditions: dbCurrentConditions, currentUnixTime, apiKey });
 
   // Fetch data from WU API, or return the current data from DB if the data is not outdated
-  const currentConditionsData = await Promise.allSettled(
-    weatherDataFetchUrls.map(async ({ station, fetchUrl, shouldFetchNewData }) => {
-
-      try {
-        if (shouldFetchNewData) {
-          const response = await fetch(fetchUrl);
-          const responseData = await response.json();
-          return {
-            newData: true,
-            responseData,
-            station,
-          };
-        }
-
-        return {
-          newData: false,
-          responseData: null,
-          station,
-        };
-      } catch (error) {
-        console.error(error);
-        offlineStations.push(station);
-        return;
-      }
-    },
-    ),
-  );
+  const { offlineStations, conditionsData } = await fetchWuConditions({ weatherDataFetchUrls });
 
   const currentConditionsArray: CurrentConditions[] = [];
 
   // Create an array with the current conditions
-  currentConditionsData.forEach((data) => {
+  conditionsData.forEach((data) => {
     if (data.status !== "fulfilled" || !data.value?.responseData) {
       const station = offlineStations.shift();
       if (!station) return;
@@ -155,49 +117,30 @@ export const getCurrentConditionsFunction = async ({
     station.lastFetchUnix = currentUnixTime;
 
     const observations = value.observations[0];
-
-    const {
-      humidity,
-      solarRadiation,
-      uv,
-      winddir,
-    } = observations;
-
-    const {
-      dewpt,
-      elev,
-      heatIndex,
-      precipRate,
-      precipTotal,
-      pressure,
-      temp,
-      windChill,
-      windGust,
-      windSpeed,
-    } = observations.metric;
+    const { metric } = observations;
 
     station.conditions = {
-      dewPoint: formatValue(dewpt),
-      humidity: formatValue(humidity),
-      elevation: formatValue(elev),
-      heatIndex: formatValue(heatIndex),
-      precipRate: formatValue(precipRate),
-      precipTotal: formatValue(precipTotal),
-      pressure: formatValue(pressure),
-      temperature: formatValue(temp),
-      windChill: formatValue(windChill),
-      windGust: formatValue(windGust),
-      windSpeed: formatValue(windSpeed),
-      solarRadiation: formatValue(solarRadiation),
-      windDirection: formatValue(winddir),
-      uv: formatValue(uv),
+      dewPoint: formatValue(metric.dewpt),
+      elevation: formatValue(metric.elev),
+      heatIndex: formatValue(metric.heatIndex),
+      precipRate: formatValue(metric.precipRate),
+      precipTotal: formatValue(metric.precipTotal),
+      pressure: formatValue(metric.pressure),
+      temperature: formatValue(metric.temp),
+      windChill: formatValue(metric.windChill),
+      windGust: formatValue(metric.windGust),
+      windSpeed: formatValue(metric.windSpeed),
+      humidity: formatValue(observations.humidity),
+      solarRadiation: formatValue(observations.solarRadiation),
+      windDirection: formatValue(observations.winddir),
+      uv: formatValue(observations.uv),
     };
 
     currentConditionsArray.push(station);
   });
 
-  return {
-    currentConditions: currentConditionsArray,
-    fetchUnix: currentUnixTime,
-  };
+  await updateStationsDb<CurrentConditions>({ collection: currentConditions, stations: currentConditionsArray });
+  await updateUserDb({ userId, lastFetchUnix: currentUnixTime, lastFetchPage: currentPage });
+
+  return { currentConditions: currentConditionsArray };
 };

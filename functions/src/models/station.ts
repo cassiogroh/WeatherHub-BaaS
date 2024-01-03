@@ -11,7 +11,6 @@ export interface StationProps {
 }
 
 export interface CurrentConditions {
-  userId: string;
   stationID: string;
   observationTimeUTC: string,
   lastFetchUnix: number;
@@ -36,7 +35,6 @@ export interface CurrentConditions {
 }
 
 export interface HistoricConditions {
-  userId: string;
   stationID: string;
   observationTimeUTC: string,
   lastFetchUnix: number;
