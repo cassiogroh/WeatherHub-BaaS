@@ -5,7 +5,13 @@ export interface User {
   created_at: string;
   subscription: SubscriptionStatus;
   lastDataFetchUnix: number;
-  stationsIds: string[];
+  stations: [
+    {
+      id: string;
+      name: string;
+      order: number;
+    }
+  ]
 }
 
 export enum SubscriptionStatus {

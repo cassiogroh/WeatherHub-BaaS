@@ -15,7 +15,7 @@ export interface UrlArray {
 export const loadStationsFunction = onCall(async (request) => {
   const { userId, singleStationId } = request.data as LoadStationsProps;
 
-  const stationsArray = await loadStationsService({ userId, singleStationId })
+  const stationsArray = await loadStationsService({ userId, singleStationId });
 
   return stationsArray;
 });

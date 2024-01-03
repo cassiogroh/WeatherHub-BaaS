@@ -1,7 +1,6 @@
-interface CommonProps {
-  stationID: string;
-  status: string;
-  lastFetchUnix: number;
+import { StationProps } from "../../models/station";
+
+interface CommonProps extends StationProps {
   conditions: Record<string, string> | Record<string, string>[];
 }
 
@@ -14,9 +13,11 @@ export const updateStationsDb = async <T extends CommonProps>({ stations, collec
   const batch = collection.firestore.batch();
 
   stations.forEach(station => {
-    const docRef = collection.doc(station.stationID);
+    const docRef = collection.doc(station.stationId);
     batch.update(docRef, {
       status: station.status,
+      geolocation: station.geolocation,
+      observationTimeUTC: station.observationTimeUTC,
       lastFetchUnix: station.lastFetchUnix,
       conditions: station.conditions,
     });

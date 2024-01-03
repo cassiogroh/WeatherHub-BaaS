@@ -11,6 +11,7 @@ import { updateStationsDb } from "./utils/getConditions/updateStationsDb";
 import { updateUserDb } from "./utils/getConditions/updateUserDb";
 import { User } from "./models/user";
 import { subscriptionStatus } from "./utils/subscriptionInfo";
+import { buildCurrentConditions } from "./utils/getConditions/buildCurrentConditions";
 
 interface MetricProps {
   temp: number;
@@ -45,21 +46,17 @@ interface CurrentConditionsResponse {
 }
 
 // Documentation: https://bit.ly/3TIaMNP
-interface ApiResponse {
+export interface CurrentApiResponse {
   observations: CurrentConditionsResponse[];
 }
 
 interface GetCurrentConditionsProps {
   userId: string;
-  currentPage: number;
-}
-
-function formatValue(value: number | null): string {
-  return value || value === 0 ? value.toFixed(1) : "--";
+  stationsIds: string[];
 }
 
 export const getCurrentConditionsFunction = onCall(async (request) => {
-  const { userId, currentPage } = request.data as GetCurrentConditionsProps;
+  const { userId, stationsIds } = request.data as GetCurrentConditionsProps;
 
   const currentUnixTime = Date.now();
 
@@ -67,16 +64,15 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
   const userSnapshot = await users.doc(userId).get();
   const user = userSnapshot.data() as User;
 
-  const { stationsIds, subscription } = user;
+  const { subscription } = user;
 
   const maxStationsToFetch = subscriptionStatus[subscription].maxStations;
-  const userCanFetchNewData = await verifyUserSubscription({ user, currentUnixTime });
+  const { userCanFetchNewData } = await verifyUserSubscription({ user, currentUnixTime });
 
   // Get stations from DB
   const dbCurrentConditions = await fetchDbConditions<CurrentConditions>({
     collection: currentConditions,
     stationsIds,
-    currentPage,
     maxStationsToFetch,
   });
 
@@ -92,7 +88,12 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
   if (!apiKey) return { currentConditions: dbCurrentConditions };
 
   // Create an array with the urls to fetch data from Weather Underground (WU)
-  const weatherDataFetchUrls = await getUrlsToFetch<CurrentConditions>({ dbConditions: dbCurrentConditions, currentUnixTime, apiKey });
+  const weatherDataFetchUrls = await getUrlsToFetch<CurrentConditions>({
+    dbConditions: dbCurrentConditions,
+    currentUnixTime,
+    apiKey,
+    fetchType: "current",
+  });
 
   // Fetch data from WU API, or return the current data from DB if the data is not outdated
   const { offlineStations, conditionsData } = await fetchWuConditions({ weatherDataFetchUrls });
@@ -111,7 +112,7 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
       return;
     }
 
-    const station = data.value.station;
+    let station = data.value.station;
 
     // If the data is not outdated, return the current data from DB
     if (data.value.newData === false) {
@@ -119,36 +120,19 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
       return;
     }
 
-    station.status = "online";
-    const value = data.value.responseData as ApiResponse;
+    const value = data.value.responseData as CurrentApiResponse;
 
-    station.lastFetchUnix = currentUnixTime;
-
-    const observations = value.observations[0];
-    const { metric } = observations;
-
-    station.conditions = {
-      dewPoint: formatValue(metric.dewpt),
-      elevation: formatValue(metric.elev),
-      heatIndex: formatValue(metric.heatIndex),
-      precipRate: formatValue(metric.precipRate),
-      precipTotal: formatValue(metric.precipTotal),
-      pressure: formatValue(metric.pressure),
-      temperature: formatValue(metric.temp),
-      windChill: formatValue(metric.windChill),
-      windGust: formatValue(metric.windGust),
-      windSpeed: formatValue(metric.windSpeed),
-      humidity: formatValue(observations.humidity),
-      solarRadiation: formatValue(observations.solarRadiation),
-      windDirection: formatValue(observations.winddir),
-      uv: formatValue(observations.uv),
-    };
+    station = buildCurrentConditions({
+      currentConditions: value,
+      status: "online",
+      lastFetchUnix: currentUnixTime,
+    });
 
     currentConditionsArray.push(station);
   });
 
   await updateStationsDb<CurrentConditions>({ collection: currentConditions, stations: currentConditionsArray });
-  await updateUserDb({ userId, lastFetchUnix: currentUnixTime, lastFetchPage: currentPage });
+  await updateUserDb({ userId, lastFetchUnix: currentUnixTime });
 
   return { currentConditions: currentConditionsArray };
 });

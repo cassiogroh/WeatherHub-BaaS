@@ -1,25 +1,24 @@
 import { subscriptionStatus } from "../subscriptionInfo";
-import { getCurrentConditionsUrl } from "../apiInfo";
+import { getCurrentConditionsUrl, getHistoricUrl } from "../apiInfo";
+import { StationProps } from "../../models/station";
 
-export interface CommonProps {
-  lastFetchUnix: number;
-  stationID: string;
-}
-
-export interface WeatherDataFetchUrlsProps<T extends CommonProps> {
+export interface WeatherDataFetchUrlsProps<T extends StationProps> {
   station: T;
   fetchUrl: string;
   shouldFetchNewData: boolean;
 }
 
-interface GetUrlsToFetchProps<T extends CommonProps> {
+interface GetUrlsToFetchProps<T extends StationProps> {
   dbConditions: T[];
   currentUnixTime: number;
   apiKey: string;
+  fetchType: "current" | "historic";
 }
 
-export const getUrlsToFetch = async <T extends CommonProps>({ dbConditions, currentUnixTime, apiKey }: GetUrlsToFetchProps<T>) => {
+export const getUrlsToFetch = async <T extends StationProps>({ dbConditions, currentUnixTime, apiKey, fetchType }: GetUrlsToFetchProps<T>) => {
   const minimumFetchTimeout = subscriptionStatus.tierThree.fetchTimeoutInMin;
+
+  const getConditionsUrl = fetchType === "current" ? getCurrentConditionsUrl : getHistoricUrl;
 
   // Create an array with the urls to fetch data from Weather Underground (WU)
   const weatherDataFetchUrls: WeatherDataFetchUrlsProps<T>[] = [];
@@ -28,7 +27,7 @@ export const getUrlsToFetch = async <T extends CommonProps>({ dbConditions, curr
 
     weatherDataFetchUrls.push({
       station,
-      fetchUrl: getCurrentConditionsUrl(station.stationID, apiKey),
+      fetchUrl: getConditionsUrl(station.stationId, apiKey),
       shouldFetchNewData: minutesSinceLastFetch > minimumFetchTimeout,
     });
   });

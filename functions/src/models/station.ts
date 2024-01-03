@@ -1,21 +1,19 @@
 export interface StationProps {
-  stationID: string;
+  stationId: string;
   url: string;
-  name: string;
   neighborhood: string;
   geolocation: {
     latitude: number;
     longitude: number;
   },
   softwareType: string,
+  observationTimeUTC: string,
+  country: string;
+  lastFetchUnix: number;
+  status: "online" | "offline";
 }
 
-export interface CurrentConditions {
-  stationID: string;
-  observationTimeUTC: string,
-  lastFetchUnix: number;
-  order: number;
-  status: "online" | "offline";
+export interface CurrentConditions extends StationProps {
   conditions: {
     dewPoint: string;
     humidity: string;
@@ -34,12 +32,7 @@ export interface CurrentConditions {
   }
 }
 
-export interface HistoricConditions {
-  stationID: string;
-  observationTimeUTC: string,
-  lastFetchUnix: number;
-  order: number;
-  status: "online" | "offline";
+export interface HistoricConditions extends StationProps {
   conditions: Array<{
     tempHigh: string;
     tempLow: string;

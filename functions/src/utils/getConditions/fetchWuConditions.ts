@@ -1,10 +1,11 @@
-import { CommonProps, WeatherDataFetchUrlsProps } from "./getUrlsToFetch";
+import { StationProps } from "../../models/station";
+import { WeatherDataFetchUrlsProps } from "./getUrlsToFetch";
 
-interface FetchWuConditionsProps<T extends CommonProps> {
+interface FetchWuConditionsProps<T extends StationProps> {
   weatherDataFetchUrls: WeatherDataFetchUrlsProps<T>[];
 }
 
-export const fetchWuConditions = async <T extends CommonProps>({ weatherDataFetchUrls }: FetchWuConditionsProps<T>) => {
+export const fetchWuConditions = async <T extends StationProps>({ weatherDataFetchUrls }: FetchWuConditionsProps<T>) => {
   const offlineStations: T[] = [];
 
   // Fetch data from WU API, or return the current data from DB if the data is not outdated
