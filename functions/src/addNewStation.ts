@@ -106,6 +106,7 @@ export const addNewStationFunction = onCall(async (request) => {
   }));
 
   return {
+    success: true,
     currentConditions: currentConditionsObject,
     historicConditions: historicConditionsObject,
   };

@@ -1,37 +1,39 @@
 import { onCall } from "firebase-functions/v2/https";
 
 import { User } from "./models/user";
-import { firestore } from "./index";
+import { fieldValue } from "./index";
+import { users } from "./utils/collections";
 
-interface Request {
+interface DeleteStationProps {
   stationId: string;
   userId: string;
 }
 
 export const deleteStationFunction = onCall(async (request) => {
-  const { stationId, userId } = request.data as Request;
+  const { stationId, userId } = request.data as DeleteStationProps;
 
-  const upperStationId = stationId.toUpperCase();
+  const upperCaseStationId = stationId.toUpperCase();
 
-  const userSnapshot = await firestore.collection("users").doc(userId).get();
+  const userSnapshot = await users.doc(userId).get();
   const user = userSnapshot.data() as User;
 
-  const stationIndex = user.stations.findIndex(station => station === upperStationId);
+  const stationIndex = user.stations.findIndex(station => station.id === upperCaseStationId);
 
   if (stationIndex < 0) {
-    throw new Error("Station not found");
+    return {
+      error: "Station not found",
+      success: false,
+    };
   }
 
-  user.stations.splice(stationIndex, 1);
-  user.stations_names.splice(stationIndex, 1);
+  const stationToBeRemoved = user.stations[stationIndex];
 
-  await firestore
-    .collection("users")
-    .doc(userId)
-    .update({
-      stations: user.stations,
-      stations_names: user.stations_names,
-    });
+  // Remove station on the user instance on firestore
+  users.doc(userId).update({
+    stations: fieldValue.arrayRemove(stationToBeRemoved),
+  });
 
-  return;
+  return {
+    success: true,
+  };
 });
