@@ -1,3 +1,5 @@
+
+import { onCall } from "firebase-functions/v2/https";
 import { CurrentConditions } from "./models/station";
 import { currentConditions, users } from "./utils/collections";
 import { retrieveApiKey } from "./utils/getConditions/retrieveApiKey";
@@ -56,11 +58,9 @@ function formatValue(value: number | null): string {
   return value || value === 0 ? value.toFixed(1) : "--";
 }
 
-export const getCurrentConditionsFunction = async ({
-  userId,
-  currentPage,
-}: GetCurrentConditionsProps,
-) => {
+export const getCurrentConditionsFunction = onCall(async (request) => {
+  const { userId, currentPage } = request.data as GetCurrentConditionsProps;
+
   const currentUnixTime = Date.now();
 
   // Fetch the user document from the database
@@ -151,4 +151,4 @@ export const getCurrentConditionsFunction = async ({
   await updateUserDb({ userId, lastFetchUnix: currentUnixTime, lastFetchPage: currentPage });
 
   return { currentConditions: currentConditionsArray };
-};
+});

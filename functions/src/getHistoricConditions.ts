@@ -1,3 +1,4 @@
+import { onCall } from "firebase-functions/v2/https";
 import { subDays } from "date-fns";
 
 import { HistoricConditions } from "./models/station";
@@ -70,11 +71,9 @@ function formatValue(value: number | null): string {
   return value || value === 0 ? value.toFixed(1) : "--";
 }
 
-export const getHistoricConditionsFunction = async ({
-  userId,
-  currentPage,
-}: GetHistoricConditionsProps,
-) => {
+export const getHistoricConditionsFunction = onCall(async (request) => {
+  const { userId, currentPage } = request.data as GetHistoricConditionsProps;
+
   const currentUnixTime = Date.now();
 
   // Fetch the user document from the database
@@ -219,4 +218,4 @@ export const getHistoricConditionsFunction = async ({
   await updateUserDb({ userId, lastFetchUnix: currentUnixTime, lastFetchPage: currentPage });
 
   return { historicConditions: historicConditionsArray };
-};
+});
