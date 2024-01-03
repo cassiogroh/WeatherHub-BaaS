@@ -1,5 +1,6 @@
 import { onCall } from "firebase-functions/v2/https";
 import { getGeoCodeUrl } from "./utils/apiInfo";
+import { getApiKey } from "./utils/getApiKey";
 
 interface DaylyForecast {
   dayOfWeek: string;
@@ -43,7 +44,17 @@ interface RequestProps {
 export const getForecastFunction = onCall(async (request) => {
   const { latitude, longitude }: RequestProps = request.data;
 
-  const url = getGeoCodeUrl(latitude, longitude);
+  // Get API key to perform the request
+  const apiKey = await getApiKey({ numberOfRequests: 1 });
+
+  if (!apiKey){
+    return {
+      error: "No API key available",
+      success: false,
+    };
+  }
+
+  const url = getGeoCodeUrl(latitude, longitude, apiKey);
 
   const response = await fetch(url).then((response) => response.json());
 
@@ -70,7 +81,7 @@ export const getForecastFunction = onCall(async (request) => {
     precipChance,
     qpf,
     windPhrase,
-  } = dayPart ? dayPart[0] : {} as ForecastToday
+  } = dayPart ? dayPart[0] : {} as ForecastToday;
 
   const forecastToday: ForecastToday = {} as ForecastToday;
   const daylyForecast: object[] = [];
@@ -111,5 +122,5 @@ export const getForecastFunction = onCall(async (request) => {
     daylyForecast.push(daylyForecastObject);
   }
 
-  return { forecastToday, daylyForecast };
+  return { forecastToday, daylyForecast, success: true };
 });
