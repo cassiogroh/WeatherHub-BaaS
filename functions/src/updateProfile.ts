@@ -1,21 +1,20 @@
-import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
-import { firestore } from "./index";
+import { users } from "./utils/collections";
+import { auth } from ".";
 
-interface Request {
+interface UpdateProfileProps {
   userId: string;
-  name: string;
-  email: string;
+  name?: string;
+  email?: string;
   password?: string;
 }
 
 export const updateProfileFunction = onCall(async (request) => {
-  const { userId, name, email, password } = request.data as Request;
+  const { userId, name, email, password } = request.data as UpdateProfileProps;
 
-  const auth = admin.auth();
   const authUser = await auth.getUser(userId);
 
-  const userRef = firestore.collection("users").doc(userId);
+  const userRef = users.doc(userId);
 
   try {
     if (name) {
@@ -36,6 +35,9 @@ export const updateProfileFunction = onCall(async (request) => {
     const typedError = error as Error;
     console.error(`Error updating user ${userId}:`, error);
 
-    return { error: typedError.message };
+    return {
+      error: typedError.message,
+      success: false,
+    };
   }
 });
