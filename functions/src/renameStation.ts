@@ -1,35 +1,35 @@
 import { onCall } from "firebase-functions/v2/https";
 
-import { firestore } from ".";
 import { User } from "./models/user";
+import { users } from "./utils/collections";
 
-interface Request {
+interface RenameStationProps {
   stationId: string;
   newName: string;
   userId: string;
 }
 
 export const renameStationFunction = onCall(async (request) => {
-  const { stationId, newName, userId } = request.data as Request;
+  const { stationId, newName, userId } = request.data as RenameStationProps;
 
-  const upperStationId = stationId.toUpperCase();
+  const upperCaseStationId = stationId.toUpperCase();
 
-  const userSnapshot = await firestore.collection("users").doc(userId).get();
+  const userSnapshot = await users.doc(userId).get();
   const user = userSnapshot.data() as User;
 
-  const stationIndex = user.stations.findIndex(station => station === upperStationId);
+  const stationIndex = user.stations.findIndex(station => station.id === upperCaseStationId);
 
   if (stationIndex < 0) {
-    throw new Error("Station not found");
+    return {
+      error: "Station not found",
+      success: false,
+    };
   }
 
-  user.stations_names.splice(stationIndex, 1, newName);
-
-  await firestore
-    .collection("users")
+  await users
     .doc(userId)
     .update({
-      stations_names: user.stations_names,
+      [`stations.${stationIndex}.name`]: newName,
     });
 
   return;
