@@ -124,7 +124,6 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
 
     station = buildCurrentConditions({
       currentConditions: value,
-      status: "online",
       lastFetchUnix: currentUnixTime,
     });
 

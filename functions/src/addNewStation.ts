@@ -80,13 +80,11 @@ export const addNewStationFunction = onCall(async (request) => {
   const currentConditionsObject = buildCurrentConditions({
     currentConditions: currentConditionsRaw,
     lastFetchUnix: currentUnixTime,
-    status: "online",
   });
 
   const historicConditionsObject = buildHistoricConditions({
     historicConditions: historicConditionsRaw,
     lastFetchUnix: currentUnixTime,
-    status: "online",
     country,
     neighborhood,
     softwareType,

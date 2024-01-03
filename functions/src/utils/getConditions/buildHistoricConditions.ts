@@ -7,7 +7,6 @@ import { formatValue } from "./buildCurrentConditions";
 interface BuildHistoricConditions {
   historicConditions: HistoricApiResponse;
   lastFetchUnix: number;
-  status: "online" | "offline";
   neighborhood?: string;
   softwareType?: string;
   country?: string;
@@ -16,7 +15,6 @@ interface BuildHistoricConditions {
 export const buildHistoricConditions = ({
   historicConditions,
   lastFetchUnix,
-  status,
   neighborhood,
   softwareType,
   country,
@@ -68,7 +66,7 @@ export const buildHistoricConditions = ({
       longitude: observations[0].lon,
     },
     lastFetchUnix,
-    status,
+    status: "online",
     country: country || "",
     neighborhood: neighborhood || "",
     softwareType: softwareType || "",

@@ -136,7 +136,6 @@ export const getHistoricConditionsFunction = onCall(async (request) => {
     station = buildHistoricConditions({
       historicConditions: value,
       lastFetchUnix: currentUnixTime,
-      status: "online",
     });
 
     historicConditionsArray.push(station);

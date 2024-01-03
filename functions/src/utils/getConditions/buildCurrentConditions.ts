@@ -7,14 +7,12 @@ export function formatValue(value: number | null): string {
 
 interface BuildCurrentConditions {
   currentConditions: CurrentApiResponse;
-  status: "online" | "offline";
   lastFetchUnix: number;
 }
 
 export const buildCurrentConditions = ({
   currentConditions,
   lastFetchUnix,
-  status,
 }: BuildCurrentConditions): CurrentConditions => {
   const observations = currentConditions.observations[0];
 
@@ -54,7 +52,7 @@ export const buildCurrentConditions = ({
       uv: formatValue(observations.uv),
     },
     lastFetchUnix,
-    status,
+    status: "online",
     url: `https://www.wunderground.com/dashboard/pws/${stationID}`,
   };
 
