@@ -1,10 +1,11 @@
 import {
   Route as ReactDOMRoute,
-  RouteProps as ReactDOMRouteProps,
-  useNavigate,
+  RouterProps as ReactDOMRouteProps,
 } from "react-router-dom";
 
 import { useAuth } from "../hooks/auth";
+import SignIn from "../pages/SignIn";
+import Home from "../pages/Home";
 
 interface RouteProps extends ReactDOMRouteProps {
   isPrivate?: boolean;
@@ -13,19 +14,15 @@ interface RouteProps extends ReactDOMRouteProps {
 
 const Route = ({ isPrivate = false, component: Component, ...rest }: RouteProps) => {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const hasAccess = isPrivate === !!user;
+  const hasNoAccess = isPrivate && !user;
+
+  const Fallback = hasNoAccess ? SignIn : Home;
 
   return (
     <ReactDOMRoute
       {...rest}
-      render={() => {
-        return isPrivate === !!user ? (
-          <Component />
-        ) : (
-          isPrivate && !user ?
-            navigate("/signin") : null
-        );
-      }}
+      Component={hasAccess ? Component : Fallback}
     />
   );
 };

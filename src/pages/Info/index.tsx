@@ -7,7 +7,7 @@ const Info = () => {
   return (
     <Container>
       <Header />
-      <ProfileHeader currentPage='Info' />
+      <ProfileHeader />
 
       <InfoIds>
         <h3>Onde encontro ID's para mais estações?</h3>
@@ -69,7 +69,7 @@ const Info = () => {
       <p>Fonte: <a href="https://www.wikipedia.org/" >Wikipédia</a></p>
 
     </Container>
-  )
-}
+  );
+};
 
 export default Info;

@@ -109,7 +109,7 @@ const Profile = () => {
 
     } catch (err) {
       if (err instanceof Yup.ValidationError) {
-        const errors = getValidationErrors(err)
+        const errors = getValidationErrors(err);
         formRef.current?.setErrors(errors);
         return;
       }
@@ -131,7 +131,7 @@ const Profile = () => {
       new Date(user.created_at),
       "dd '/' MMM '/' yyyy",
       { locale: ptBR },
-    )
+    );
 
     return date;
   }, [user]);
@@ -139,7 +139,7 @@ const Profile = () => {
   return (
     <Container>
       <Header />
-      <ProfileHeader currentPage='Perfil' />
+      <ProfileHeader />
 
       <Content>
         <Form
@@ -182,7 +182,7 @@ const Profile = () => {
         <p>Conta criada em: {user_since}</p>
       </Content>
     </Container>
-  )
-}
+  );
+};
 
 export default Profile;
