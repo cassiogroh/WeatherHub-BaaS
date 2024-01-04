@@ -1,7 +1,7 @@
+import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
 
 import { User } from "./models/user";
-import { users } from "./utils/collections";
 
 interface RenameStationProps {
   stationId: string;
@@ -12,9 +12,12 @@ interface RenameStationProps {
 export const renameStationFunction = onCall(async (request) => {
   const { stationId, newName, userId } = request.data as RenameStationProps;
 
+  const firestore = admin.firestore();
+  const usersCol = firestore.collection("users");
+
   const upperCaseStationId = stationId.toUpperCase();
 
-  const userSnapshot = await users.doc(userId).get();
+  const userSnapshot = await usersCol.doc(userId).get();
   const user = userSnapshot.data() as User;
 
   const stationIndex = user.stations.findIndex(station => station.id === upperCaseStationId);
@@ -26,7 +29,7 @@ export const renameStationFunction = onCall(async (request) => {
     };
   }
 
-  await users
+  await usersCol
     .doc(userId)
     .update({
       [`stations.${stationIndex}.name`]: newName,

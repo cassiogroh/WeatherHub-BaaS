@@ -1,7 +1,7 @@
+import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
 
 import { HistoricConditions } from "./models/station";
-import { historicConditions, users } from "./utils/collections";
 import { retrieveApiKey } from "./utils/getConditions/retrieveApiKey";
 import { getUrlsToFetch } from "./utils/getConditions/getUrlsToFetch";
 import { fetchDbConditions } from "./utils/getConditions/fetchDbConditions";
@@ -69,10 +69,14 @@ interface GetHistoricConditionsProps {
 export const getHistoricConditionsFunction = onCall(async (request) => {
   const { userId, stationsIds } = request.data as GetHistoricConditionsProps;
 
+  const firestore = admin.firestore();
+  const usersCol = firestore.collection("users");
+  const historicConditionsCol = firestore.collection("historicConditions");
+
   const currentUnixTime = Date.now();
 
   // Fetch the user document from the database
-  const userSnapshot = await users.doc(userId).get();
+  const userSnapshot = await usersCol.doc(userId).get();
   const user = userSnapshot.data() as User;
 
   const { subscription } = user;
@@ -82,7 +86,7 @@ export const getHistoricConditionsFunction = onCall(async (request) => {
 
   // Get stations from DB
   const dbHistoricConditions = await fetchDbConditions<HistoricConditions>({
-    collection: historicConditions,
+    collection: historicConditionsCol,
     stationsIds,
     maxStationsToFetch,
   });
@@ -141,7 +145,7 @@ export const getHistoricConditionsFunction = onCall(async (request) => {
     historicConditionsArray.push(station);
   });
 
-  await updateStationsDb<HistoricConditions>({ collection: historicConditions, stations: historicConditionsArray });
+  await updateStationsDb<HistoricConditions>({ collection: historicConditionsCol, stations: historicConditionsArray });
   await updateUserDb({ userId, lastFetchUnix: currentUnixTime });
 
   return { historicConditions: historicConditionsArray };

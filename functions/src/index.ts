@@ -10,11 +10,6 @@ import { getHistoricConditionsFunction } from "./getHistoricConditions";
 
 admin.initializeApp();
 
-export const firestore = admin.firestore();
-export const auth = admin.auth();
-export const fieldPath = admin.firestore.FieldPath;
-export const fieldValue = admin.firestore.FieldValue;
-
 export const getForecast = getForecastFunction;
 export const addNewStation = addNewStationFunction;
 export const deleteStation = deleteStationFunction;

@@ -1,4 +1,4 @@
-import { wuApiKeys } from "./collections";
+import * as admin from "firebase-admin";
 import { API_LIMIT } from "./constans";
 
 interface APIKeyProps {
@@ -11,7 +11,10 @@ interface GetApiKeyProps {
 }
 
 export const getApiKey = async ({ numberOfRequests }: GetApiKeyProps) => {
-  const apiKeySnapshot = await wuApiKeys
+  const firestore = admin.firestore();
+  const wuApisCol = firestore.collection("wuApiKeys");
+
+  const apiKeySnapshot = await wuApisCol
     .where("currentUsage", "<", API_LIMIT - numberOfRequests)
     .limit(1)
     .get();

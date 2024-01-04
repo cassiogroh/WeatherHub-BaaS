@@ -1,7 +1,6 @@
+import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
 
-import { fieldValue } from "./index";
-import { currentConditions, historicConditions, users } from "./utils/collections";
 import { getCurrentConditionsUrl, getHistoricUrl } from "./utils/apiInfo";
 import { User } from "./models/user";
 import { verifyUserSubscription } from "./utils/getConditions/verifyUserSubscription";
@@ -19,11 +18,17 @@ interface AddNewStationProps {
 export const addNewStationFunction = onCall(async (request) => {
   const { stationId, userId } = request.data as AddNewStationProps;
 
+  const firestore = admin.firestore();
+  const usersCol = firestore.collection("users");
+  const currentConditionsCol = firestore.collection("currentConditions");
+  const historicConditionsCol = firestore.collection("historicConditions");
+  const fieldValue = admin.firestore.FieldValue;
+
   const currentUnixTime = Date.now();
 
   const upperCaseStationId = stationId.toUpperCase();
 
-  const userSnapshot = await users.doc(userId).get();
+  const userSnapshot = await usersCol.doc(userId).get();
   const user = userSnapshot.data() as User;
 
   // Verify if user already has this station added to their collection
@@ -91,13 +96,13 @@ export const addNewStationFunction = onCall(async (request) => {
   });
 
   // Add the new station to the current conditions collection
-  await currentConditions.doc(upperCaseStationId).set(currentConditionsObject, { merge: true });
+  await currentConditionsCol.doc(upperCaseStationId).set(currentConditionsObject, { merge: true });
 
   // Add the new station to the historic conditions collection
-  await historicConditions.doc(upperCaseStationId).set(historicConditionsObject, { merge: true });
+  await historicConditionsCol.doc(upperCaseStationId).set(historicConditionsObject, { merge: true });
 
   // Add the new station to the user's collection
-  await users.doc(userId).update("stations", fieldValue.arrayUnion({
+  await usersCol.doc(userId).update("stations", fieldValue.arrayUnion({
     id: upperCaseStationId,
     name: neighborhood || upperCaseStationId,
     order: user.stations.length,

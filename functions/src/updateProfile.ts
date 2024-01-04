@@ -1,6 +1,5 @@
+import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
-import { users } from "./utils/collections";
-import { auth } from ".";
 
 interface UpdateProfileProps {
   userId: string;
@@ -12,9 +11,13 @@ interface UpdateProfileProps {
 export const updateProfileFunction = onCall(async (request) => {
   const { userId, name, email, password } = request.data as UpdateProfileProps;
 
+  const firestore = admin.firestore();
+  const auth = admin.auth();
+  const usersCol = firestore.collection("users");
+
   const authUser = await auth.getUser(userId);
 
-  const userRef = users.doc(userId);
+  const userRef = usersCol.doc(userId);
 
   try {
     if (name) {

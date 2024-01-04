@@ -1,7 +1,6 @@
-
+import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
 import { CurrentConditions } from "./models/station";
-import { currentConditions, users } from "./utils/collections";
 import { retrieveApiKey } from "./utils/getConditions/retrieveApiKey";
 import { getUrlsToFetch } from "./utils/getConditions/getUrlsToFetch";
 import { fetchDbConditions } from "./utils/getConditions/fetchDbConditions";
@@ -58,10 +57,14 @@ interface GetCurrentConditionsProps {
 export const getCurrentConditionsFunction = onCall(async (request) => {
   const { userId, stationsIds } = request.data as GetCurrentConditionsProps;
 
+  const firestore = admin.firestore();
+  const usersCol = firestore.collection("users");
+  const currentConditionsCol = firestore.collection("currentConditions");
+
   const currentUnixTime = Date.now();
 
   // Fetch the user document from the database
-  const userSnapshot = await users.doc(userId).get();
+  const userSnapshot = await usersCol.doc(userId).get();
   const user = userSnapshot.data() as User;
 
   const { subscription } = user;
@@ -71,7 +74,7 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
 
   // Get stations from DB
   const dbCurrentConditions = await fetchDbConditions<CurrentConditions>({
-    collection: currentConditions,
+    collection: currentConditionsCol,
     stationsIds,
     maxStationsToFetch,
   });
@@ -130,7 +133,7 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
     currentConditionsArray.push(station);
   });
 
-  await updateStationsDb<CurrentConditions>({ collection: currentConditions, stations: currentConditionsArray });
+  await updateStationsDb<CurrentConditions>({ collection: currentConditionsCol, stations: currentConditionsArray });
   await updateUserDb({ userId, lastFetchUnix: currentUnixTime });
 
   return { currentConditions: currentConditionsArray };

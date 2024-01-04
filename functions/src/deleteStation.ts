@@ -1,8 +1,7 @@
+import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
 
 import { User } from "./models/user";
-import { fieldValue } from "./index";
-import { users } from "./utils/collections";
 
 interface DeleteStationProps {
   stationId: string;
@@ -12,9 +11,13 @@ interface DeleteStationProps {
 export const deleteStationFunction = onCall(async (request) => {
   const { stationId, userId } = request.data as DeleteStationProps;
 
+  const firestore = admin.firestore();
+  const usersCol = firestore.collection("users");
+  const fieldValue = admin.firestore.FieldValue;
+
   const upperCaseStationId = stationId.toUpperCase();
 
-  const userSnapshot = await users.doc(userId).get();
+  const userSnapshot = await usersCol.doc(userId).get();
   const user = userSnapshot.data() as User;
 
   const stationIndex = user.stations.findIndex(station => station.id === upperCaseStationId);
@@ -29,7 +32,7 @@ export const deleteStationFunction = onCall(async (request) => {
   const stationToBeRemoved = user.stations[stationIndex];
 
   // Remove station on the user instance on firestore
-  users.doc(userId).update({
+  usersCol.doc(userId).update({
     stations: fieldValue.arrayRemove(stationToBeRemoved),
   });
 
