@@ -107,6 +107,7 @@ export const addNewStationFunction = onCall(async (request) => {
     id: upperCaseStationId,
     name: neighborhood || upperCaseStationId,
     order: user.stations.length,
+    createdAt: currentUnixTime,
   }));
 
   await updateApiKey({ apiKey });
