@@ -2,10 +2,10 @@ export interface User {
   userId: string;
   name: string;
   email: string;
-  created_at: string;
+  created_at: number;
   subscription: SubscriptionStatus;
   lastDataFetchUnix: number;
-  stations: [
+  wuStations: [
     {
       id: string;
       name: string;

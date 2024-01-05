@@ -9,7 +9,7 @@ interface VerifyUserSubscriptionProps {
 
 // This function verifies if a user can fetch new data based on their subscription status and the time of their last data fetch
 export const verifyUserSubscription = async ({ user, currentUnixTime }: VerifyUserSubscriptionProps) => {
-  const { lastDataFetchUnix, subscription, stations } = user;
+  const { lastDataFetchUnix, subscription, wuStations } = user;
 
   // Get the fetch timeout in minutes for the user's subscription type
   const { fetchTimeoutInMin } = subscriptionStatus[subscription];
@@ -27,7 +27,7 @@ export const verifyUserSubscription = async ({ user, currentUnixTime }: VerifyUs
   const userCanFetchNewData = diffInMinutes > fetchTimeoutInMin;
 
   // Return a boolean indicating whether the user can add a new station or not, based on their subscription status
-  const userCanAddNewStation = stations.length < subscriptionStatus[subscription].maxStations;
+  const userCanAddNewStation = wuStations.length < subscriptionStatus[subscription].maxStations;
 
   return {
     userCanFetchNewData,

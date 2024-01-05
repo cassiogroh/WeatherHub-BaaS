@@ -33,7 +33,7 @@ export const addNewStationFunction = onCall(async (request) => {
   const user = userSnapshot.data() as User;
 
   // Verify if user already has this station added to their collection
-  const userAlreadyHasStation = user.stations.some((station) => station.id === upperCaseStationId);
+  const userAlreadyHasStation = user.wuStations.some((station) => station.id === upperCaseStationId);
 
   if (userAlreadyHasStation) {
     return {
@@ -106,7 +106,7 @@ export const addNewStationFunction = onCall(async (request) => {
   await usersCol.doc(userId).update("stations", fieldValue.arrayUnion({
     id: upperCaseStationId,
     name: neighborhood || upperCaseStationId,
-    order: user.stations.length,
+    order: user.wuStations.length,
     createdAt: currentUnixTime,
   }));
 

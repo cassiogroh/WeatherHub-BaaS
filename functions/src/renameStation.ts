@@ -20,7 +20,7 @@ export const renameStationFunction = onCall(async (request) => {
   const userSnapshot = await usersCol.doc(userId).get();
   const user = userSnapshot.data() as User;
 
-  const stationIndex = user.stations.findIndex(station => station.id === upperCaseStationId);
+  const stationIndex = user.wuStations.findIndex(station => station.id === upperCaseStationId);
 
   if (stationIndex < 0) {
     return {

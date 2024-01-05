@@ -20,7 +20,7 @@ export const deleteStationFunction = onCall(async (request) => {
   const userSnapshot = await usersCol.doc(userId).get();
   const user = userSnapshot.data() as User;
 
-  const stationIndex = user.stations.findIndex(station => station.id === upperCaseStationId);
+  const stationIndex = user.wuStations.findIndex(station => station.id === upperCaseStationId);
 
   if (stationIndex < 0) {
     return {
@@ -29,7 +29,7 @@ export const deleteStationFunction = onCall(async (request) => {
     };
   }
 
-  const stationToBeRemoved = user.stations[stationIndex];
+  const stationToBeRemoved = user.wuStations[stationIndex];
 
   // Remove station on the user instance on firestore
   usersCol.doc(userId).update({
