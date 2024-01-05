@@ -1,10 +1,6 @@
 import * as admin from "firebase-admin";
 import { API_LIMIT } from "./constans";
-
-interface APIKeyProps {
-  key: string;
-  currentUsage: number;
-}
+import { APIKey } from "../models/apiKey";
 
 interface GetApiKeyProps {
   numberOfRequests: number;
@@ -19,11 +15,12 @@ export const getApiKey = async ({ numberOfRequests }: GetApiKeyProps) => {
     .limit(1)
     .get();
 
-  if (!apiKeySnapshot.empty) {
-    const keyDocument = apiKeySnapshot.docs[0].data() as APIKeyProps;
-    const apiKey = keyDocument.key;
-    return apiKey;
-  } else {
-    return null;
-  }
+  if (apiKeySnapshot.empty) return null;
+
+  const document = apiKeySnapshot.docs[0];
+
+  const apiKey = document.data() as APIKey;
+  apiKey.id = document.id;
+
+  return apiKey;
 };

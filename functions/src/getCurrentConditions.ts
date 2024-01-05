@@ -11,6 +11,7 @@ import { updateUserDb } from "./utils/getConditions/updateUserDb";
 import { User } from "./models/user";
 import { subscriptionStatus } from "./utils/subscriptionInfo";
 import { buildCurrentConditions } from "./utils/getConditions/buildCurrentConditions";
+import { updateApiKey } from "./utils/getConditions/updateApiKey";
 
 interface MetricProps {
   temp: number;
@@ -94,7 +95,7 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
   const weatherDataFetchUrls = await getUrlsToFetch<CurrentConditions>({
     dbConditions: dbCurrentConditions,
     currentUnixTime,
-    apiKey,
+    apiKey: apiKey.key,
     fetchType: "current",
   });
 
@@ -135,6 +136,7 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
 
   await updateStationsDb<CurrentConditions>({ collection: currentConditionsCol, stations: currentConditionsArray });
   await updateUserDb({ userId, lastFetchUnix: currentUnixTime });
+  await updateApiKey({ apiKey });
 
   return { currentConditions: currentConditionsArray };
 });

@@ -12,6 +12,7 @@ import { updateUserDb } from "./utils/getConditions/updateUserDb";
 import { User } from "./models/user";
 import { subscriptionStatus } from "./utils/subscriptionInfo";
 import { buildHistoricConditions } from "./utils/getConditions/buildHistoricConditions";
+import { updateApiKey } from "./utils/getConditions/updateApiKey";
 
 interface MetricProps {
   tempHigh: number | null;
@@ -106,7 +107,7 @@ export const getHistoricConditionsFunction = onCall(async (request) => {
   const weatherDataFetchUrls = await getUrlsToFetch<HistoricConditions>({
     dbConditions: dbHistoricConditions,
     currentUnixTime,
-    apiKey,
+    apiKey: apiKey.key,
     fetchType: "historic",
   });
 
@@ -147,6 +148,7 @@ export const getHistoricConditionsFunction = onCall(async (request) => {
 
   await updateStationsDb<HistoricConditions>({ collection: historicConditionsCol, stations: historicConditionsArray });
   await updateUserDb({ userId, lastFetchUnix: currentUnixTime });
+  await updateApiKey({ apiKey });
 
   return { historicConditions: historicConditionsArray };
 });

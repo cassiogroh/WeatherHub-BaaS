@@ -19,5 +19,10 @@ export const retrieveApiKey = async ({ currentUnixTime, lastFetchUnixArray }: Re
 
   const apiKey = await getApiKey({ numberOfRequests });
 
+  if (apiKey) {
+    apiKey.currentUsage += numberOfRequests;
+    apiKey.lastUsedAt = currentUnixTime;
+  }
+
   return apiKey;
 };

@@ -9,6 +9,7 @@ import { buildCurrentConditions } from "./utils/getConditions/buildCurrentCondit
 import { CurrentApiResponse } from "./getCurrentConditions";
 import { HistoricApiResponse } from "./getHistoricConditions";
 import { buildHistoricConditions } from "./utils/getConditions/buildHistoricConditions";
+import { updateApiKey } from "./utils/getConditions/updateApiKey";
 
 interface AddNewStationProps {
   stationId: string;
@@ -52,7 +53,7 @@ export const addNewStationFunction = onCall(async (request) => {
   }
 
   // Get API key to perform the request
-  const apiKey = await getApiKey({ numberOfRequests: 1 });
+  const apiKey = await getApiKey({ numberOfRequests: 2 });
 
   if (!apiKey){
     return {
@@ -62,8 +63,8 @@ export const addNewStationFunction = onCall(async (request) => {
   }
 
   // Fetch data from WU API
-  const currentConditionsUrl = getCurrentConditionsUrl(upperCaseStationId, apiKey);
-  const historicConditionsUrl = getHistoricUrl(upperCaseStationId, apiKey);
+  const currentConditionsUrl = getCurrentConditionsUrl(upperCaseStationId, apiKey.key);
+  const historicConditionsUrl = getHistoricUrl(upperCaseStationId, apiKey.key);
 
   const currentConditionsResponse = await fetch(currentConditionsUrl);
   const historicConditionsResponse = await fetch(historicConditionsUrl);
@@ -107,6 +108,8 @@ export const addNewStationFunction = onCall(async (request) => {
     name: neighborhood || upperCaseStationId,
     order: user.stations.length,
   }));
+
+  await updateApiKey({ apiKey });
 
   return {
     success: true,
