@@ -54,7 +54,7 @@ export const getForecastFunction = onCall(async (request) => {
     };
   }
 
-  const url = getGeoCodeUrl(latitude, longitude, apiKey);
+  const url = getGeoCodeUrl(latitude, longitude, apiKey.key);
 
   const response = await fetch(url).then((response) => response.json());
 
