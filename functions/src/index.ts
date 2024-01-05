@@ -7,6 +7,7 @@ import { renameStationFunction } from "./renameStation";
 import { updateProfileFunction } from "./updateProfile";
 import { getCurrentConditionsFunction } from "./getCurrentConditions";
 import { getHistoricConditionsFunction } from "./getHistoricConditions";
+import { resetApiKeysUsageFunction } from "./resetApiKeysUsage";
 
 admin.initializeApp();
 
@@ -15,5 +16,6 @@ export const addNewStation = addNewStationFunction;
 export const deleteStation = deleteStationFunction;
 export const renameStation = renameStationFunction;
 export const updateProfile = updateProfileFunction;
+export const resetApiKeysUsage = resetApiKeysUsageFunction;
 export const getCurrentConditions = getCurrentConditionsFunction;
 export const getHistoricConditions = getHistoricConditionsFunction;
