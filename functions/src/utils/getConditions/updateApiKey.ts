@@ -7,7 +7,7 @@ interface UpdateApiKeyProps {
 
 export const updateApiKey = async ({ apiKey }: UpdateApiKeyProps) => {
   const firestore = admin.firestore();
-  const apiKeyCol = firestore.collection("weApiKeys");
+  const apiKeyCol = firestore.collection("wuApiKeys");
 
   await apiKeyCol.doc(apiKey.id).update({
     lastUsedAt: apiKey.lastUsedAt,
