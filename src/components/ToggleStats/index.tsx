@@ -86,7 +86,7 @@ const ToggleStats = ({
         type: "info",
         title: "Aguarde",
         description: "Dados históricos estão disponíveis apenas após 00:15 h",
-      })
+      });
     }
 
     return permitedTime;
@@ -103,7 +103,7 @@ const ToggleStats = ({
             <input title='Trocar modo de visualização' onChange={console.log} type="checkbox" checked={toggleInputSlider} />
             <span title='Trocar modo de visualização' onClick={() => {
               // Allow toggle only after 00:15h
-              isQuarterAfterMidnight() && setToggleInputSlider(!toggleInputSlider)
+              isQuarterAfterMidnight() && setToggleInputSlider(!toggleInputSlider);
             }}>
             </span>
           </div>
@@ -181,7 +181,7 @@ const ToggleStats = ({
 
       <p>Sincronizado em {formattedDate}</p>
     </Container>
-  )
-}
+  );
+};
 
 export default ToggleStats;

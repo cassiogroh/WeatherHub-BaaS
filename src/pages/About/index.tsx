@@ -28,7 +28,7 @@ const About = () => {
 
       <Background />
     </Container>
-  )
+  );
 };
 
 export default About;

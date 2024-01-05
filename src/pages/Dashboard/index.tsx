@@ -54,7 +54,7 @@ const Dashboard = () => {
 
       setStationsHistoric(data.stationsHistoric);
       setStationsCurrent(data.stationsCurrent);
-    }
+    };
 
     loadStationsData();
   }, [user.userId]);
@@ -76,7 +76,7 @@ const Dashboard = () => {
         description: "Você não pode remover a sua única estação.",
       });
 
-      return
+      return;
     }
 
     const confirmDelete = window.confirm(`A estação ${stationId} será removida do seu dashboard.`);
@@ -151,11 +151,11 @@ const Dashboard = () => {
       addToast({
         type: "error",
         title: "ID inválido",
-        description: "E estação não existe ou está temporariamente offline. Tente novamente mais tarde.",
+        description: "A estação não existe ou está temporariamente offline.",
       });
     }
 
-    setTriggerAddLoader(false)
+    setTriggerAddLoader(false);
   }, [stationsCurrent, addToast, user.userId]);
 
   const data = useMemo(() => {
@@ -180,7 +180,7 @@ const Dashboard = () => {
           prec: Number(stationData[currentHistoricDay + 6].precipTotalHistoric) === 0 ? "" : String(stationData[currentHistoricDay + 6].precipTotalHistoric).replace(/\./g, ","),
         });
       }
-    })
+    });
 
     let formattedData = "";
 
@@ -269,7 +269,7 @@ const Dashboard = () => {
         </Container>
       }
     </>
-  )
+  );
 };
 
 export default Dashboard;

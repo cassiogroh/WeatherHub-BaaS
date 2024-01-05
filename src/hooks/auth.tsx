@@ -5,15 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../services/api";
 import { signIntoFirebase } from "../functions/signIn";
 import { getUserFromFirestore } from "../functions/getUser";
-
-export interface User {
-  userId: string,
-  name: string,
-  email: string,
-  stations: string[],
-  stations_names: string[],
-  created_at: string
-}
+import { User } from "../models/user";
 
 interface SignInCredentials {
   email: string;
@@ -67,7 +59,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signOut = useCallback(async () => {
-    await signOutFromFirebase(auth)
+    await signOutFromFirebase(auth);
     localStorage.removeItem("@WeatherHub:user");
 
     setUser({} as User);
@@ -78,14 +70,14 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const updateUser = useCallback((user: User) => {
     localStorage.setItem("@WeatherHub:user", JSON.stringify(user));
 
-    setUser(user)
+    setUser(user);
   }, [setUser]);
 
   return (
     <AuthContext.Provider value={{ user, signIn, signOut, updateUser }}>
       {children}
     </AuthContext.Provider>
-  )
+  );
 };
 
 function useAuth(): AuthContextData {

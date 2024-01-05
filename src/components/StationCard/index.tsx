@@ -153,7 +153,7 @@ const StationCard = ({
 
     setTimeout(() => {
       inputRef.current?.focus();
-    }, 5)
+    }, 5);
   }, [rename]);
 
   const confirmRenameStation =
@@ -307,7 +307,7 @@ const StationCard = ({
         }
       </CardBottom>
     </Container>
-  )
+  );
 };
 
 export default StationCard;

@@ -77,7 +77,7 @@ const SignUp = () => {
         type: "error",
         title: "Erro no cadastro",
         description: "Ocorreu um erro ao fazer o cadastro. Tente novamente.",
-      })
+      });
     }
   }, [addToast, navigate]);
 
@@ -114,7 +114,7 @@ const SignUp = () => {
         </AnimationContainer>
       </Content>
     </Container>
-  )
+  );
 };
 
 export default SignUp;

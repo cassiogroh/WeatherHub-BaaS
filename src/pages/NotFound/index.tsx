@@ -13,7 +13,7 @@ const NotFound = () => {
         <FiFrown size={120} />
       </AnimationContainer>
     </Container>
-  )
+  );
 };
 
 export default NotFound;

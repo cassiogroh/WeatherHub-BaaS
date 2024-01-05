@@ -14,7 +14,7 @@ const Link = ({ to, pageName, isHeaderScrollActive, ...rest }: LinkProps) => {
     <Container isActiveTab={to === currentPage} isHeaderScrollActive={isHeaderScrollActive}>
       <AnchorLink to={to} {...rest}>{pageName}</AnchorLink>
     </Container>
-  )
-}
+  );
+};
 
 export default Link;

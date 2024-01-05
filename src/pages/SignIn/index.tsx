@@ -61,7 +61,7 @@ const SignIn = () => {
       setIsSigningIn(false);
 
       if (err instanceof Yup.ValidationError) {
-        const errors = getValidationErrors(err)
+        const errors = getValidationErrors(err);
         formRef.current?.setErrors(errors);
 
         return;
@@ -109,7 +109,7 @@ const SignIn = () => {
         </Background>
       </Content>
     </Container>
-  )
+  );
 };
 
 export default SignIn;

@@ -14,19 +14,19 @@ const icons = {
   info: <FiInfo size={24} />,
   error: <FiAlertCircle size={24} />,
   success: <FiCheckCircle size={24} />,
-}
+};
 
 const Toast = ({ message, style }: ToastProps) => {
   const { removeToast } = useToast();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      removeToast(message.id)
+      removeToast(message.id);
     }, 3000);
 
     return () => {
       clearTimeout(timer);
-    }
+    };
   }, [removeToast, message.id]);
 
   return (

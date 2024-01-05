@@ -27,7 +27,7 @@ const InputOption = ({ name, propName, handleInputCheck, checked = false, disabl
       />
       <p>{name}</p>
     </Container>
-  )
-}
+  );
+};
 
-export default InputOption
+export default InputOption;

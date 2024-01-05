@@ -61,7 +61,7 @@ const ForecastCard = ({ daylyForecast }: Request) => {
       { locale: ptBR },
     );
 
-    return formattedSunsetTime
+    return formattedSunsetTime;
   }, [daylyForecast.sunsetTimeLocal]);
 
   const currentDay = useMemo(() => {
@@ -71,7 +71,7 @@ const ForecastCard = ({ daylyForecast }: Request) => {
       { locale: ptBR },
     );
 
-    return formattedCurrentDay
+    return formattedCurrentDay;
   }, [daylyForecast.sunsetTimeLocal]);
 
   const dayIcon = ("0" + daylyForecast.iconCode[0]).slice(-2) as keyof typeof icons;
@@ -112,7 +112,7 @@ const ForecastCard = ({ daylyForecast }: Request) => {
         </div>
       </footer>
     </Container>
-  )
-}
+  );
+};
 
 export default ForecastCard;

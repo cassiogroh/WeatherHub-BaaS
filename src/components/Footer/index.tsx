@@ -13,7 +13,7 @@ const Footer = () => {
         <img src={logoImg} alt="WeatherHub"/>
       </p>
     </Container>
-  )
+  );
 };
 
 export default Footer;

@@ -40,7 +40,7 @@ const ToastProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
   const removeToast = useCallback((id: string) => {
-    setMessages(state => state.filter(message => message.id !== id))
+    setMessages(state => state.filter(message => message.id !== id));
   }, []);
 
   return (
@@ -48,7 +48,7 @@ const ToastProvider = ({ children }: { children: React.ReactNode }) => {
       {children}
       <ToastContainer messages={messages}/>
     </ToastContext.Provider>
-  )
+  );
 };
 
 function useToast(): ToastContextData {

@@ -62,7 +62,7 @@ const Home = () => {
         { locale: ptBR },
       );
 
-      return formattedSunsetTime
+      return formattedSunsetTime;
     } else {
       return null;
     }
@@ -143,7 +143,7 @@ const Home = () => {
         </DaylyForecastContainer>
       </Container>
     </>
-  )
+  );
 };
 
 export default Home;

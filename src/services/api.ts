@@ -25,7 +25,7 @@ const callableFunction = async (functionName: string, params?: any) => {
   const functionInstance = httpsCallable(functions, functionName);
   const response: any = await functionInstance(params);
   return response.data;
-}
+};
 
 // Use functions emulator (comment out for production)
 // connectFunctionsEmulator(functions, '127.0.0.1', 5001); // import from "firebase/functions"

@@ -11,5 +11,5 @@ export function formatDate ({ date, formatQuery }: FormatDateProps) {
     new Date(date),
     formatQuery,
     { locale: ptBR },
-  )
+  );
 }

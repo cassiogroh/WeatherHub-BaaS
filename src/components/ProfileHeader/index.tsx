@@ -13,7 +13,7 @@ const ProfileHeader = () => {
       <Link to="/info" isHeaderScrollActive={false} pageName="Info" />
       <Link to="/" isHeaderScrollActive={false} pageName="Sair" onClick={signOut} />
     </Container>
-  )
-}
+  );
+};
 
 export default ProfileHeader;

@@ -11,11 +11,11 @@ const Header = () => {
 
   const setScrollToZero = useCallback(() => {
     window.scrollTo(0, 0);
-  }, [])
+  }, []);
 
   const changeNavbarBackground = useCallback(() => {
     setIsHeaderScrollActive(window.scrollY >= 25);
-  }, [])
+  }, []);
 
   window.addEventListener("scroll", changeNavbarBackground);
 
@@ -38,7 +38,7 @@ const Header = () => {
         </div>
       </NavBar>
     </Container>
-  )
+  );
 };
 
 export default Header;

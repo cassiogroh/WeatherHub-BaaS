@@ -43,7 +43,7 @@ const Input = ({ name, containerStyle = {}, icon: Icon, ...rest }: InputProps) =
 
   const handleInputBlur = useCallback(() => {
     setIsFocused(false);
-    setIsFilled(!!inputRef.current?.value)
+    setIsFilled(!!inputRef.current?.value);
   }, []);
 
   return (
