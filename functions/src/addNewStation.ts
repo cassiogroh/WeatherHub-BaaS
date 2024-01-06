@@ -110,6 +110,8 @@ export const addNewStationFunction = onCall(async (request) => {
     createdAt: currentUnixTime,
   }));
 
+  apiKey.currentUsage += 2;
+  apiKey.lastUsedAt = currentUnixTime;
   await updateApiKey({ apiKey });
 
   return {

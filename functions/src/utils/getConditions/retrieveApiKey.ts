@@ -17,6 +17,8 @@ export const retrieveApiKey = async ({ currentUnixTime, lastFetchUnixArray }: Re
     numberOfRequests += minutesSinceLastFetch > minimumFetchTimeout ? 1 : 0;
   });
 
+  if (!numberOfRequests) return null;
+
   const apiKey = await getApiKey({ numberOfRequests });
 
   if (apiKey) {

@@ -10,5 +10,5 @@ export const updateUserDb = async ({ userId, lastFetchUnix }: UpdateUserDbProps)
   const usersCol = firestore.collection("users");
 
   const userDocRef = usersCol.doc(userId);
-  await userDocRef.update({ lastFetchUnix });
+  await userDocRef.update({ lastDataFetchUnix: lastFetchUnix });
 };
