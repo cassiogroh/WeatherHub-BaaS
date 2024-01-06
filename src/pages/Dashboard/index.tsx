@@ -10,26 +10,25 @@ import { useAuth } from "../../hooks/auth";
 import { useToast } from "../../hooks/toast";
 import { callableFunction } from "../../services/api";
 
-import { Container, StationsStats } from "./styles";
+import { Container, LoaderContainer, StationsStats } from "./styles";
 import { cloudFunctions } from "../../services/cloudFunctions";
 import { CurrentConditions, HistoricConditions } from "../../models/station";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { addToast } = useToast();
 
   const [ currentConditions, setCurrentConditions ] = useState([] as CurrentConditions[]);
   const [ historicConditions, setHistoricConditions ] = useState([] as HistoricConditions[]);
-  const [ triggerAddLoader, setTriggerAddLoader ] = useState(false);
   const [ inputValue, setInputValue ] = useState("");
   const [ isLoading, setIsLoading ] = useState(true);
 
   // ToggleStats component
-  const [toggleInputSlider, setToggleInputSlider] = useState(false);
-  const [currentHistoricDay, setCurrentHistoricDay] = useState(0);
-  const [minStatus, setMinStatus] = useState(true);
-  const [medStatus, setMedStatus] = useState(false);
-  const [maxStatus, setMaxStatus] = useState(true);
+  const [ toggleInputSlider, setToggleInputSlider ] = useState(false);
+  const [ currentHistoricDay, setCurrentHistoricDay ] = useState(0);
+  const [ minStatus, setMinStatus ] = useState(true);
+  const [ medStatus, setMedStatus ] = useState(false);
+  const [ maxStatus, setMaxStatus ] = useState(true);
   const [ propsView, setPropsView ] = useState<ViewProps>({
     temp: true,
     dewpt: false,
@@ -52,12 +51,30 @@ const Dashboard = () => {
 
       const stationsIds = user.wuStations.map(station => station.id);
 
+      if (!stationsIds.length) {
+        setIsLoading(false);
+        return;
+      }
+
       const data = await callableFunction(
         cloudFunctions.getCurrentConditions,
         { userId, stationsIds },
       );
 
       const currentData = data.currentConditions as CurrentConditions[];
+
+      currentData.sort((a, b) => {
+        // Find the corresponding user station for each data item
+        const userStationA = user.wuStations.find(station => station.id === a.stationId);
+        const userStationB = user.wuStations.find(station => station.id === b.stationId);
+
+        // If we couldn't find a user station, sort the item to the end
+        if (!userStationA) return 1;
+        if (!userStationB) return -1;
+
+        // Sort by the order property
+        return userStationA.order - userStationB.order;
+      });
 
       setCurrentConditions(currentData);
       setIsLoading(false);
@@ -85,39 +102,45 @@ const Dashboard = () => {
 
     const historicData = data.historicConditions as HistoricConditions[];
 
-    console.log(historicData);
+    historicData.sort((a, b) => {
+      // Find the corresponding user station for each data item
+      const userStationA = user.wuStations.find(station => station.id === a.stationId);
+      const userStationB = user.wuStations.find(station => station.id === b.stationId);
+
+      // If we couldn't find a user station, sort the item to the end
+      if (!userStationA) return 1;
+      if (!userStationB) return -1;
+
+      // Sort by the order property
+      return userStationA.order - userStationB.order;
+    });
 
     setHistoricConditions(historicData);
     setIsLoading(false);
   }, [historicConditions, toggleInputSlider, user]);
 
-  const handleInputCheck = useCallback((value: boolean, propName: keyof(typeof propsView)): void => {
+  const handleInputCheck = useCallback((value: boolean, propName: keyof(typeof propsView)) => {
     const changedPropsView = { ...propsView };
     changedPropsView[propName] = value;
 
     setPropsView(changedPropsView);
   }, [propsView]);
 
-  const handleDeleteStation = useCallback(async (stationId: string): Promise<void> => {
+  const handleDeleteStation = useCallback(async (stationId: string) => {
     stationId = stationId.toUpperCase();
-
-    if (currentConditions.length === 1) {
-      addToast({
-        type: "error",
-        title: "ID: " + stationId,
-        description: "Você não pode remover a sua única estação.",
-      });
-
-      return;
-    }
 
     const confirmDelete = window.confirm(`A estação ${stationId} será removida do seu dashboard.`);
     if (!confirmDelete) return;
 
-    setTriggerAddLoader(true);
-
     try {
-      await callableFunction("deleteStation", { stationId, userId: user.userId });
+      setIsLoading(true);
+      await callableFunction(cloudFunctions.deleteStation, { stationId, userId: user.userId });
+
+      setCurrentConditions(state => state.filter(station => station.stationId !== stationId));
+
+      const stationIndex = user.wuStations.findIndex(({ id }) => id === stationId);
+      user.wuStations.splice(stationIndex, 1);
+      updateUser(user);
 
       addToast({
         type: "success",
@@ -125,7 +148,7 @@ const Dashboard = () => {
         description: "Estação removida com sucesso",
       });
 
-      setCurrentConditions(state => state.filter(station => station.stationId !== stationId));
+      setIsLoading(false);
     } catch {
       addToast({
         type: "error",
@@ -133,13 +156,12 @@ const Dashboard = () => {
         description: "Algo deu errado. Recarrege a página e tente novamente",
       });
 
+      setIsLoading(false);
       return;
     }
+  }, [addToast, user, updateUser]);
 
-    setTriggerAddLoader(false);
-  }, [addToast, currentConditions.length, user]);
-
-  const handleAddStation = useCallback(async (event: FormEvent, stationId: string): Promise<void> => {
+  const handleAddStation = useCallback(async (event: FormEvent, stationId: string) => {
     event.preventDefault();
 
     if (stationId === "") {
@@ -152,25 +174,26 @@ const Dashboard = () => {
       return;
     }
 
-    const alreadyExists = currentConditions.find(station => station.stationId === stationId);
+    const alreadyExists = user.wuStations.find(station => station.id === stationId);
 
     if (alreadyExists) {
       addToast({
         type: "info",
         title: "ID: " + stationId,
-        description: "Estação já existente no acervo.",
+        description: "Estação já existente no seu acervo.",
       });
 
       return;
     }
 
     interface ResponseProps {
-      historicConditions: HistoricConditions[];
-      currentConditions: CurrentConditions[];
+      historicConditions: HistoricConditions;
+      currentConditions: CurrentConditions;
+      success: boolean;
     }
 
     try {
-      setTriggerAddLoader(true);
+      setIsLoading(true);
       const data: ResponseProps = await callableFunction(cloudFunctions.addNewStation, { stationId, userId: user.userId });
       addToast({
         type: "success",
@@ -180,9 +203,20 @@ const Dashboard = () => {
 
       setInputValue("");
 
-      setHistoricConditions(oldStations => [...oldStations, data.historicConditions[0]]);
-      setCurrentConditions(oldStations => [...oldStations, data.currentConditions[0]]);
+      user.wuStations.push({
+        id: stationId,
+        order: user.wuStations.length,
+        createdAt: Date.now(),
+        name: data.currentConditions.neighborhood,
+      });
+      updateUser(user);
 
+      setCurrentConditions(oldStations => [...oldStations, data.currentConditions]);
+      setHistoricConditions(oldStations => {
+        if (!oldStations.length) return oldStations;
+        return [...oldStations, data.historicConditions];
+      });
+      setIsLoading(false);
     } catch {
       addToast({
         type: "error",
@@ -191,8 +225,8 @@ const Dashboard = () => {
       });
     }
 
-    setTriggerAddLoader(false);
-  }, [currentConditions, addToast, user.userId]);
+    setIsLoading(false);
+  }, [addToast, user, updateUser]);
 
   const data = useMemo(() => {
     interface dataInfo {
@@ -253,7 +287,13 @@ const Dashboard = () => {
       <Header />
       <ProfileHeader />
 
-      <Container triggerAddLoader={triggerAddLoader}>
+      <Container isLoading={isLoading}>
+        {isLoading && (
+          <LoaderContainer>
+            <Loader type='Circles' color='#3b5998' height={100} width={100} />
+          </LoaderContainer>
+        )}
+
         <ToggleStats
           handleInputCheck={handleInputCheck}
           handleAddStation={handleAddStation}
@@ -272,34 +312,24 @@ const Dashboard = () => {
           setInputValue={setInputValue}
         />
 
-        {isLoading && (
-          <div style= {{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 130 }}>
-            <p style= {{ marginBottom: 20, fontSize: "2.4rem" }}>Carregando...</p>
-            <Loader type='Circles' color='#3b5998' height={100} width={100} />
-          </div>
-        )}
-
-        {!isLoading && (
-          <StationsStats>
-            {currentConditions.map((station, index: number) => (
-              <StationCard
-                key={station.stationId}
-                currentData={station}
-                historicData={historicConditions[index] || { conditions: [] }}
-                propsView={station.status === "online" ? propsView : undefined}
-                handleDeleteStation={handleDeleteStation}
-                currentOrHistoric={toggleInputSlider}
-                minStatus={minStatus}
-                medStatus={medStatus}
-                maxStatus={maxStatus}
-                currentHistoricDay={currentHistoricDay + 6}
-              />
-            ),
-            )}
-          </StationsStats>
-        )}
+        <StationsStats>
+          {currentConditions.map((station, index: number) => (
+            <StationCard
+              key={station.stationId}
+              currentData={station}
+              historicData={historicConditions[index] || { conditions: [] }}
+              propsView={station.status === "online" ? propsView : undefined}
+              handleDeleteStation={handleDeleteStation}
+              currentOrHistoric={toggleInputSlider}
+              minStatus={minStatus}
+              medStatus={medStatus}
+              maxStatus={maxStatus}
+              currentHistoricDay={currentHistoricDay + 6}
+            />
+          ),
+          )}
+        </StationsStats>
       </Container>
-      {/* } */}
     </>
   );
 };

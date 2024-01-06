@@ -29,11 +29,17 @@ export const renameStationFunction = onCall(async (request) => {
     };
   }
 
+  user.wuStations[stationIndex].name = newName;
+  const userStationsUpdated = user.wuStations;
+
   await usersCol
     .doc(userId)
     .update({
-      [`stations.${stationIndex}.name`]: newName,
+      wuStations: userStationsUpdated,
     });
 
-  return;
+  return {
+    error: "",
+    success: true,
+  };
 });

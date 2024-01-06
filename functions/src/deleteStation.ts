@@ -33,10 +33,11 @@ export const deleteStationFunction = onCall(async (request) => {
 
   // Remove station on the user instance on firestore
   usersCol.doc(userId).update({
-    stations: fieldValue.arrayRemove(stationToBeRemoved),
+    wuStations: fieldValue.arrayRemove(stationToBeRemoved),
   });
 
   return {
+    error: "",
     success: true,
   };
 });

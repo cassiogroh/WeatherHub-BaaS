@@ -6,6 +6,7 @@ import { useAuth } from "../../hooks/auth";
 
 import { Container, CardStats, CardBottom, RenameField } from "./styles";
 import { CurrentConditions, HistoricConditions, HistoricConditionsData } from "../../models/station";
+import { cloudFunctions } from "../../services/cloudFunctions";
 
 export interface ViewProps {
   temp: boolean,
@@ -67,7 +68,6 @@ const StationCard = ({
     windSpeed,
   } = currentData.conditions;
 
-  console.log(historicData);
   const hasHistoricData = historicData && historicData.conditions[currentHistoricDay];
   if (!hasHistoricData) historicData.conditions[currentHistoricDay] = {} as HistoricConditionsData;
 
@@ -102,7 +102,13 @@ const StationCard = ({
   const [renameButtonFocus, setRenameButtonFocus] = useState(false);
   const [deleteButtonFocus, setDeleteButtonFocus] = useState(false);
   const [rename, setRename] = useState(false);
-  const [stationName, setStationName] = useState(neighborhood);
+  const [stationName, setStationName] = useState(() => {
+    const userStations = user.wuStations;
+
+    const currentStation = userStations.find(station => station.id === stationId);
+
+    return currentStation?.name || neighborhood;
+  });
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -117,7 +123,7 @@ const StationCard = ({
   const confirmRenameStation =
   useCallback(async (stationId: string, newName: string | undefined, currentName: string): Promise<void> => {
     if (currentName !== newName && newName !== "") {
-      await callableFunction("renameStation", { stationId, newName, userId: user.userId });
+      await callableFunction(cloudFunctions.renameStation, { stationId, newName, userId: user.userId });
 
       !!newName && setStationName(newName);
     }
