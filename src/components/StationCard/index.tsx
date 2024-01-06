@@ -5,6 +5,7 @@ import { callableFunction } from "../../services/api";
 import { useAuth } from "../../hooks/auth";
 
 import { Container, CardStats, CardBottom, RenameField } from "./styles";
+import { CurrentConditions, HistoricConditions, HistoricConditionsData } from "../../models/station";
 
 export interface ViewProps {
   temp: boolean,
@@ -20,56 +21,9 @@ export interface ViewProps {
   elev: boolean,
 }
 
-export interface StationCurrentProps {
-  status: "online" | "offline";
-  stationID: string;
-  name: string;
-  url: string;
-  neighborhood?: string;
-  dewpt?: number;
-  humidity?: number;
-  elev?: number;
-  heatIndex?: number;
-  precipRate?: number;
-  precipTotal?: number;
-  pressure?: number;
-  temp?: number;
-  windChill?: number;
-  windGust?: number;
-  windSpeed?: number;
-}
-
-export interface StationHistoricProps {
-  humidityHigh: number | string;
-  humidityLow: number | string;
-  humidityAvg: number | string;
-  tempHigh: number | string;
-  tempLow: number | string;
-  tempAvg: number | string;
-  windspeedHigh: number | string;
-  windspeedLow: number | string;
-  windspeedAvg: number | string;
-  windgustHigh: number | string;
-  windgustLow: number | string;
-  windgustAvg: number | string;
-  dewptHigh: number | string;
-  dewptLow: number | string;
-  dewptAvg: number | string;
-  windchillHigh: number | string;
-  windchillLow: number | string;
-  windchillAvg: number | string;
-  heatindexHigh: number | string;
-  heatindexLow: number | string;
-  heatindexAvg: number | string;
-  pressureMax: number | string;
-  pressureMin: number | string;
-  pressureTrend: number | string;
-  precipTotalHistoric: number | string;
-}
-
 export interface RequestProps {
-  currentData: StationCurrentProps;
-  historicData: Array<StationHistoricProps>;
+  currentData: CurrentConditions;
+  historicData: HistoricConditions;
   propsView?: ViewProps;
   handleDeleteStation?: any;
   currentOrHistoric: boolean; // false=current true=historic
@@ -94,24 +48,28 @@ const StationCard = ({
 
   const {
     status,
-    stationID,
-    name,
+    stationId,
     url,
-    // neighborhood,
-    dewpt,
+    neighborhood,
+  } = currentData;
+
+  const {
+    dewPoint,
     humidity,
-    elev,
+    elevation,
     heatIndex,
     precipRate,
     precipTotal,
     pressure,
-    temp,
+    temperature,
     windChill,
     windGust,
     windSpeed,
-  } = currentData;
+  } = currentData.conditions;
 
-  const hasHistoricData = historicData && historicData[currentHistoricDay];
+  console.log(historicData);
+  const hasHistoricData = historicData && historicData.conditions[currentHistoricDay];
+  if (!hasHistoricData) historicData.conditions[currentHistoricDay] = {} as HistoricConditionsData;
 
   const {
     humidityHigh,
@@ -137,14 +95,14 @@ const StationCard = ({
     heatindexAvg,
     pressureMax,
     pressureMin,
-    precipTotalHistoric,
-  } = hasHistoricData ? historicData[currentHistoricDay] : {} as StationHistoricProps;
+    precipTotal: precipTotalHistoric,
+  } = historicData.conditions[currentHistoricDay];
 
   const [inputFocus, setInputFocus] = useState(false);
   const [renameButtonFocus, setRenameButtonFocus] = useState(false);
   const [deleteButtonFocus, setDeleteButtonFocus] = useState(false);
   const [rename, setRename] = useState(false);
-  const [stationName, setStationName] = useState(name);
+  const [stationName, setStationName] = useState(neighborhood);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -183,7 +141,7 @@ const StationCard = ({
   const handleBlur = useCallback((focusedVariable: string) => {
     switch (focusedVariable) {
     case "renameInput": {
-      confirmRenameStation(stationID, inputRef.current?.value, stationName);
+      confirmRenameStation(stationId, inputRef.current?.value, stationName);
       return setInputFocus(false);
     }
     case "renameButton":
@@ -193,7 +151,7 @@ const StationCard = ({
     default:
       return null;
     }
-  }, [confirmRenameStation, stationID, stationName]);
+  }, [confirmRenameStation, stationId, stationName]);
 
   return (
     <Container>
@@ -209,7 +167,7 @@ const StationCard = ({
             />
             <button
               type='button'
-              onClick={() => confirmRenameStation(stationID, inputRef.current?.value, stationName)}
+              onClick={() => confirmRenameStation(stationId, inputRef.current?.value, stationName)}
             >
               <FiEdit3 stroke={inputFocus ? "#3FCA87" : "#ddd"} />
             </button>
@@ -219,8 +177,8 @@ const StationCard = ({
 
         {status === "online" && !!propsView && currentOrHistoric===false ?
           <>
-            { propsView.temp && <p>Temperatura <span>{temp} °C</span></p>}
-            { propsView.dewpt && <p>Ponto de orvalho <span>{dewpt} °C</span></p>}
+            { propsView.temp && <p>Temperatura <span>{temperature} °C</span></p>}
+            { propsView.dewpt && <p>Ponto de orvalho <span>{dewPoint} °C</span></p>}
             { propsView.heatIndex && <p>Índice de calor <span>{heatIndex} °C</span></p>}
             { propsView.windChill && <p>Sensação térmica <span>{windChill} °C</span></p>}
             { propsView.humidity && <p>Humidade relativa <span>{humidity} %</span></p>}
@@ -229,7 +187,7 @@ const StationCard = ({
             { propsView.windGust && <p>Rajada de vento <span>{windGust} km/h</span></p>}
             { propsView.windSpeed && <p>Velocidade do vento <span>{windSpeed} km/h</span></p>}
             { propsView.pressure && <p>Pressão atmosférica <span>{pressure} hPa</span></p>}
-            { propsView.elev && <p>Elevação <span>{elev} m</span></p>}
+            { propsView.elev && <p>Elevação <span>{elevation} m</span></p>}
           </> : (
             status === "online" && !!propsView && currentOrHistoric ?
               <>
@@ -285,7 +243,7 @@ const StationCard = ({
       </CardStats>
 
       <CardBottom>
-        <p>{stationID}</p>
+        <p>{stationId}</p>
 
         {!!user &&
           <div>
@@ -297,7 +255,7 @@ const StationCard = ({
               <FiEdit title="Renomear estação" size={23} stroke={renameButtonFocus ? "#3FCA87" : "#ddd"} />
             </button>
             <button
-              onClick={(() => handleDeleteStation(stationID))}
+              onClick={(() => handleDeleteStation(stationId))}
               onMouseEnter={() => handleFocus("deleteButton")}
               onMouseLeave={() => handleBlur("deleteButton")}
               type='button' >

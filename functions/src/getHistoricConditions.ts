@@ -118,7 +118,7 @@ export const getHistoricConditionsFunction = onCall(async (request) => {
 
   // Create an array with the current conditions
   conditionsData.forEach((data) => {
-    if (data.status !== "fulfilled" || !data.value?.responseData) {
+    if (data.status !== "fulfilled" || !data.value) {
       const station = offlineStations.shift();
       if (!station) return;
 

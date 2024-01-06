@@ -33,35 +33,37 @@ export interface CurrentConditions extends StationProps {
 }
 
 export interface HistoricConditions extends StationProps {
-  conditions: Array<{
-    tempHigh: string;
-    tempLow: string;
-    tempAvg: string;
-    windspeedHigh: string;
-    windspeedLow: string;
-    windspeedAvg: string;
-    windgustHigh: string;
-    windgustLow: string;
-    windgustAvg: string;
-    dewptHigh: string;
-    dewptLow: string;
-    dewptAvg: string;
-    windchillHigh: string;
-    windchillLow: string;
-    windchillAvg: string;
-    heatindexHigh: string;
-    heatindexLow: string;
-    heatindexAvg: string;
-    pressureMax: string;
-    pressureMin: string;
-    pressureTrend: string;
-    precipTotal: string;
-    precipRate: string;
-    solarRadiationHigh: string;
-    uvHigh: string;
-    winddirAvg: string;
-    humidityHigh: string;
-    humidityLow: string;
-    humidityAvg: string;
-  }>
+  conditions: Array<HistoricConditionsData>
+}
+
+export interface HistoricConditionsData {
+  tempHigh: string;
+  tempLow: string;
+  tempAvg: string;
+  windspeedHigh: string;
+  windspeedLow: string;
+  windspeedAvg: string;
+  windgustHigh: string;
+  windgustLow: string;
+  windgustAvg: string;
+  dewptHigh: string;
+  dewptLow: string;
+  dewptAvg: string;
+  windchillHigh: string;
+  windchillLow: string;
+  windchillAvg: string;
+  heatindexHigh: string;
+  heatindexLow: string;
+  heatindexAvg: string;
+  pressureMax: string;
+  pressureMin: string;
+  pressureTrend: string;
+  precipTotal: string;
+  precipRate: string;
+  solarRadiationHigh: string;
+  uvHigh: string;
+  winddirAvg: string;
+  humidityHigh: string;
+  humidityLow: string;
+  humidityAvg: string;
 }

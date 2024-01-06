@@ -56,7 +56,7 @@ const SignUp = () => {
       await registerUser(name, email, password);
 
       setIsRegistering(false);
-      navigate("signin");
+      navigate("/signin");
 
       addToast({
         type: "success",

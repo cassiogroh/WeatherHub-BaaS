@@ -73,6 +73,12 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
   const maxStationsToFetch = subscriptionStatus[subscription].maxStations;
   const { userCanFetchNewData } = await verifyUserSubscription({ user, currentUnixTime });
 
+  console.log(" ");
+  console.log(" ");
+  console.log({ maxStationsToFetch, userCanFetchNewData });
+  console.log(" ");
+  console.log(" ");
+
   // Get stations from DB
   const dbCurrentConditions = await fetchDbConditions<CurrentConditions>({
     collection: currentConditionsCol,
@@ -104,17 +110,21 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
 
   const currentConditionsArray: CurrentConditions[] = [];
 
+  console.log({ conditionsData });
+
   // Create an array with the current conditions
   conditionsData.forEach((data) => {
-    if (data.status !== "fulfilled" || !data.value?.responseData) {
+    console.log({ data });
+
+    if (data.status !== "fulfilled" || !data.value) {
       const station = offlineStations.shift();
       if (!station) return;
 
       station.status = "offline";
-      station.lastFetchUnix = currentUnixTime;
       currentConditionsArray.push(station);
       return;
     }
+    console.log({ value: data.value });
 
     let station = data.value.station;
 
@@ -131,12 +141,16 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
       lastFetchUnix: currentUnixTime,
     });
 
+    console.log({ station });
+
     currentConditionsArray.push(station);
   });
 
   await updateStationsDb<CurrentConditions>({ collection: currentConditionsCol, stations: currentConditionsArray });
   await updateUserDb({ userId, lastFetchUnix: currentUnixTime });
   await updateApiKey({ apiKey });
+
+  console.log({ currentConditionsArray });
 
   return { currentConditions: currentConditionsArray };
 });

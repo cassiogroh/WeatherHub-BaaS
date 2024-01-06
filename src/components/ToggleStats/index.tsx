@@ -13,7 +13,7 @@ interface ToggleStatsProps {
   handleInputCheck(value: boolean | undefined, name: string): void;
   handleAddStation?(event: FormEvent, inputValue: string): void;
   toggleInputSlider: boolean;
-  setToggleInputSlider(toggle: boolean): void;
+  setToggleInputSlider: () => void;
   minStatus: boolean;
   setMinStatus(toggle: boolean): void;
   medStatus: boolean;
@@ -103,7 +103,7 @@ const ToggleStats = ({
             <input title='Trocar modo de visualização' onChange={console.log} type="checkbox" checked={toggleInputSlider} />
             <span title='Trocar modo de visualização' onClick={() => {
               // Allow toggle only after 00:15h
-              isQuarterAfterMidnight() && setToggleInputSlider(!toggleInputSlider);
+              isQuarterAfterMidnight() && setToggleInputSlider();
             }}>
             </span>
           </div>
@@ -148,7 +148,7 @@ const ToggleStats = ({
         <InputOption name='Pressão atmosférica' propName={"pressure"} handleInputCheck={handleInputCheck} />
         <InputOption name='Elevação' propName={"elev"} handleInputCheck={handleInputCheck} disabled={toggleInputSlider} />
         {
-          (user.email === "cirogroh@yahoo.com.br" || user.email === "cassiogroh@gmail.com") &&
+          (user.email === "cirogroh@yahoo.com.br" || user.email === "cassiogroh@gmail.com") && toggleInputSlider &&
           <ExclusiveButton
             onClick={copyData}
             type='button'

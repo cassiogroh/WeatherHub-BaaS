@@ -103,7 +103,7 @@ export const addNewStationFunction = onCall(async (request) => {
   await historicConditionsCol.doc(upperCaseStationId).set(historicConditionsObject, { merge: true });
 
   // Add the new station to the user's collection
-  await usersCol.doc(userId).update("stations", fieldValue.arrayUnion({
+  await usersCol.doc(userId).update("wuStations", fieldValue.arrayUnion({
     id: upperCaseStationId,
     name: neighborhood || upperCaseStationId,
     order: user.wuStations.length,
