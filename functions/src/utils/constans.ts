@@ -1,4 +1,3 @@
-export const MAX_PAGE_SIZE = 15; // Pagination size to limit number of requets to the API
 export const API_LIMIT = 1500; // Limit of daily requets per WU API key: 1500
 export const historyConditionsMock = {
   stationID: "",
