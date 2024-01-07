@@ -1,7 +1,10 @@
-import * as functions from "firebase-functions";
+import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as admin from "firebase-admin";
 
-export const resetApiKeysUsageFunction = functions.pubsub.schedule("0 0 * * *").timeZone("UTC").onRun(async () => {
+export const resetApiKeysUsageFunction = onSchedule({
+  schedule: "every day 00:00",
+  timeZone: "Europe/London",
+}, async () => {
   const firestore = admin.firestore();
   const apiKeysCol = firestore.collection("wuApiKeys");
 
@@ -12,4 +15,6 @@ export const resetApiKeysUsageFunction = functions.pubsub.schedule("0 0 * * *").
     const docRef = apiKeysCol.doc(doc.id);
     batch.update(docRef, { currentUsage: 0 });
   });
+
+  batch.commit();
 });
