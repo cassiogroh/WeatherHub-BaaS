@@ -13,14 +13,17 @@ const firestore = getFirestore(firebaseApp);
 const functions = getFunctions(firebaseApp);
 const auth = getAuth(firebaseApp);
 
-const USE_MOCK = false; // false to get requests from WU via API key/true for instant mock data
+const USE_MOCK = true; // false to get requests from WU via API key/true for instant mock data
 const IS_PRODUCTION = window.location.host === "weatherhub.app";
 
 const callableFunction = async (functionName: string, params?: any) => {
   const untypedMock = mocks as any;
   const mockData = untypedMock[functionName];
 
-  if (USE_MOCK && !IS_PRODUCTION && mockData) return mockData;
+  if (USE_MOCK && !IS_PRODUCTION && mockData) {
+    console.log("Using mock data for " + functionName);
+    return mockData;
+  }
 
   const functionInstance = httpsCallable(functions, functionName);
   const response: any = await functionInstance(params);
