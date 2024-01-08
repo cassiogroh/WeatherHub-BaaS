@@ -12,7 +12,7 @@ import { callableFunction } from "../../services/api";
 
 import { Container, LoaderContainer, StationsStats } from "./styles";
 import { cloudFunctions } from "../../services/cloudFunctions";
-import { CurrentConditions, HistoricConditions } from "../../models/station";
+import { CurrentConditions, HistoricConditions, HistoricConditionsData } from "../../models/station";
 
 const Dashboard = () => {
   const { user, updateUser } = useAuth();
@@ -237,7 +237,10 @@ const Dashboard = () => {
     const d: dataInfo[] = [] as dataInfo[];
 
     historicConditions.forEach((stationData) => {
-      if (!stationData[currentHistoricDay + 6]) {
+      const conditions = stationData.conditions || [] as HistoricConditionsData[];
+      const conditionsOnDay = conditions[currentHistoricDay + 6];
+
+      if (!conditionsOnDay) {
         d.push({
           low: "",
           max: "",
@@ -245,9 +248,9 @@ const Dashboard = () => {
         });
       } else {
         d.push({
-          low: String(stationData[currentHistoricDay + 6].tempLow).replace(/\./g, ","),
-          max: String(stationData[currentHistoricDay + 6].tempHigh).replace(/\./g, ","),
-          prec: Number(stationData[currentHistoricDay + 6].precipTotalHistoric) === 0 ? "" : String(stationData[currentHistoricDay + 6].precipTotalHistoric).replace(/\./g, ","),
+          low: String(conditionsOnDay.tempLow).replace(/\./g, ","),
+          max: String(conditionsOnDay.tempHigh).replace(/\./g, ","),
+          prec: Number(conditionsOnDay.precipTotal) === 0 ? "" : String(conditionsOnDay.precipTotal).replace(/\./g, ","),
         });
       }
     });
