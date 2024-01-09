@@ -84,9 +84,10 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
   if (!userCanFetchNewData) return { currentConditions: dbCurrentConditions };
 
   const lastFetchUnixArray = dbCurrentConditions.map((station) => station.lastFetchUnix);
+  const isAdmin = subscriptionStatus[subscription].fetchTimeoutInMin === subscriptionStatus.admin.fetchTimeoutInMin;
 
   // Verify how many api requests are needed and get an api key with enough available requests
-  const apiKey = await retrieveApiKey({ currentUnixTime, lastFetchUnixArray });
+  const apiKey = await retrieveApiKey({ currentUnixTime, lastFetchUnixArray, isAdminRequest: isAdmin });
 
   // If there is no api key, return the current data from DB
   if (!apiKey) return { currentConditions: dbCurrentConditions };

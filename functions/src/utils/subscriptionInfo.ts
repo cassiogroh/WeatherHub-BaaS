@@ -17,6 +17,6 @@ export const subscriptionStatus = {
   },
   admin: {
     maxStations: 100,
-    fetchTimeoutInMin: 5,
+    fetchTimeoutInMin: 0,
   },
 };

@@ -3,8 +3,5 @@ export interface APIKey {
   key: string;
   currentUsage: number;
   lastUsedAt: number;
-  account: {
-    login: string;
-    password: string;
-  }
+  login: string;
 }
