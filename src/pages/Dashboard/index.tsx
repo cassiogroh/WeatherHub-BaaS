@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import Loader from "react-loader-spinner";
 
 import Header from "../../components/Header";
@@ -9,10 +9,11 @@ import ToggleStats from "../../components/ToggleStats";
 import { useAuth } from "../../hooks/auth";
 import { useToast } from "../../hooks/toast";
 import { callableFunction } from "../../services/api";
+import { cloudFunctions } from "../../services/cloudFunctions";
+import { copyHistoricData } from "../../utils/copyHistoricData";
+import { CurrentConditions, HistoricConditions } from "../../models/station";
 
 import { Container, LoaderContainer, StationsStats } from "./styles";
-import { cloudFunctions } from "../../services/cloudFunctions";
-import { CurrentConditions, HistoricConditions, HistoricConditionsData } from "../../models/station";
 
 const Dashboard = () => {
   const { user, updateUser } = useAuth();
@@ -44,7 +45,7 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    const loadStationsData = async () => {
+    const getCurrentConditions = async () => {
       const userId = user.userId;
 
       if (!userId) return;
@@ -80,10 +81,10 @@ const Dashboard = () => {
       setIsLoading(false);
     };
 
-    loadStationsData();
+    getCurrentConditions();
   }, [user]);
 
-  const onToggleHistory = useCallback(async () => {
+  const getHistoricConditions = useCallback(async () => {
     const historicLength = historicConditions.length;
     const stationsIds = user.wuStations.map(station => station.id);
 
@@ -228,49 +229,10 @@ const Dashboard = () => {
     setIsLoading(false);
   }, [addToast, user, updateUser]);
 
-  const data = useMemo(() => {
-    interface dataInfo {
-      low: string | number;
-      max: string | number;
-      prec: string | number;
-    }
-    const d: dataInfo[] = [] as dataInfo[];
-
-    historicConditions.forEach((stationData) => {
-      const conditions = stationData.conditions || [] as HistoricConditionsData[];
-      const conditionsOnDay = conditions[currentHistoricDay + 6];
-
-      if (!conditionsOnDay) {
-        d.push({
-          low: "",
-          max: "",
-          prec: "",
-        });
-      } else {
-        d.push({
-          low: String(conditionsOnDay.tempLow).replace(/\./g, ","),
-          max: String(conditionsOnDay.tempHigh).replace(/\./g, ","),
-          prec: Number(conditionsOnDay.precipTotal) === 0 ? "" : String(conditionsOnDay.precipTotal).replace(/\./g, ","),
-        });
-      }
-    });
-
-    let formattedData = "";
-
-    if (d.length >= 12) formattedData = `${d[0].low};${d[0].max};;${d[0].prec};;;${d[1].low};${d[1].max};;${d[1].prec};;;${d[2].low};${d[2].max};;${d[2].prec};;;${d[3].low};${d[3].max};;${d[3].prec};;;${d[4].low};${d[4].max};;${d[4].prec};;;;;;;;${d[5].low};${d[5].max};;${d[5].prec};;;${d[6].low};${d[6].max};;${d[6].prec};;;${d[7].low};${d[7].max};;${d[7].prec};;;;;;;;${d[8].low};${d[8].max};;${d[8].prec};;;;;${d[9].low};${d[9].max};;${d[9].prec};;;;;${d[10].low};${d[10].max};;${d[10].prec};;;${d[11].low};${d[11].max};;${d[11].prec}`;
-
-    return formattedData;
-  }, [historicConditions, currentHistoricDay]);
-
   const copyData = useCallback(() => {
-    const dummy = document.createElement("textarea");
-    document.body.appendChild(dummy);
-    dummy.value = data;
-    dummy.select();
-    document.execCommand("copy");
-    document.body.removeChild(dummy);
+    const copiedSuccessfully = copyHistoricData({ historicConditions, currentHistoricDay });
 
-    if (currentConditions.length >= 12) {
+    if (copiedSuccessfully) {
       addToast({
         type: "success",
         title: "Dados copiados!",
@@ -282,8 +244,7 @@ const Dashboard = () => {
         description: "Organize as 12 estações para copiar os dados.",
       });
     }
-
-  }, [currentConditions, data, addToast]);
+  }, [historicConditions, currentHistoricDay, addToast]);
 
   return (
     <>
@@ -301,7 +262,7 @@ const Dashboard = () => {
           handleInputCheck={handleInputCheck}
           handleAddStation={handleAddStation}
           toggleInputSlider={toggleInputSlider}
-          setToggleInputSlider={onToggleHistory}
+          setToggleInputSlider={getHistoricConditions}
           minStatus={minStatus}
           setMinStatus={setMinStatus}
           medStatus={medStatus}
