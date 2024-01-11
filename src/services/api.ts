@@ -13,7 +13,7 @@ const firestore = getFirestore(firebaseApp);
 const functions = getFunctions(firebaseApp);
 const auth = getAuth(firebaseApp);
 
-const USE_MOCK = true; // false to get requests from WU via API key/true for instant mock data
+const USE_MOCK = false; // false to get requests from WU via API key/true for instant mock data
 const IS_PRODUCTION = window.location.host === "weatherhub.app";
 
 const callableFunction = async (functionName: string, params?: any) => {

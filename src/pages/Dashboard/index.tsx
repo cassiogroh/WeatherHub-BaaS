@@ -14,6 +14,7 @@ import { copyHistoricData } from "../../utils/copyHistoricData";
 import { CurrentConditions, HistoricConditions } from "../../models/station";
 
 import { Container, LoaderContainer, StationsStats } from "./styles";
+import { registerError } from "../../functions/registerError";
 
 const Dashboard = () => {
   const { user, updateUser } = useAuth();
@@ -96,28 +97,34 @@ const Dashboard = () => {
     setIsLoading(true);
     const userId = user.userId;
 
-    const data = await callableFunction(
-      cloudFunctions.getHistoricalConditions,
-      { userId, stationsIds },
-    );
+    try {
+      const data = await callableFunction(
+        cloudFunctions.getHistoricalConditions,
+        { userId, stationsIds },
+      );
 
-    const historicData = data.historicConditions as HistoricConditions[];
+      const historicData = data.historicConditions as HistoricConditions[];
 
-    historicData.sort((a, b) => {
+      historicData.sort((a, b) => {
       // Find the corresponding user station for each data item
-      const userStationA = user.wuStations.find(station => station.id === a.stationId);
-      const userStationB = user.wuStations.find(station => station.id === b.stationId);
+        const userStationA = user.wuStations.find(station => station.id === a.stationId);
+        const userStationB = user.wuStations.find(station => station.id === b.stationId);
 
-      // If we couldn't find a user station, sort the item to the end
-      if (!userStationA) return 1;
-      if (!userStationB) return -1;
+        // If we couldn't find a user station, sort the item to the end
+        if (!userStationA) return 1;
+        if (!userStationB) return -1;
 
-      // Sort by the order property
-      return userStationA.order - userStationB.order;
-    });
+        // Sort by the order property
+        return userStationA.order - userStationB.order;
+      });
 
-    setHistoricConditions(historicData);
-    setIsLoading(false);
+      setHistoricConditions(historicData);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+      registerError(error, user);
+      setIsLoading(false);
+    }
   }, [historicConditions, toggleInputSlider, user]);
 
   const handleInputCheck = useCallback((value: boolean, propName: keyof(typeof propsView)) => {
