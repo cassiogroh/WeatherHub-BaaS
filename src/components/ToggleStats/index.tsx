@@ -13,7 +13,7 @@ interface ToggleStatsProps {
   handleInputCheck(value: boolean | undefined, name: string): void;
   handleAddStation?(event: FormEvent, inputValue: string): void;
   toggleInputSlider: boolean;
-  setToggleInputSlider: () => void;
+  setToggleInputSlider: React.Dispatch<React.SetStateAction<boolean>>;
   minStatus: boolean;
   setMinStatus(toggle: boolean): void;
   medStatus: boolean;
@@ -103,7 +103,7 @@ const ToggleStats = ({
             <input title='Trocar modo de visualização' onChange={console.log} type="checkbox" checked={toggleInputSlider} />
             <span title='Trocar modo de visualização' onClick={() => {
               // Allow toggle only after 00:15h
-              isQuarterAfterMidnight() && setToggleInputSlider();
+              isQuarterAfterMidnight() && setToggleInputSlider(!toggleInputSlider);
             }}>
             </span>
           </div>

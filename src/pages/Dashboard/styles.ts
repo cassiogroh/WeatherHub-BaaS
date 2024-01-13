@@ -33,3 +33,27 @@ export const StationsStats = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
 `;
+
+export const PaginationWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+`;
+
+export const PaginationButton = styled.button`
+  border: none;
+  background-color: transparent;
+  padding: 0.5rem 1rem;
+  color: #fff;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+`;
+
+export const PageIndicator = styled.span`
+  color: #fff;
+  margin: 0 1rem;
+`;
