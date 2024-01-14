@@ -10,12 +10,12 @@ import { useAuth } from "../../hooks/auth";
 import { useToast } from "../../hooks/toast";
 import { callableFunction } from "../../services/api";
 import { cloudFunctions } from "../../services/cloudFunctions";
+import { registerError } from "../../functions/registerError";
+import { constants } from "../../utils/constants";
 import { copyHistoricData } from "../../utils/copyHistoricData";
 import { CurrentConditions, HistoricConditions } from "../../models/station";
 
-import { Container, LoaderContainer, PageIndicator, PaginationButton, PaginationWrapper, StationsStats } from "./styles";
-import { registerError } from "../../functions/registerError";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { Container, LoaderContainer, PaginationButton, PaginationWrapper, StationsStats } from "./styles";
 
 const Dashboard = () => {
   const { user, updateUser } = useAuth();
@@ -47,17 +47,39 @@ const Dashboard = () => {
     elev: false,
   });
 
-  const getCurrentConditions = useCallback(async (userId, stationsIds) => {
-    setIsLoading(true);
+  const { idsPerPage, pagesArray } = useMemo(() => {
+    if (!user) return { idsPerPage: {}, pagesArray: [] };
+    const { pageSize } = constants;
 
-    const data = await callableFunction(
-      cloudFunctions.getCurrentConditions,
-      { userId, stationsIds },
-    );
+    const stations = user.wuStations || [];
 
-    const currentData = data.currentConditions as CurrentConditions[];
+    const stationsLength = stations.length;
 
-    currentData.sort((a, b) => {
+    const totalPages = Math.ceil(stationsLength / pageSize);
+
+    const idsObject = {} as { [key: number]: string[] };
+
+    for (let index = 1; index <= totalPages; index++) {
+      const sliceStart = (index - 1) * pageSize;
+      const sliceEnd = index * pageSize;
+      const ids = stations
+        .slice(sliceStart, sliceEnd)
+        .map(station => station.id);
+
+      idsObject[index] = ids;
+    }
+
+    const pages = [...new Array(totalPages)].map((_, index) => {
+      const page = index + 1;
+
+      return page;
+    });
+
+    return { idsPerPage: idsObject, pagesArray: pages };
+  }, [user]);
+
+  const sortStationsByOrder = useCallback((dataToFilter: any[]) => {
+    const sortedData = dataToFilter.sort((a, b) => {
       // Find the corresponding user station for each data item
       const userStationA = user.wuStations.find(station => station.id === a.stationId);
       const userStationB = user.wuStations.find(station => station.id === b.stationId);
@@ -70,16 +92,31 @@ const Dashboard = () => {
       return userStationA.order - userStationB.order;
     });
 
-    setCurrentConditions(currentData);
-    setIsLoading(false);
+    return sortedData;
   }, [user.wuStations]);
 
-  const getHistoricConditions = useCallback(async (userId, stationsIds) => {
-    const historicLength = historicConditions.length;
+  const getCurrentConditions = useCallback(async (userId: string, stationsIds: string[]) => {
+    setIsLoading(true);
+    try {
+      const data = await callableFunction(
+        cloudFunctions.getCurrentConditions,
+        { userId, stationsIds },
+      );
 
-    const hasAlreadyFetchedHistoricConditions = historicLength === stationsIds.length;
-    if (hasAlreadyFetchedHistoricConditions) return;
+      const currentData = data.currentConditions as CurrentConditions[];
 
+      const sortedData: CurrentConditions[] = sortStationsByOrder(currentData);
+
+      setCurrentConditions(sortedData);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+      registerError(error, user);
+      setIsLoading(false);
+    }
+  }, [sortStationsByOrder, user]);
+
+  const getHistoricConditions = useCallback(async (userId: string, stationsIds: string[]) => {
     setIsLoading(true);
     try {
       const data = await callableFunction(
@@ -89,27 +126,16 @@ const Dashboard = () => {
 
       const historicData = data.historicConditions as HistoricConditions[];
 
-      historicData.sort((a, b) => {
-      // Find the corresponding user station for each data item
-        const userStationA = user.wuStations.find(station => station.id === a.stationId);
-        const userStationB = user.wuStations.find(station => station.id === b.stationId);
+      const sortedData: HistoricConditions[] = sortStationsByOrder(historicData);
 
-        // If we couldn't find a user station, sort the item to the end
-        if (!userStationA) return 1;
-        if (!userStationB) return -1;
-
-        // Sort by the order property
-        return userStationA.order - userStationB.order;
-      });
-
-      setHistoricConditions(historicData);
+      setHistoricConditions(sortedData);
       setIsLoading(false);
     } catch (error) {
       console.log(error);
       registerError(error, user);
       setIsLoading(false);
     }
-  }, [historicConditions, user]);
+  }, [sortStationsByOrder, user]);
 
   const handleInputCheck = useCallback((value: boolean, propName: keyof(typeof propsView)) => {
     const changedPropsView = { ...propsView };
@@ -220,29 +246,6 @@ const Dashboard = () => {
     setIsLoading(false);
   }, [addToast, user, updateUser]);
 
-  const { totalPages, idsPerPage } = useMemo(() => {
-    if (!user) return { idsPerPage: {}, totalPages: 0 };
-
-    const stations = user.wuStations || [];
-
-    const stationsLength = stations.length;
-    const stationsPerPage = 15;
-
-    const total = Math.ceil(stationsLength / stationsPerPage);
-
-    const idsObject = {} as { [key: number]: string[] };
-
-    for (let i = 1; i <= total; i++) {
-      const ids = user.wuStations
-        .slice((i - 1) * stationsPerPage, i * stationsPerPage)
-        .map(station => station.id);
-
-      idsObject[i] = ids;
-    }
-
-    return { idsPerPage: idsObject, totalPages: total };
-  }, [user]);
-
   const handleChangePage = useCallback((page: number) => {
     setCurrentPage(page);
 
@@ -279,7 +282,7 @@ const Dashboard = () => {
 
     // Get first 15 stations ids
     const stationsIds = user.wuStations
-      .slice(0, 15)
+      .slice(0, constants.pageSize)
       .map(station => station.id);
 
     if (!stationsIds.length) {
@@ -297,7 +300,7 @@ const Dashboard = () => {
     const stationsIds = idsPerPage[currentPage];
 
     getHistoricConditions(userId, stationsIds);
-  }, [currentPage, getHistoricConditions, idsPerPage, toggleInputSlider, user.userId]);
+  }, [currentPage, getHistoricConditions, idsPerPage, toggleInputSlider, user]);
 
   return (
     <>
@@ -347,23 +350,24 @@ const Dashboard = () => {
           )}
         </StationsStats>
 
-        <PaginationWrapper>
-          <PaginationButton
-            onClick={() => handleChangePage(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <FiChevronLeft />
-          </PaginationButton>
+        {pagesArray.length > 0 && (
+          <PaginationWrapper>
+            {pagesArray.map(pageNumber => (
+              <PaginationButton
+                key={pageNumber}
+                onClick={() => handleChangePage(pageNumber)}
+                disabled={pageNumber === currentPage}
+                title={pageNumber === currentPage
+                  ? `Vendo estações da página ${pageNumber}`
+                  : `Ver estações da página ${pageNumber}`
+                }
+              >
+                {pageNumber}
+              </PaginationButton>
+            ))}
 
-          <PageIndicator>{currentPage} / {totalPages}</PageIndicator>
-
-          <PaginationButton
-            onClick={() => handleChangePage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            <FiChevronRight />
-          </PaginationButton>
-        </PaginationWrapper>
+          </PaginationWrapper>
+        )}
       </Container>
     </>
   );

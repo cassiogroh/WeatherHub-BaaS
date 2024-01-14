@@ -37,23 +37,36 @@ export const StationsStats = styled.div`
 export const PaginationWrapper = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 2rem;
+  background-color: #fff1;
+  width: fit-content;
+  border-radius: 10px;
+  margin: 2rem auto 0;
 `;
 
 export const PaginationButton = styled.button`
   border: none;
   background-color: transparent;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1.5rem;
   color: #fff;
   cursor: pointer;
-
+  opacity: 0.4;
+  border-radius: 10px;
+  position: relative;
+  
   &:disabled {
-    opacity: 0.4;
+    opacity: 1;
     cursor: not-allowed;
+    background-color: #fff1;
   }
-`;
 
-export const PageIndicator = styled.span`
-  color: #fff;
-  margin: 0 1rem;
+  &:hover:not(:disabled) {
+    background-color: #fff5;
+  }
+
+  &:not(:first-child):before {
+    content: '|';
+    position: absolute;
+    left: -2px;
+    color: #fff5;
+  }
 `;
