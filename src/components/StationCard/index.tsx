@@ -4,9 +4,10 @@ import { FiTrash2, FiEdit, FiFrown, FiEdit3 } from "react-icons/fi";
 import { callableFunction } from "../../services/api";
 import { useAuth } from "../../hooks/auth";
 
-import { Container, CardStats, CardBottom, RenameField } from "./styles";
+import { Container, CardStats, CardBottom, RenameField, LastUpdateHour } from "./styles";
 import { CurrentConditions, HistoricConditions, HistoricConditionsData } from "../../models/station";
 import { cloudFunctions } from "../../services/cloudFunctions";
+import { formatDate } from "../../utils/formatDate";
 
 export interface ViewProps {
   temp: boolean,
@@ -52,6 +53,7 @@ const StationCard = ({
     stationId,
     url,
     neighborhood,
+    lastFetchUnix,
   } = currentData;
 
   const {
@@ -70,6 +72,10 @@ const StationCard = ({
 
   const hasHistoricData = historicData && historicData.conditions[currentHistoricDay];
   if (!hasHistoricData) historicData.conditions[currentHistoricDay] = {} as HistoricConditionsData;
+
+  const {
+    lastFetchUnix: historicLastFetchUnix,
+  } = historicData;
 
   const {
     humidityHigh,
@@ -250,6 +256,13 @@ const StationCard = ({
 
       <CardBottom>
         <p>{stationId}</p>
+
+        <LastUpdateHour>
+          {formatDate({
+            date: currentOrHistoric ? historicLastFetchUnix : lastFetchUnix,
+            formatQuery: "HH':'mm' h'",
+          })}
+        </LastUpdateHour>
 
         {!!user &&
           <div>

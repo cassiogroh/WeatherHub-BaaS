@@ -17,7 +17,7 @@ export const Container = styled.div<ContainerProps>`
 `;
 
 export const LoaderContainer = styled.div`
-  position: absolute;
+  position: fixed;
   z-index: 2;
   top: 50%;
   left: 50%;
@@ -32,6 +32,7 @@ export const StationsStats = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
+  margin-top: 4rem;
 `;
 
 export const PaginationWrapper = styled.div`

@@ -23,7 +23,6 @@ export const CardStats = styled.div`
     display: flex;
     flex: 1;
     place-content: center;
-    margin-bottom: 10px;
     padding: 5px;
     border-radius: 10px;
     text-align: center;
@@ -75,38 +74,6 @@ export const CardStats = styled.div`
   }
 `;
 
-export const CardBottom = styled.div`
-  margin-top: auto;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  p {
-    font-size: 1rem;
-  }
-
-  div {
-    display: flex;
-    align-content: center;
-  }
-
-  button {
-    background-color: transparent;
-    border: none;
-    border-radius: 10px;
-    padding: 4px;
-    display: flex;
-    align-content: center;
-    transition: background-color .2s;
-    outline: none;
-
-    &:hover {
-      background-color: rgba(0,0,0, 0.2);
-    }
-  }
-`;
-
 interface RenameProps {
   inputFocus: boolean;
 }
@@ -117,7 +84,6 @@ export const RenameField = styled.div<RenameProps>`
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-bottom: 10px;
 
   input {
     background-color: rgba(0,0,0, 0.1);
@@ -158,6 +124,46 @@ export const RenameField = styled.div<RenameProps>`
 
     &:hover {
       background-color: rgba(0,0,0, 0.4);
+    }
+  }
+`;
+
+export const LastUpdateHour = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  font-size: 1rem;
+`;
+
+export const CardBottom = styled.div`
+  margin-top: auto;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  p {
+    font-size: 1rem;
+  }
+
+  div {
+    display: flex;
+    align-content: center;
+  }
+
+  button {
+    background-color: transparent;
+    border: none;
+    border-radius: 10px;
+    padding: 4px;
+    display: flex;
+    align-content: center;
+    transition: background-color .2s;
+    outline: none;
+
+    &:hover {
+      background-color: rgba(0,0,0, 0.2);
     }
   }
 `;

@@ -113,10 +113,6 @@ export const Options = styled.div`
     margin-bottom: 10px;
     border-radius: 8px 8px 0 0;
   }
-
-  @media (max-width: 900px) {
-    top: -28px;
-  }
 `;
 
 interface HistoricProps {
@@ -249,8 +245,6 @@ export const AddStationForm = styled.form`
   }
 
   @media (max-width: 900px) {
-    top: -28px;
-
     input {
       width: 130px;
     }

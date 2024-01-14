@@ -48,16 +48,6 @@ const ToggleStats = ({
   const { user } = useAuth();
   const { addToast } = useToast();
 
-  const formattedDate = useMemo(() => {
-    const date = format(
-      Date.now(),
-      "dd'/'MMM'/'yyyy 'às' HH':'mm 'h'",
-      { locale: ptBR },
-    );
-
-    return date;
-  }, []);
-
   const currentHistoricDayView = useMemo(() => {
     const now = Date.now();
     const date = format(
@@ -178,8 +168,6 @@ const ToggleStats = ({
           </button>
         </AddStationForm>
       }
-
-      <p>Sincronizado em {formattedDate}</p>
     </Container>
   );
 };
