@@ -1,17 +1,19 @@
 import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
+
+import { User } from "./models/user";
 import { CurrentConditions } from "./models/station";
+
+import { subscriptionStatus } from "./utils/subscriptionInfo";
+import { updateUserDb } from "./utils/getConditions/updateUserDb";
+import { updateApiKey } from "./utils/getConditions/updateApiKey";
 import { retrieveApiKey } from "./utils/getConditions/retrieveApiKey";
 import { getUrlsToFetch } from "./utils/getConditions/getUrlsToFetch";
+import { updateStationsDb } from "./utils/getConditions/updateStationsDb";
 import { fetchDbConditions } from "./utils/getConditions/fetchDbConditions";
 import { fetchWuConditions } from "./utils/getConditions/fetchWuConditions";
-import { verifyUserSubscription } from "./utils/getConditions/verifyUserSubscription";
-import { updateStationsDb } from "./utils/getConditions/updateStationsDb";
-import { updateUserDb } from "./utils/getConditions/updateUserDb";
-import { User } from "./models/user";
-import { subscriptionStatus } from "./utils/subscriptionInfo";
+import { filterStaticStations } from "./utils/getConditions/filterStaticStations";
 import { buildCurrentConditions } from "./utils/getConditions/buildCurrentConditions";
-import { updateApiKey } from "./utils/getConditions/updateApiKey";
 
 interface MetricProps {
   temp: number;
@@ -71,7 +73,6 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
   const { subscription } = user;
 
   const maxStationsToFetch = subscriptionStatus[subscription].maxStations;
-  const { userCanFetchNewData } = await verifyUserSubscription({ user, currentUnixTime });
 
   // Get stations from DB
   const dbCurrentConditions = await fetchDbConditions<CurrentConditions>({
@@ -80,22 +81,23 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
     maxStationsToFetch,
   });
 
-  // If the user can't fetch new data, return the current data from DB
-  if (!userCanFetchNewData) return { currentConditions: dbCurrentConditions };
+  const { staticStations, stationsToFetch } = filterStaticStations<CurrentConditions>({
+    dbConditions: dbCurrentConditions,
+    currentUnixTime,
+    user,
+  });
 
-  const lastFetchUnixArray = dbCurrentConditions.map((station) => station.lastFetchUnix);
-  const isAdmin = subscriptionStatus[subscription].fetchTimeoutInMin === subscriptionStatus.admin.fetchTimeoutInMin;
+  const numberOfRequests = stationsToFetch.length;
 
   // Verify how many api requests are needed and get an api key with enough available requests
-  const apiKey = await retrieveApiKey({ currentUnixTime, lastFetchUnixArray, isAdminRequest: isAdmin });
+  const apiKey = await retrieveApiKey({ currentUnixTime, numberOfRequests });
 
   // If there is no api key, return the current data from DB
   if (!apiKey) return { currentConditions: dbCurrentConditions };
 
   // Create an array with the urls to fetch data from Weather Underground (WU)
   const weatherDataFetchUrls = await getUrlsToFetch<CurrentConditions>({
-    dbConditions: dbCurrentConditions,
-    currentUnixTime,
+    dbConditions: stationsToFetch,
     apiKey: apiKey.key,
     fetchType: "current",
   });
@@ -103,29 +105,15 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
   // Fetch data from WU API, or return the current data from DB if the data is not outdated
   const { offlineStations, conditionsData } = await fetchWuConditions({ weatherDataFetchUrls });
 
-  const currentConditionsArray: CurrentConditions[] = [];
+  const currentConditionsArray = [] as CurrentConditions[];
 
-  // Create an array with the current conditions
+  // Push new data with fetched current conditions
   conditionsData.forEach((data) => {
-    if (data.status !== "fulfilled" || !data.value) {
-      const station = offlineStations.shift();
-      if (!station) return;
-
-      station.status = "offline";
-      currentConditionsArray.push(station);
-      return;
-    }
-    let station = data.value.station;
-
-    // If the data is not outdated, return the current data from DB
-    if (data.value.newData === false) {
-      currentConditionsArray.push(station);
-      return;
-    }
+    if (data.status !== "fulfilled" || !data.value) return;
 
     const value = data.value.responseData as CurrentApiResponse;
 
-    station = buildCurrentConditions({
+    const station = buildCurrentConditions({
       currentConditions: value,
       lastFetchUnix: currentUnixTime,
     });
@@ -137,5 +125,5 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
   await updateUserDb({ userId, lastFetchUnix: currentUnixTime });
   await updateApiKey({ apiKey });
 
-  return { currentConditions: currentConditionsArray };
+  return { currentConditions: [...currentConditionsArray, ...staticStations, ...offlineStations] };
 });

@@ -8,28 +8,25 @@ interface FetchWuConditionsProps<T extends StationProps> {
 export const fetchWuConditions = async <T extends StationProps>({ weatherDataFetchUrls }: FetchWuConditionsProps<T>) => {
   const offlineStations: T[] = [];
 
+  const now = Date.now();
+
   // Fetch data from WU API, or return the current data from DB if the data is not outdated
   const conditionsData = await Promise.allSettled(
-    weatherDataFetchUrls.map(async ({ station, fetchUrl, shouldFetchNewData }) => {
+    weatherDataFetchUrls.map(async ({ station, fetchUrl }) => {
 
       try {
-        if (shouldFetchNewData) {
-          const response = await fetch(fetchUrl);
-          const responseData = await response.json();
-          return {
-            newData: true,
-            responseData,
-            station,
-          };
-        }
-
+        const response = await fetch(fetchUrl);
+        const responseData = await response.json();
         return {
-          newData: false,
-          responseData: null,
+          responseData,
           station,
         };
       } catch (error) {
         console.error(error);
+
+        station.status = "offline";
+        station.observationTimeUTC = new Date(now).toISOString();
+        station.lastFetchUnix = now;
         offlineStations.push(station);
         return;
       }
