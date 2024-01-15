@@ -53,7 +53,7 @@ const StationCard = ({
     stationId,
     url,
     neighborhood,
-    lastFetchUnix,
+    observationTimeUTC,
   } = currentData;
 
   const {
@@ -259,7 +259,7 @@ const StationCard = ({
 
         <LastUpdateHour>
           {formatDate({
-            date: currentOrHistoric ? historicLastFetchUnix : lastFetchUnix,
+            date: currentOrHistoric ? historicLastFetchUnix : observationTimeUTC,
             formatQuery: "HH':'mm' h'",
           })}
         </LastUpdateHour>
