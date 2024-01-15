@@ -13,7 +13,7 @@ interface ToggleStatsProps {
   handleInputCheck(value: boolean | undefined, name: string): void;
   handleAddStation?(event: FormEvent, inputValue: string): void;
   toggleInputSlider: boolean;
-  setToggleInputSlider: React.Dispatch<React.SetStateAction<boolean>>;
+  setToggleInputSlider(toggle: boolean): void;
   minStatus: boolean;
   setMinStatus(toggle: boolean): void;
   medStatus: boolean;

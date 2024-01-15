@@ -47,6 +47,10 @@ const Dashboard = () => {
     elev: false,
   });
 
+  const currentDataView = useMemo(() => {
+    return toggleInputSlider ? historicConditions : currentConditions;
+  }, [currentConditions, historicConditions, toggleInputSlider]);
+
   const { idsPerPage, pagesArray } = useMemo(() => {
     if (!user) return { idsPerPage: {}, pagesArray: [] };
     const { pageSize } = constants;
@@ -80,8 +84,8 @@ const Dashboard = () => {
     return { idsPerPage: idsObject, pagesArray: pages };
   }, [user]);
 
-  const sortStationsByOrder = useCallback((dataToFilter: any[]) => {
-    const sortedData = dataToFilter.sort((a, b) => {
+  const sortStationsByOrder = useCallback((dataToSort: any[]) => {
+    const sortedData = dataToSort.sort((a, b) => {
       // Find the corresponding user station for each data item
       const userStationA = user.wuStations.find(station => station.id === a.stationId);
       const userStationB = user.wuStations.find(station => station.id === b.stationId);
@@ -253,12 +257,27 @@ const Dashboard = () => {
 
     const stationsIds = idsPerPage[page];
 
-    if (inputValue) {
+    if (toggleInputSlider) {
       getHistoricConditions(user.userId, stationsIds);
     } else {
       getCurrentConditions(user.userId, stationsIds);
     }
-  }, [getCurrentConditions, getHistoricConditions, idsPerPage, inputValue, user]);
+  }, [getCurrentConditions, getHistoricConditions, idsPerPage, toggleInputSlider, user]);
+
+  const toggleConditions = useCallback((newToggleValue) => {
+    setToggleInputSlider(newToggleValue);
+
+    const hasSetToHistoricData = newToggleValue;
+
+    const userId = user.userId;
+    const stationsIds = idsPerPage[currentPage];
+
+    if (hasSetToHistoricData) {
+      getHistoricConditions(userId, stationsIds);
+    } else {
+      getCurrentConditions(userId, stationsIds);
+    }
+  }, [currentPage, getCurrentConditions, getHistoricConditions, idsPerPage, user.userId]);
 
   const copyData = useCallback(() => {
     const copiedSuccessfully = copyHistoricData({ historicConditions, currentHistoricDay });
@@ -294,16 +313,6 @@ const Dashboard = () => {
     getCurrentConditions(userId, stationsIds);
   }, [user, getCurrentConditions]);
 
-  useEffect(() => {
-    if (!toggleInputSlider) return;
-
-    const userId = user.userId;
-
-    const stationsIds = idsPerPage[currentPage];
-
-    getHistoricConditions(userId, stationsIds);
-  }, [currentPage, getHistoricConditions, idsPerPage, toggleInputSlider, user]);
-
   return (
     <>
       <Header />
@@ -320,7 +329,7 @@ const Dashboard = () => {
           handleInputCheck={handleInputCheck}
           handleAddStation={handleAddStation}
           toggleInputSlider={toggleInputSlider}
-          setToggleInputSlider={setToggleInputSlider}
+          setToggleInputSlider={toggleConditions}
           minStatus={minStatus}
           setMinStatus={setMinStatus}
           medStatus={medStatus}
@@ -335,7 +344,7 @@ const Dashboard = () => {
         />
 
         <StationsStats>
-          {currentConditions.map((station, index: number) => (
+          {currentDataView.map((station, index: number) => (
             <StationCard
               key={station.stationId}
               currentData={station}
