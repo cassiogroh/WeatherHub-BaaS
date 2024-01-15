@@ -53,6 +53,8 @@ const Dashboard = () => {
 
     const stations = user.wuStations || [];
 
+    stations.sort((a, b) => a.order - b.order);
+
     const stationsLength = stations.length;
 
     const totalPages = Math.ceil(stationsLength / pageSize);
