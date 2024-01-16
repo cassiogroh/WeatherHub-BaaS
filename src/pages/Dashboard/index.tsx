@@ -361,7 +361,7 @@ const Dashboard = () => {
           )}
         </StationsStats>
 
-        {pagesArray.length > 0 && (
+        {pagesArray.length > 1 && (
           <PaginationWrapper>
             {pagesArray.map(pageNumber => (
               <PaginationButton
