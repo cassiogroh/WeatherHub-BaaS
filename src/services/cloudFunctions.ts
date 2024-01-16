@@ -32,6 +32,10 @@ export const cloudFunctions = {
   updateProfile: "updateProfile",
   /**
    * @param {string} userId
+   */
+  deleteAccount: "deleteAccount",
+  /**
+   * @param {string} userId
    * @param {string[]} stationsIds
    */
   getCurrentConditions: "getCurrentConditions",
