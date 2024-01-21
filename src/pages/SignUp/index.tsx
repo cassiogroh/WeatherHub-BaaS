@@ -11,7 +11,6 @@ import getValidationErrors from "../../utils/getValidationErrors";
 
 import fullLogoImg from "../../assets/full-logo.png";
 
-import Header from "../../components/Header";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 
@@ -83,7 +82,6 @@ const SignUp = () => {
 
   return (
     <Container>
-      <Header />
       <Content>
         <Background>
           <h1>Junte-se a esta comunidade de apaixonados pelo clima!</h1>

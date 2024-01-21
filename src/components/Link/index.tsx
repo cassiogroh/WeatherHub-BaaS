@@ -1,4 +1,4 @@
-import { Link as AnchorLink, LinkProps as LinkPropsDOM } from "react-router-dom";
+import { Link as AnchorLink, LinkProps as LinkPropsDOM, useLocation } from "react-router-dom";
 
 import { Container } from "./styles";
 
@@ -8,10 +8,10 @@ interface LinkProps extends LinkPropsDOM {
 }
 
 const Link = ({ to, pageName, isHeaderScrollActive, ...rest }: LinkProps) => {
-  const currentPage = window.location.pathname;
+  const location = useLocation();
 
   return (
-    <Container isActiveTab={to === currentPage} isHeaderScrollActive={isHeaderScrollActive}>
+    <Container isActiveTab={to === location.pathname} isHeaderScrollActive={isHeaderScrollActive}>
       <AnchorLink to={to} {...rest}>{pageName}</AnchorLink>
     </Container>
   );

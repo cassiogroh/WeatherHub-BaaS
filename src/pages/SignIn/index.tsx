@@ -11,7 +11,6 @@ import getValidationErrors from "../../utils/getValidationErrors";
 
 import logoImg from "../../assets/full-logo.png";
 
-import Header from "../../components/Header";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 
@@ -77,7 +76,6 @@ const SignIn = () => {
 
   return (
     <Container>
-      <Header />
       <Content>
         <AnimationContainer>
           <img src={logoImg} alt="WeatherHub" width={150} />

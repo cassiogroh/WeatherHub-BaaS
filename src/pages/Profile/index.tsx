@@ -6,7 +6,6 @@ import * as Yup from "yup";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-import Header from "../../components/Header";
 import ProfileHeader from "../../components/ProfileHeader";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
@@ -138,7 +137,6 @@ const Profile = () => {
 
   return (
     <Container>
-      <Header />
       <ProfileHeader />
 
       <Content>

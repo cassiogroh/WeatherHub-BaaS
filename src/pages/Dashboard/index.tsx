@@ -1,7 +1,6 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import Loader from "react-loader-spinner";
 
-import Header from "../../components/Header";
 import ProfileHeader from "../../components/ProfileHeader";
 import StationCard, { ViewProps } from "../../components/StationCard";
 import ToggleStats from "../../components/ToggleStats";
@@ -315,7 +314,6 @@ const Dashboard = () => {
 
   return (
     <>
-      <Header />
       <ProfileHeader />
 
       <Container isLoading={isLoading}>

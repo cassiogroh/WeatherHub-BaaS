@@ -1,11 +1,8 @@
-import Header from "../../components/Header";
-
 import { Container, Background, AnimationContainer } from "./styles";
 
 const About = () => {
   return (
     <Container>
-      <Header />
       <AnimationContainer>
         <h1>Quem somos?</h1>
 
