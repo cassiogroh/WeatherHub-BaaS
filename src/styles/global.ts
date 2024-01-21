@@ -8,7 +8,7 @@ export default createGlobalStyle`
     --card-secondary-color  : #3b5998;
     --button-color          : #3FCA87;
     --text-color            : #ddd;
-    --error-color           : #FF9077;
+    --error-color           : #923535;
 
     font-size: 62.5%;
   }

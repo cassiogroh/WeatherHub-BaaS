@@ -11,9 +11,9 @@ import Routes from "./routes";
 function App() {
   return (
     <Router>
-      <Header />
-
       <AppProvider>
+        <Header />
+
         <Routes />
         <Footer />
       </AppProvider>

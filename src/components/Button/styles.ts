@@ -12,6 +12,7 @@ export const Container = styled.button`
   margin-top: 16px;
   outline: none;
   transition: filter 0.2s;
+  text-transform: uppercase;
 
   &:hover { 
     filter: brightness(80%);

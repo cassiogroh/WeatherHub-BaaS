@@ -5,6 +5,7 @@ import { FiUser, FiMail, FiLock } from "react-icons/fi";
 import * as Yup from "yup";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { useNavigate } from "react-router-dom";
 
 import ProfileHeader from "../../components/ProfileHeader";
 import Button from "../../components/Button";
@@ -14,9 +15,12 @@ import { useAuth } from "../../hooks/auth";
 import { useToast } from "../../hooks/toast";
 import getValidationErrors from "../../utils/getValidationErrors";
 
-import { Container, Content } from "./styles";
+import { User } from "../../models/user";
 import { callableFunction } from "../../services/api";
 import { signIntoFirebase } from "../../functions/signIn";
+import { cloudFunctions } from "../../services/cloudFunctions";
+
+import { Container, Content } from "./styles";
 
 interface ProfileFormData {
   name: string;
@@ -30,8 +34,10 @@ const Profile = () => {
   const formRef = useRef<FormHandles>(null);
   const { addToast } = useToast();
   const { user, updateUser } = useAuth();
+  const navigate = useNavigate();
 
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const handleSubmit = useCallback(async (data: ProfileFormData) => {
     try {
@@ -92,7 +98,7 @@ const Profile = () => {
         }
       }
 
-      await callableFunction("updateProfile", formData);
+      await callableFunction(cloudFunctions.updateProfile, formData);
 
       const mockUser = { ...user };
 
@@ -123,12 +129,41 @@ const Profile = () => {
     setIsUpdatingProfile(false);
   }, [addToast, updateUser, user]);
 
+  const deleteAccount = useCallback(async () => {
+    const confirmAccountDeletion = window.confirm(
+      "Tem certeza que deseja deletar sua conta? Esta ação é irreversível e todos os seus dados serão removidos do sistema.",
+    );
+
+    if (!confirmAccountDeletion) return;
+
+    try {
+      setIsDeletingAccount(true);
+
+      await callableFunction(cloudFunctions.deleteAccount, { userId: user.userId });
+
+      addToast({
+        type: "success",
+        title: "Conta deletada com sucesso!",
+      });
+
+      updateUser({} as User);
+      navigate("/");
+    } catch (err) {
+      addToast({
+        type: "error",
+        title: "Erro ao deletar conta.",
+      });
+    }
+
+    setIsDeletingAccount(false);
+  }, [addToast, user.userId, navigate, updateUser]);
+
   const user_since = useMemo(() => {
     if (!user.created_at) return "";
 
     const date = format(
       new Date(user.created_at),
-      "dd '/' MMM '/' yyyy",
+      "dd '/' MMMM '/' yyyy",
       { locale: ptBR },
     );
 
@@ -175,9 +210,21 @@ const Profile = () => {
             placeholder='Confirmar senha'
           />
 
-          <Button disabled={isUpdatingProfile} type='submit'>{isUpdatingProfile ? "Atualizando perfil..." : "Confirmar alterações"}</Button>
+          <Button disabled={isUpdatingProfile || isDeletingAccount} type='submit'>{isUpdatingProfile ? "Atualizando perfil..." : "Confirmar alterações"}</Button>
         </Form>
+
         <p>Conta criada em: {user_since}</p>
+
+        <Button
+          type='button'
+          onClick={deleteAccount}
+          disabled={isUpdatingProfile || isDeletingAccount}
+          style={{ background: "var(--error-color" }}
+        >
+          {isDeletingAccount ? "Deletando conta..." : "Deletar conta"}
+
+          {/* Tirar usuario do local storage qndo deletar */}
+        </Button>
       </Content>
     </Container>
   );

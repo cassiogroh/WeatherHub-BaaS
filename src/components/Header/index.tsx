@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
 
+import { useAuth } from "../../hooks/auth";
 import Link from "../Link";
 
 import { Container, NavBar } from "./styles";
 
 const Header = () => {
+  const { user } = useAuth();
   const [isHeaderScrollActive, setIsHeaderScrollActive] = useState(false);
-
-  const user = localStorage.getItem("@WeatherHub:user");
 
   const setScrollToZero = useCallback(() => {
     window.scrollTo(0, 0);
@@ -25,7 +25,7 @@ const Header = () => {
         <Link to="/" pageName='Home' isHeaderScrollActive={isHeaderScrollActive} onClick={setScrollToZero} />
 
         <div>
-          {user ?
+          {user?.userId ?
             <Link to="/dashboard" pageName='Dashboard' isHeaderScrollActive={isHeaderScrollActive} onClick={setScrollToZero} />
             : (
               <>
