@@ -4,6 +4,7 @@ import Home from "../pages/Home";
 import SignIn from "../pages/SignIn";
 import SignUp from "../pages/SignUp";
 import About from "../pages/About";
+import ResetPassword from "../pages/ResetPassword";
 
 import Dashboard from "../pages/Dashboard";
 import Profile from "../pages/Profile";
@@ -17,7 +18,9 @@ const AppRoutes = () => {
       <Route path='/' element={<Home />} />
       <Route path='/signin' element={<SignIn />} />
       <Route path='/signup' element={<SignUp />} />
+
       <Route path='/about' element={<About />} />
+      <Route path='/forgot-password' element={<ResetPassword />} />
 
       <Route path='/dashboard' element={<Dashboard />} />
       <Route path='/profile' element={<Profile />} />

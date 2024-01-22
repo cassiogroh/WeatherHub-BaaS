@@ -107,7 +107,7 @@ const SignUp = () => {
 
           <Link to="/signin">
             <FiArrowLeft />
-            Voltar para login
+            Voltar para Login
           </Link>
         </AnimationContainer>
       </Content>

@@ -1,5 +1,5 @@
 import { useRef, useCallback, useState } from "react";
-import { FiLogIn, FiMail, FiLock } from "react-icons/fi";
+import { FiMail, FiArrowLeft } from "react-icons/fi";
 import { FormHandles } from "@unform/core";
 import { Form } from "@unform/web";
 import * as Yup from "yup";
@@ -16,23 +16,22 @@ import Button from "../../components/Button";
 
 import { Container, Content, AnimationContainer, Background } from "./styles";
 
-interface SignInFormData {
+interface ResetPasswordFormData {
   email: string;
-  password: string;
 }
 
-const SignIn = () => {
+const ResetPassword = () => {
   const formRef = useRef<FormHandles>(null);
 
-  const { signIn } = useAuth();
+  const { sendResetPasswordEmail } = useAuth();
   const { addToast } = useToast();
 
-  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSendingRecoverEmail, setIsSendingRecoverEmail] = useState(false);
 
   const navigate = useNavigate();
 
-  const handleSubmit= useCallback(async (data: SignInFormData) => {
-    setIsSigningIn(true);
+  const handleSubmit= useCallback(async (data: ResetPasswordFormData) => {
+    setIsSendingRecoverEmail(true);
 
     try {
       formRef.current?.setErrors({});
@@ -41,23 +40,25 @@ const SignIn = () => {
         email: Yup.string()
           .required("E-mail obrigatório")
           .email("Digite um e-mail válido"),
-        password: Yup.string()
-          .required("Senha obrigatória"),
       });
 
       await schema.validate(data, {
         abortEarly: false,
       });
 
-      await signIn({
-        email: data.email,
-        password: data.password,
+      await sendResetPasswordEmail(data.email);
+
+      addToast({
+        type: "success",
+        title: "E-mail de recuperação enviado!",
+        description: "Verifique sua caixa de entrada ou de spam para encontrar o link de recuperação da sua senha.",
+        timeout: 10000,
       });
 
-      setIsSigningIn(false);
-      navigate("/dashboard");
+      setIsSendingRecoverEmail(false);
+      navigate("/signin");
     } catch (err) {
-      setIsSigningIn(false);
+      setIsSendingRecoverEmail(false);
 
       if (err instanceof Yup.ValidationError) {
         const errors = getValidationErrors(err);
@@ -68,11 +69,11 @@ const SignIn = () => {
 
       addToast({
         type: "error",
-        title: "Erro na autenticação",
-        description: "Ocorreu um erro ao fazer login. Cheque suas credenciais e tente novamente.",
+        title: "Ocorreu um erro",
+        description: "Certifique-se de que o e-mail está correto e tente novamente.",
       });
     }
-  }, [signIn, addToast, navigate]);
+  }, [sendResetPasswordEmail, addToast, navigate]);
 
   return (
     <Container>
@@ -81,33 +82,25 @@ const SignIn = () => {
           <img src={logoImg} alt="WeatherHub" width={150} />
 
           <Form ref={formRef} onSubmit={handleSubmit}>
-            <h1>Faça seu login</h1>
+            <h1>Resete sua senha</h1>
 
             <Input name='email' icon={FiMail} placeholder='E-mail' />
-            <Input
-              name='password'
-              icon={FiLock}
-              type='password'
-              placeholder='Senha'
-            />
 
-            <Button disabled={isSigningIn} type='submit'>{isSigningIn ? "Entrando..." : "Entrar"}</Button>
-
-            <a href="/forgot-password">Esqueci minha senha</a>
+            <Button disabled={isSendingRecoverEmail} type='submit'>{isSendingRecoverEmail ? "Enviando e-mail..." : "Resetar senha"}</Button>
           </Form>
 
-          <Link to="/signup">
-            <FiLogIn />
-            Criar conta
+          <Link to="/signin">
+            <FiArrowLeft />
+            Voltar para Login
           </Link>
         </AnimationContainer>
 
         <Background>
-          <h1>Faça login e entre nessa tempestade de informações!</h1>
+          <h1>Recupere sua conta e veja seu dashboard novamente!</h1>
         </Background>
       </Content>
     </Container>
   );
 };
 
-export default SignIn;
+export default ResetPassword;

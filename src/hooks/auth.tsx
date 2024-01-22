@@ -1,5 +1,8 @@
 import { createContext, useCallback, useState, useContext, useEffect } from "react";
-import { onAuthStateChanged, signOut as signOutFromFirebase } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signOut as signOutFromFirebase,
+  sendPasswordResetEmail as sendPasswordResetEmailFirebase } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 import { auth } from "../services/api";
@@ -17,6 +20,7 @@ interface AuthContextData {
   signIn(credentials: SignInCredentials): Promise<void>;
   signOut(): void;
   updateUser(user: User): void;
+  sendResetPasswordEmail(email: string): Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -73,8 +77,17 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(user);
   }, [setUser]);
 
+  const sendResetPasswordEmail = useCallback(async (email: string) => {
+    try {
+      await sendPasswordResetEmailFirebase(auth, email);
+    } catch (error) {
+      console.log(error);
+      throw new Error("Erro ao enviar e-mail de recuperação de senha.");
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut, updateUser }}>
+    <AuthContext.Provider value={{ user, signIn, signOut, updateUser, sendResetPasswordEmail }}>
       {children}
     </AuthContext.Provider>
   );
