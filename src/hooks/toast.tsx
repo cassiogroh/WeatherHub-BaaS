@@ -10,9 +10,12 @@ import ToastContainer from "../components/ToastContainer";
 
 export interface ToastMessage {
   id: string;
+  /** Defaults to "info" */
   type?: "success" | "error" | "info";
   title: string;
   description?: string;
+  /** Timeout for the toast to disapear in milisenconds. Defaults to 6000. */
+  timeout?: number;
 }
 
 interface ToastContextData {
@@ -26,7 +29,7 @@ const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [messages, setMessages] = useState<ToastMessage[]>([]);
 
   const addToast = useCallback(
-    ({ type, title, description }: Omit<ToastMessage, "id">) => {
+    ({ type, title, description, timeout }: Omit<ToastMessage, "id">) => {
       const id = uuid();
 
       const toast = {
@@ -34,6 +37,7 @@ const ToastProvider = ({ children }: { children: React.ReactNode }) => {
         type,
         title,
         description,
+        timeout,
       };
 
       setMessages(state => [ ...state, toast ]);

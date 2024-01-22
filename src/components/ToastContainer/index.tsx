@@ -9,6 +9,7 @@ interface ToastCointainer {
 }
 
 const ToastCointainer = ({ messages }: ToastCointainer) => {
+
   const messagesWithTransitions = useTransition(
     messages,
     message => message.id,
@@ -26,6 +27,7 @@ const ToastCointainer = ({ messages }: ToastCointainer) => {
           key={key}
           style={props}
           message={item}
+          timeout={item.timeout || 6000}
         />
       ))}
     </Container>

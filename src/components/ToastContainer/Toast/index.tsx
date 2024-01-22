@@ -8,6 +8,7 @@ import { Container } from "./styles";
 interface ToastProps {
   message: ToastMessage;
   style: object;
+  timeout: number;
 }
 
 const icons = {
@@ -16,18 +17,18 @@ const icons = {
   success: <FiCheckCircle size={24} />,
 };
 
-const Toast = ({ message, style }: ToastProps) => {
+const Toast = ({ message, style, timeout }: ToastProps) => {
   const { removeToast } = useToast();
 
   useEffect(() => {
     const timer = setTimeout(() => {
       removeToast(message.id);
-    }, 3000);
+    }, timeout);
 
     return () => {
       clearTimeout(timer);
     };
-  }, [removeToast, message.id]);
+  }, [removeToast, message.id, timeout]);
 
   return (
     <Container
