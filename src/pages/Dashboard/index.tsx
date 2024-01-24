@@ -20,8 +20,22 @@ const Dashboard = () => {
   const { user, updateUser } = useAuth();
   const { addToast } = useToast();
 
-  const [ currentConditions, setCurrentConditions ] = useState([] as CurrentConditions[]);
-  const [ historicConditions, setHistoricConditions ] = useState([] as HistoricConditions[]);
+  const mockObject = {
+    "0": [],
+    "1": [],
+    "2": [],
+    "3": [],
+    "4": [],
+    "5": [],
+    "6": [],
+    "7": [],
+    "8": [],
+    "9": [],
+    "10": [],
+  };
+
+  const [ currentConditions, setCurrentConditions ] = useState(mockObject as Record<string, CurrentConditions[]>);
+  const [ historicConditions, setHistoricConditions ] = useState(mockObject as Record<string, HistoricConditions[]>);
   const [ inputValue, setInputValue ] = useState("");
   const [ isLoading, setIsLoading ] = useState(false);
 
@@ -31,7 +45,7 @@ const Dashboard = () => {
   const [ minStatus, setMinStatus ] = useState(true);
   const [ medStatus, setMedStatus ] = useState(false);
   const [ maxStatus, setMaxStatus ] = useState(true);
-  const [ currentPage, setCurrentPage ] = useState(1);
+  const [ currentPage, setCurrentPage ] = useState(0);
   const [ propsView, setPropsView ] = useState<ViewProps>({
     temp: true,
     dewpt: false,
@@ -71,12 +85,11 @@ const Dashboard = () => {
         .slice(sliceStart, sliceEnd)
         .map(station => station.id);
 
-      idsObject[index] = ids;
+      idsObject[index - 1] = ids;
     }
 
     const pages = [...new Array(totalPages)].map((_, index) => {
-      const page = index + 1;
-
+      const page = index;
       return page;
     });
 
@@ -100,7 +113,9 @@ const Dashboard = () => {
     return sortedData;
   }, [user.wuStations]);
 
-  const getCurrentConditions = useCallback(async (userId: string, stationsIds: string[]) => {
+  const getCurrentConditions = useCallback(async (userId: string, stationsIds: string[], page: number) => {
+    if (currentConditions[page].length) return;
+
     setIsLoading(true);
     try {
       const data = await callableFunction(
@@ -112,16 +127,25 @@ const Dashboard = () => {
 
       const sortedData: CurrentConditions[] = sortStationsByOrder(currentData);
 
-      setCurrentConditions(sortedData);
+      setCurrentConditions(state => {
+        const stateCopy = { ...state };
+        stateCopy[page] = sortedData;
+
+        console.log(stateCopy);
+
+        return stateCopy;
+      });
       setIsLoading(false);
     } catch (error) {
       console.log(error);
       registerError(error, user);
       setIsLoading(false);
     }
-  }, [sortStationsByOrder, user]);
+  }, [sortStationsByOrder, user, currentConditions]);
 
-  const getHistoricConditions = useCallback(async (userId: string, stationsIds: string[]) => {
+  const getHistoricConditions = useCallback(async (userId: string, stationsIds: string[], page: number) => {
+    if (historicConditions[page].length) return;
+
     setIsLoading(true);
     try {
       const data = await callableFunction(
@@ -133,14 +157,18 @@ const Dashboard = () => {
 
       const sortedData: HistoricConditions[] = sortStationsByOrder(historicData);
 
-      setHistoricConditions(sortedData);
+      setHistoricConditions(state => {
+        const stateCopy = { ...state };
+        stateCopy[page] = sortedData;
+        return stateCopy;
+      });
       setIsLoading(false);
     } catch (error) {
       console.log(error);
       registerError(error, user);
       setIsLoading(false);
     }
-  }, [sortStationsByOrder, user]);
+  }, [historicConditions, sortStationsByOrder, user]);
 
   const handleInputCheck = useCallback((value: boolean, propName: keyof(typeof propsView)) => {
     const changedPropsView = { ...propsView };
@@ -159,7 +187,17 @@ const Dashboard = () => {
       setIsLoading(true);
       await callableFunction(cloudFunctions.deleteStation, { stationId, userId: user.userId });
 
-      setCurrentConditions(state => state.filter(station => station.stationId !== stationId));
+      setCurrentConditions(state => {
+        const stateCopy = { ...state };
+        stateCopy[currentPage] = stateCopy[currentPage].filter(station => station.stationId !== stationId);
+        return stateCopy;
+      });
+
+      setHistoricConditions(state => {
+        const stateCopy = { ...state };
+        stateCopy[currentPage] = stateCopy[currentPage].filter(station => station.stationId !== stationId);
+        return stateCopy;
+      });
 
       const stationIndex = user.wuStations.findIndex(({ id }) => id === stationId);
       user.wuStations.splice(stationIndex, 1);
@@ -182,7 +220,7 @@ const Dashboard = () => {
       setIsLoading(false);
       return;
     }
-  }, [addToast, user, updateUser]);
+  }, [addToast, user, updateUser, currentPage]);
 
   const handleAddStation = useCallback(async (event: FormEvent, stationId: string) => {
     event.preventDefault();
@@ -234,10 +272,30 @@ const Dashboard = () => {
       });
       updateUser(user);
 
-      setCurrentConditions(oldStations => [...oldStations, data.currentConditions]);
-      setHistoricConditions(oldStations => {
-        if (!oldStations.length) return oldStations;
-        return [...oldStations, data.historicConditions];
+      setCurrentConditions(state => {
+        const stateCopy = { ...state };
+        const currentPageIsFull = stateCopy[currentPage].length === constants.pageSize;
+
+        if (currentPageIsFull) {
+          stateCopy[currentPage + 1] = [data.currentConditions];
+        } else {
+          stateCopy[currentPage].push(data.currentConditions);
+        }
+
+        return stateCopy;
+      });
+
+      setHistoricConditions(state => {
+        const stateCopy = { ...state };
+        const currentPageIsFull = stateCopy[currentPage].length === constants.pageSize;
+
+        if (currentPageIsFull) {
+          stateCopy[currentPage + 1] = [data.historicConditions];
+        } else {
+          stateCopy[currentPage].push(data.historicConditions);
+        }
+
+        return stateCopy;
       });
       setIsLoading(false);
     } catch {
@@ -249,7 +307,7 @@ const Dashboard = () => {
     }
 
     setIsLoading(false);
-  }, [addToast, user, updateUser]);
+  }, [user, addToast, updateUser, currentPage]);
 
   const handleChangePage = useCallback((page: number) => {
     setCurrentPage(page);
@@ -257,9 +315,9 @@ const Dashboard = () => {
     const stationsIds = idsPerPage[page];
 
     if (toggleInputSlider) {
-      getHistoricConditions(user.userId, stationsIds);
+      getHistoricConditions(user.userId, stationsIds, page);
     } else {
-      getCurrentConditions(user.userId, stationsIds);
+      getCurrentConditions(user.userId, stationsIds, page);
     }
   }, [getCurrentConditions, getHistoricConditions, idsPerPage, toggleInputSlider, user]);
 
@@ -272,14 +330,14 @@ const Dashboard = () => {
     const stationsIds = idsPerPage[currentPage];
 
     if (hasSetToHistoricData) {
-      getHistoricConditions(userId, stationsIds);
+      getHistoricConditions(userId, stationsIds, currentPage);
     } else {
-      getCurrentConditions(userId, stationsIds);
+      getCurrentConditions(userId, stationsIds, currentPage);
     }
   }, [currentPage, getCurrentConditions, getHistoricConditions, idsPerPage, user.userId]);
 
   const copyData = useCallback(() => {
-    const copiedSuccessfully = copyHistoricData({ historicConditions, currentHistoricDay });
+    const copiedSuccessfully = copyHistoricData({ historicConditions: historicConditions[currentPage], currentHistoricDay });
 
     if (copiedSuccessfully) {
       addToast({
@@ -293,7 +351,7 @@ const Dashboard = () => {
         description: "Organize as 12 estações para copiar os dados.",
       });
     }
-  }, [historicConditions, currentHistoricDay, addToast]);
+  }, [historicConditions, currentPage, currentHistoricDay, addToast]);
 
   useEffect(() => {
     const userId = user.userId;
@@ -309,8 +367,9 @@ const Dashboard = () => {
       return;
     }
 
-    getCurrentConditions(userId, stationsIds);
-  }, [user, getCurrentConditions]);
+    getCurrentConditions(userId, stationsIds, 0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   return (
     <>
@@ -342,11 +401,11 @@ const Dashboard = () => {
         />
 
         <StationsStats>
-          {currentDataView.map((station, index: number) => (
+          {currentDataView[currentPage].map((station, index: number) => (
             <StationCard
               key={station.stationId}
               currentData={station}
-              historicData={historicConditions[index] || { conditions: [] }}
+              historicData={historicConditions[currentPage][index] || { conditions: [] }}
               propsView={station.status === "online" ? propsView : undefined}
               handleDeleteStation={handleDeleteStation}
               currentOrHistoric={toggleInputSlider}
@@ -367,11 +426,11 @@ const Dashboard = () => {
                 onClick={() => handleChangePage(pageNumber)}
                 disabled={pageNumber === currentPage}
                 title={pageNumber === currentPage
-                  ? `Vendo estações da página ${pageNumber}`
-                  : `Ver estações da página ${pageNumber}`
+                  ? `Vendo estações da página ${pageNumber + 1}`
+                  : `Ver estações da página ${pageNumber + 1}`
                 }
               >
-                {pageNumber}
+                {pageNumber + 1}
               </PaginationButton>
             ))}
 
