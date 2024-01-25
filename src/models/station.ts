@@ -6,8 +6,9 @@ export interface StationProps {
     latitude: number;
     longitude: number;
   },
-  softwareType: string,
-  observationTimeUTC: string,
+  softwareType: string;
+  observationTimeUTC: string;
+  observationTimeLocal: string;
   country: string;
   lastFetchUnix: number;
   status: "online" | "offline";

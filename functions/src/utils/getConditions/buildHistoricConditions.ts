@@ -61,6 +61,7 @@ export const buildHistoricConditions = ({
   const station: HistoricConditions = {
     stationId: observations[0].stationID,
     observationTimeUTC: observations[0].obsTimeUtc,
+    observationTimeLocal: observations[0].obsTimeLocal,
     geolocation: {
       latitude: observations[0].lat,
       longitude: observations[0].lon,

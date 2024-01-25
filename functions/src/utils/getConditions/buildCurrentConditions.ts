@@ -19,6 +19,7 @@ export const buildCurrentConditions = ({
   const {
     stationID,
     obsTimeUtc,
+    obsTimeLocal,
     neighborhood,
     softwareType,
     country,
@@ -31,6 +32,7 @@ export const buildCurrentConditions = ({
     softwareType,
     country,
     observationTimeUTC: obsTimeUtc,
+    observationTimeLocal: obsTimeLocal,
     geolocation: {
       latitude: observations.lat,
       longitude: observations.lon,
