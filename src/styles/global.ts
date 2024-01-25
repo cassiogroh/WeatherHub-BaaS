@@ -7,7 +7,7 @@ export default createGlobalStyle`
     --card-primary-color    : #3C58aa;
     --card-secondary-color  : #3b5998;
     --button-color          : #3FCA87;
-    --text-color            : #ddd;
+    --text-color            : #f2f5f9;
     --error-color           : #923535;
 
     font-size: 62.5%;
@@ -45,13 +45,17 @@ export default createGlobalStyle`
 
   button {
     cursor: pointer;
-    outline: none;
   }
 
   h1 {
     font-family: 'Roboto Slab', serif;
     font-size: 2.5rem;
     font-weight: 500;
+    color: var(--text-color);
+  }
+
+  h2, h3, h4, h5, h6 {
+    font-family: 'Roboto Slab', serif;
     color: var(--text-color);
   }
 

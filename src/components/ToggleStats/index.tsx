@@ -164,7 +164,7 @@ const ToggleStats = ({
             type='submit'
             title="Adicionar estação"
           >
-            <FiPlus size={20} color='#3b5998' strokeWidth={5} />
+            <FiPlus size={20} color='var(--primary-color)' strokeWidth={5} />
           </button>
         </AddStationForm>
       }

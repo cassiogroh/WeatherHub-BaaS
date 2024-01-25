@@ -181,7 +181,7 @@ const StationCard = ({
               type='button'
               onClick={() => confirmRenameStation(stationId, inputRef.current?.value, stationName)}
             >
-              <FiEdit3 stroke={inputFocus ? "#3FCA87" : "#ddd"} />
+              <FiEdit3 stroke={inputFocus ? "var(--button-color)" : "var(--text-color)"} />
             </button>
           </RenameField>
           : <a title="Abrir estação em nova aba" href={url} target='blank'>{stationName}</a>
@@ -271,14 +271,14 @@ const StationCard = ({
               onMouseEnter={() => handleFocus("renameButton")}
               onMouseLeave={() => handleBlur("renameButton")}
               type='button'>
-              <FiEdit title="Renomear estação" size={23} stroke={renameButtonFocus ? "#3FCA87" : "#ddd"} />
+              <FiEdit title="Renomear estação" size={23} stroke={renameButtonFocus ? "#3FCA87" : "var(--text-color)"} />
             </button>
             <button
               onClick={(() => handleDeleteStation(stationId))}
               onMouseEnter={() => handleFocus("deleteButton")}
               onMouseLeave={() => handleBlur("deleteButton")}
               type='button' >
-              <FiTrash2 title="Remover estação" size={23} stroke={deleteButtonFocus ? "#FF9077" : "#ddd"} />
+              <FiTrash2 title="Remover estação" size={23} stroke={deleteButtonFocus ? "#FF9077" : "var(--text-color)"} />
             </button>
           </div>
         }

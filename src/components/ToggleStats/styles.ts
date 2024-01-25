@@ -177,7 +177,7 @@ export const HistoricOptions = styled.div<HistoricProps>`
       -khtml-user-select: none;
       -moz-user-select: none;
       -ms-user-select: none;
-        user-select: none;
+      user-select: none;
     }
 
     svg {
@@ -185,7 +185,6 @@ export const HistoricOptions = styled.div<HistoricProps>`
       cursor: pointer;
     }
   }
-  
 `;
 
 export const ExclusiveButton = styled.button`
@@ -215,7 +214,7 @@ export const AddStationForm = styled.form`
     border: 0;
     border-radius: 8px 0 0 8px;
     color: #fff;
-    background-color: #3b5998;
+    background-color: var(--primary-color);
     height: 3.4rem;
     padding: 10px;
     width: 150px;
