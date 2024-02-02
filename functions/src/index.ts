@@ -10,6 +10,13 @@ import { getCurrentConditionsFunction } from "./getCurrentConditions";
 import { getHistoricConditionsFunction } from "./getHistoricConditions";
 import { resetApiKeysUsageFunction } from "./resetApiKeysUsage";
 
+// Uncomment when using functions emulator
+// import serviceAccount = require("./serviceAccount.json");
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+//   databaseURL: "https://weatherhub-app.firebaseio.com",
+// });
+
 admin.initializeApp();
 
 export const getForecast = getForecastFunction;

@@ -48,6 +48,6 @@ const callableFunction = async (functionName: string, params?: any) => {
 };
 
 // Use functions emulator (comment out for production)
-// connectFunctionsEmulator(functions, '127.0.0.1', 5001); // import from "firebase/functions"
+// connectFunctionsEmulator(functions, "127.0.0.1", 5001); // import from "firebase/functions"
 
 export { firestore, functions, auth, callableFunction };

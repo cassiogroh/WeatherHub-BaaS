@@ -9,6 +9,7 @@
     "target": "es2020",
     "rootDir": "./src",
     "types": ["node"],
+    "resolveJsonModule": true,
   },
   "compileOnSave": true,
   "include": [
@@ -17,6 +18,7 @@
     "src/utils",
   ],
   "exclude": [
-    ".eslintrc.ts"
+    ".eslintrc.ts",
+    "serviceAccount.json"
   ]
 }

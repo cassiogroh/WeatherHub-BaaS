@@ -131,8 +131,6 @@ const Dashboard = () => {
         const stateCopy = { ...state };
         stateCopy[page] = sortedData;
 
-        console.log(stateCopy);
-
         return stateCopy;
       });
       setIsLoading(false);

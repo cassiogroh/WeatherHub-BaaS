@@ -18,9 +18,16 @@ export const getUrlsToFetch = async <T extends StationProps>({ dbConditions, api
   // Create an array with the urls to fetch data from Weather Underground (WU)
   const weatherDataFetchUrls: WeatherDataFetchUrlsProps<T>[] = [];
   dbConditions.forEach((station) => {
+    const stationId = station.stationId;
+
+    if (!stationId) {
+      console.error("MISSING STATION ID");
+      return;
+    }
+
     weatherDataFetchUrls.push({
       station,
-      fetchUrl: getConditionsUrl(station.stationId, apiKey),
+      fetchUrl: getConditionsUrl(stationId, apiKey),
     });
   });
 

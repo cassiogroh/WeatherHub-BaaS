@@ -28,16 +28,16 @@ export const buildHistoricConditions = ({
   const sevenDaysAgo = subDays(new Date(), 6);
 
   const isObservationsLessThanSeven = observations.length < 7;
-  const isObservationsFirstDayNotSevenDaysAgo = new Date(observations[0].obsTimeLocal).getDate() !== sevenDaysAgo.getDate();
-  const isObservationsLastDayNotToday = new Date(observations[observations.length - 1].obsTimeLocal).getDate() !== new Date().getDate();
+  const isObservationsFirstDayNotSevenDaysAgo = new Date(observations[0].obsTimeUtc).getDate() !== sevenDaysAgo.getDate();
+  const isObservationsLastDayNotToday = new Date(observations[observations.length - 1].obsTimeUtc).getDate() !== new Date().getDate();
 
   if (isObservationsLessThanSeven) {
     // Iterate over the observations array, excluding the last element
     for (let i = 0; i < observations.length - 1; i++) {
       // Get the date (day of the month) of the current observation
-      const date1 = new Date(observations[i].obsTimeLocal).getDate();
+      const date1 = new Date(observations[i].obsTimeUtc).getDate();
       // Get the date (day of the month) of the next observation
-      const date2 = new Date(observations[i + 1].obsTimeLocal).getDate();
+      const date2 = new Date(observations[i + 1].obsTimeUtc).getDate();
 
       // Check if the gap between the current observation date and the next observation date is more than one day
       const isDateGapMoreThanOneDay = date2 > date1 + 1;

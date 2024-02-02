@@ -9,3 +9,6 @@ typings/
 
 # Node.js dependency directory
 node_modules/
+
+# sensitive files
+serviceAccount.json

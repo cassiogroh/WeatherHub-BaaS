@@ -15,6 +15,16 @@ import { fetchWuConditions } from "./utils/getConditions/fetchWuConditions";
 import { filterStaticStations } from "./utils/getConditions/filterStaticStations";
 import { buildHistoricConditions } from "./utils/getConditions/buildHistoricConditions";
 
+interface ErrorApiResponse {
+  metadata: {
+    status_code: number;
+  };
+  error: {
+    message: string;
+  },
+  success: string; // "false"
+}
+
 interface MetricProps {
   tempHigh: number | null;
   tempLow: number | null;
@@ -120,9 +130,17 @@ export const getHistoricConditionsFunction = onCall(async (request) => {
 
   // Push new data with fetched historic conditions
   conditionsData.forEach((data) => {
-    if (data.status !== "fulfilled" || !data.value) return;
+    if (data.status !== "fulfilled") return;
 
-    const value = data.value.responseData as HistoricApiResponse;
+    const responseData = data.value?.responseData as ErrorApiResponse;
+
+    if (!responseData) return;
+
+    const dataFetchFailed = responseData.success === "false";
+
+    if (dataFetchFailed) return;
+
+    const value = data.value?.responseData as HistoricApiResponse;
 
     const station = buildHistoricConditions({
       historicConditions: value,

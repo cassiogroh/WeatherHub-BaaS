@@ -15,6 +15,16 @@ import { fetchWuConditions } from "./utils/getConditions/fetchWuConditions";
 import { filterStaticStations } from "./utils/getConditions/filterStaticStations";
 import { buildCurrentConditions } from "./utils/getConditions/buildCurrentConditions";
 
+interface ErrorApiResponse {
+  metadata: {
+    status_code: number;
+  };
+  error: {
+    message: string;
+  },
+  success: string; // "false"
+}
+
 interface MetricProps {
   temp: number;
   heatIndex: number;
@@ -109,9 +119,17 @@ export const getCurrentConditionsFunction = onCall(async (request) => {
 
   // Push new data with fetched current conditions
   conditionsData.forEach((data) => {
-    if (data.status !== "fulfilled" || !data.value) return;
+    if (data.status !== "fulfilled") return;
 
-    const value = data.value.responseData as CurrentApiResponse;
+    const responseData = data.value?.responseData as ErrorApiResponse;
+
+    if (!responseData) return;
+
+    const dataFetchFailed = responseData.success === "false";
+
+    if (dataFetchFailed) return;
+
+    const value = data.value?.responseData as CurrentApiResponse;
 
     const station = buildCurrentConditions({
       currentConditions: value,
