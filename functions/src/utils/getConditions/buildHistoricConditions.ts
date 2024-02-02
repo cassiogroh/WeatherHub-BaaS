@@ -10,6 +10,7 @@ interface BuildHistoricConditions {
   neighborhood?: string;
   softwareType?: string;
   country?: string;
+  stationId?: string;
 }
 
 export const buildHistoricConditions = ({
@@ -25,19 +26,26 @@ export const buildHistoricConditions = ({
   // offline for more than one day, the API will return less than seven days
   // of observations, so we need to fill the gaps with mock data (null).
   const indexToReplace: number[] = [];
-  const sevenDaysAgo = subDays(new Date(), 6);
+
+  const now = new Date();
+  const utcDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours(), now.getUTCMinutes(), now.getUTCSeconds()));
+
+  const sevenDaysAgo = subDays(utcDate, 6);
+
+  const observationDate = new Date(observations[0].obsTimeLocal);
+  const observationDay = observationDate.getUTCDate();
 
   const isObservationsLessThanSeven = observations.length < 7;
-  const isObservationsFirstDayNotSevenDaysAgo = new Date(observations[0].obsTimeUtc).getDate() !== sevenDaysAgo.getDate();
-  const isObservationsLastDayNotToday = new Date(observations[observations.length - 1].obsTimeUtc).getDate() !== new Date().getDate();
+  const isObservationsFirstDayNotSevenDaysAgo = observationDay !== sevenDaysAgo.getUTCDate();
+  const isObservationsLastDayNotToday = new Date(observations[observations.length - 1].obsTimeLocal).getUTCDate() !== new Date().getUTCDate();
 
   if (isObservationsLessThanSeven) {
     // Iterate over the observations array, excluding the last element
     for (let i = 0; i < observations.length - 1; i++) {
       // Get the date (day of the month) of the current observation
-      const date1 = new Date(observations[i].obsTimeUtc).getDate();
+      const date1 = new Date(observations[i].obsTimeLocal).getUTCDate();
       // Get the date (day of the month) of the next observation
-      const date2 = new Date(observations[i + 1].obsTimeUtc).getDate();
+      const date2 = new Date(observations[i + 1].obsTimeLocal).getUTCDate();
 
       // Check if the gap between the current observation date and the next observation date is more than one day
       const isDateGapMoreThanOneDay = date2 > date1 + 1;
