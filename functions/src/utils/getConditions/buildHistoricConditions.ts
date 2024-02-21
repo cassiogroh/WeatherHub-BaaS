@@ -32,6 +32,7 @@ export const buildHistoricConditions = ({
 
   const sevenDaysAgo = subDays(utcDate, 6);
 
+  const stationId = observations[0].stationID;
   const observationDate = new Date(observations[0].obsTimeLocal);
   const observationDay = observationDate.getUTCDate();
 
@@ -61,8 +62,13 @@ export const buildHistoricConditions = ({
   const isIndexToReplaceNotEmpty = indexToReplace.length > 0;
 
   if (isIndexToReplaceNotEmpty) {
+    const updatedMock = {
+      ...historyConditionsMock,
+      stationID: stationId,
+    };
+
     indexToReplace.forEach(index => {
-      observations.splice(index, 0, historyConditionsMock);
+      observations.splice(index, 0, updatedMock);
     });
   }
 

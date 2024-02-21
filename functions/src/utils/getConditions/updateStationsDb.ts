@@ -13,6 +13,8 @@ export const updateStationsDb = async <T extends CommonProps>({ stations, collec
   const batch = collection.firestore.batch();
 
   stations.forEach(station => {
+    if (!station.stationId) return;
+
     const docRef = collection.doc(station.stationId);
     batch.update(docRef, {
       status: station.status,
