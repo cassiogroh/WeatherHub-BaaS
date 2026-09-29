@@ -2,15 +2,16 @@ import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
 
 import { User } from "./models/user";
+import { requireAuth } from "./utils/requireAuth";
 
 interface RenameStationProps {
   stationId: string;
   newName: string;
-  userId: string;
 }
 
 export const renameStationFunction = onCall(async (request) => {
-  const { stationId, newName, userId } = request.data as RenameStationProps;
+  const userId = requireAuth(request);
+  const { stationId, newName } = request.data as RenameStationProps;
 
   const firestore = admin.firestore();
   const usersCol = firestore.collection("users");

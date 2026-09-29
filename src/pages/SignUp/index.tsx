@@ -14,7 +14,9 @@ import fullLogoImg from "../../assets/full-logo.png";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 
-import { Container, Background, Content, AnimationContainer } from "./styles";
+import Turnstile, { TurnstileHandles } from "../../components/Turnstile";
+
+import { Container, Background, Content, AnimationContainer, Honeypot } from "./styles";
 import { registerUser } from "../../functions/registerUser";
 
 interface SignUpFormData {
@@ -25,10 +27,13 @@ interface SignUpFormData {
 
 const SignUp = () => {
   const formRef = useRef<FormHandles>(null);
+  const honeypotRef = useRef<HTMLInputElement>(null);
+  const turnstileRef = useRef<TurnstileHandles>(null);
   const { addToast } = useToast();
   const navigate = useNavigate();
 
   const [isRegistering, setIsRegistering] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
 
   const handleSubmit = useCallback(async (data: SignUpFormData) => {
     setIsRegistering(true);
@@ -50,9 +55,25 @@ const SignUp = () => {
         abortEarly: false,
       });
 
+      if (!captchaToken) {
+        setIsRegistering(false);
+        addToast({
+          type: "error",
+          title: "Verificação necessária",
+          description: "Confirme que você não é um robô.",
+        });
+        return;
+      }
+
       const { name, email, password } = data;
 
-      await registerUser(name, email, password);
+      await registerUser({
+        name,
+        email,
+        password,
+        captchaToken,
+        website: honeypotRef.current?.value || "",
+      });
 
       setIsRegistering(false);
       navigate("/signin");
@@ -72,13 +93,20 @@ const SignUp = () => {
         return;
       }
 
+      // Captcha tokens are single use
+      turnstileRef.current?.reset();
+
+      const emailAlreadyExists = (err as { code?: string }).code === "functions/already-exists";
+
       addToast({
         type: "error",
         title: "Erro no cadastro",
-        description: "Ocorreu um erro ao fazer o cadastro. Tente novamente.",
+        description: emailAlreadyExists
+          ? "Este e-mail já está cadastrado."
+          : "Ocorreu um erro ao fazer o cadastro. Tente novamente.",
       });
     }
-  }, [addToast, navigate]);
+  }, [addToast, navigate, captchaToken]);
 
   return (
     <Container>
@@ -101,6 +129,12 @@ const SignUp = () => {
               icon={FiLock}
               placeholder='Senha'
             />
+
+            <Honeypot aria-hidden='true'>
+              <input ref={honeypotRef} name='website' type='text' tabIndex={-1} autoComplete='off' />
+            </Honeypot>
+
+            <Turnstile ref={turnstileRef} onTokenChange={setCaptchaToken} />
 
             <Button disabled={isRegistering} type='submit'>{isRegistering ? "Cadastrando..." : "Cadastrar"}</Button>
           </Form>

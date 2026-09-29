@@ -2,6 +2,15 @@ import styled, { keyframes } from "styled-components";
 
 import backgroundImg from "../../assets/sign-up-background.png";
 
+// Visually hidden field that only bots fill in
+export const Honeypot = styled.div`
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+`;
+
 export const Container = styled.div`
   padding-top: 80px;
 `;

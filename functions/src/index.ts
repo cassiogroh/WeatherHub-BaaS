@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin";
 
+import { signUpFunction } from "./signUp";
 import { getForecastFunction } from "./getForecast";
 import { addNewStationFunction } from "./addNewStation";
 import { deleteStationFunction } from "./deleteStation";
@@ -19,6 +20,7 @@ import { resetApiKeysUsageFunction } from "./resetApiKeysUsage";
 
 admin.initializeApp();
 
+export const signUp = signUpFunction;
 export const getForecast = getForecastFunction;
 export const addNewStation = addNewStationFunction;
 export const deleteStation = deleteStationFunction;
