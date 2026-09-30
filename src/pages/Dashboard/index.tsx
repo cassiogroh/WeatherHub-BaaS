@@ -183,6 +183,44 @@ const Dashboard = () => {
     }
   }, [historicConditions, sortStationsByOrder, user]);
 
+  const sortedStations = useMemo(() => {
+    return [...(user.wuStations || [])].sort((a, b) => a.order - b.order);
+  }, [user.wuStations]);
+
+  // Rebuilds the pages after stations changed position (reorder or delete), reusing the loaded data,
+  // so every page keeps 12 stations: e.g. the first station of page 2 moves up to page 1
+  const applyStationsOrder = useCallback(async (orderedIds: string[]) => {
+    const { pageSize } = constants;
+    const lastPage = Math.max(Math.ceil(orderedIds.length / pageSize) - 1, 0);
+    const page = Math.min(currentPage, lastPage); // the last page may be gone after a delete
+
+    const newCurrentConditions = repaginateStations(currentConditions, orderedIds);
+    const newHistoricConditions = repaginateStations(historicConditions, orderedIds);
+
+    setCurrentConditions(newCurrentConditions);
+    setHistoricConditions(newHistoricConditions);
+    setCurrentPage(page);
+
+    // Fetch the page being viewed if a station that wasn't loaded yet moved into it
+    const stationsIds = orderedIds.slice(page * pageSize, (page + 1) * pageSize);
+
+    if (!stationsIds.length) return;
+
+    if (toggleInputSlider && !newHistoricConditions[page]?.length) {
+      await getHistoricConditions(user.userId, stationsIds, page, true);
+    } else if (!toggleInputSlider && !newCurrentConditions[page]?.length) {
+      await getCurrentConditions(user.userId, stationsIds, page, true);
+    }
+  }, [
+    currentPage,
+    currentConditions,
+    historicConditions,
+    toggleInputSlider,
+    getCurrentConditions,
+    getHistoricConditions,
+    user.userId,
+  ]);
+
   const handleInputCheck = useCallback((value: boolean, propName: keyof(typeof propsView)) => {
     const changedPropsView = { ...propsView };
     changedPropsView[propName] = value;
@@ -200,17 +238,22 @@ const Dashboard = () => {
       setIsLoading(true);
       await callableFunction(cloudFunctions.deleteStation, { stationId, userId: user.userId });
 
-      // Remove from every loaded page: when sorted, the card shown may come from any page
-      const removeStation = <T extends { stationId: string }>(state: Record<string, T[]>) => Object.fromEntries(
-        Object.entries(state).map(([page, stations]) => [page, stations.filter(station => station.stationId !== stationId)]),
-      );
+      // New list (not a mutation) so the pages and the reorder view update
+      updateUser({ ...user, wuStations: user.wuStations.filter(({ id }) => id !== stationId) });
 
-      setCurrentConditions(removeStation);
-      setHistoricConditions(removeStation);
+      // The stations after it move up a position
+      if (isReordering) {
+        // Remove it from the loaded pages now, rebuild them when leaving the reorder view
+        const removeStation = <T extends { stationId: string }>(state: Record<string, T[]>) => Object.fromEntries(
+          Object.entries(state).map(([page, stations]) => [page, stations.filter(station => station.stationId !== stationId)]),
+        );
 
-      const stationIndex = user.wuStations.findIndex(({ id }) => id === stationId);
-      user.wuStations.splice(stationIndex, 1);
-      updateUser(user);
+        setCurrentConditions(removeStation);
+        setHistoricConditions(removeStation);
+        orderChangedRef.current = true;
+      } else {
+        await applyStationsOrder(sortedStations.map(({ id }) => id).filter(id => id !== stationId));
+      }
 
       addToast({
         type: "success",
@@ -229,7 +272,7 @@ const Dashboard = () => {
       setIsLoading(false);
       return;
     }
-  }, [addToast, user, updateUser]);
+  }, [addToast, user, updateUser, isReordering, applyStationsOrder, sortedStations]);
 
   const handleAddStation = useCallback(async (event: FormEvent, stationId: string) => {
     event.preventDefault();
@@ -343,10 +386,6 @@ const Dashboard = () => {
     }
   }, [currentPage, getCurrentConditions, getHistoricConditions, idsPerPage, user.userId]);
 
-  const sortedStations = useMemo(() => {
-    return [...(user.wuStations || [])].sort((a, b) => a.order - b.order);
-  }, [user.wuStations]);
-
   const handleReorderStations = useCallback(async (stationsIds: string[]) => {
     // Only apply the new order once it's saved. The loader blocks the page, so saves never overlap
     setIsLoading(true);
@@ -379,33 +418,8 @@ const Dashboard = () => {
     if (reorder || !orderChangedRef.current) return;
     orderChangedRef.current = false;
 
-    // Put the loaded stations back into pages following the new order
-    const orderedIds = sortedStations.map(station => station.id);
-    const newCurrentConditions = repaginateStations(currentConditions, orderedIds);
-    const newHistoricConditions = repaginateStations(historicConditions, orderedIds);
-
-    setCurrentConditions(newCurrentConditions);
-    setHistoricConditions(newHistoricConditions);
-
-    // Fetch the page being viewed if it had stations that weren't loaded yet
-    const stationsIds = idsPerPage[currentPage] || [];
-
-    if (toggleInputSlider && !newHistoricConditions[currentPage].length) {
-      getHistoricConditions(user.userId, stationsIds, currentPage, true);
-    } else if (!toggleInputSlider && !newCurrentConditions[currentPage].length) {
-      getCurrentConditions(user.userId, stationsIds, currentPage, true);
-    }
-  }, [
-    sortedStations,
-    currentConditions,
-    historicConditions,
-    idsPerPage,
-    currentPage,
-    toggleInputSlider,
-    getCurrentConditions,
-    getHistoricConditions,
-    user.userId,
-  ]);
+    applyStationsOrder(sortedStations.map(station => station.id));
+  }, [sortedStations, applyStationsOrder]);
 
   const historicDayIndex = currentHistoricDay + 6;
 
@@ -584,7 +598,11 @@ const Dashboard = () => {
         />
 
         {isReordering ? (
-          <ReorderStations stations={sortedStations} onReorder={handleReorderStations} />
+          <ReorderStations
+            stations={sortedStations}
+            onReorder={handleReorderStations}
+            onDelete={handleDeleteStation}
+          />
         ) : (
           <>
             {rankedStations && (

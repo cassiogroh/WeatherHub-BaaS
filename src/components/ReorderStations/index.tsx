@@ -18,6 +18,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { FiTrash2 } from "react-icons/fi";
 
 import { User } from "../../models/user";
 import { constants } from "../../utils/constants";
@@ -29,9 +30,13 @@ type Station = User["wuStations"][number];
 interface SortableStationProps {
   station: Station;
   position: number;
+  onDelete(stationId: string): void;
 }
 
-const SortableStation = ({ station, position }: SortableStationProps) => {
+// Keeps presses on the delete button from starting a drag of the card
+const stopDrag = (event: React.SyntheticEvent) => event.stopPropagation();
+
+const SortableStation = ({ station, position, onDelete }: SortableStationProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: station.id });
 
   return (
@@ -46,6 +51,17 @@ const SortableStation = ({ station, position }: SortableStationProps) => {
       <div>
         <strong>{position}</strong>
         <small>{station.id}</small>
+        <button
+          type='button'
+          title='Remover estação'
+          aria-label={`Remover estação ${station.name}`}
+          onClick={() => onDelete(station.id)}
+          onMouseDown={stopDrag}
+          onTouchStart={stopDrag}
+          onKeyDown={stopDrag}
+        >
+          <FiTrash2 size={16} />
+        </button>
       </div>
       <span>{station.name}</span>
     </Card>
@@ -55,9 +71,10 @@ const SortableStation = ({ station, position }: SortableStationProps) => {
 interface ReorderStationsProps {
   stations: Station[]; // sorted by order
   onReorder(stationsIds: string[]): void;
+  onDelete(stationId: string): void;
 }
 
-const ReorderStations = ({ stations, onReorder }: ReorderStationsProps) => {
+const ReorderStations = ({ stations, onReorder, onDelete }: ReorderStationsProps) => {
   const [dragPreview, setDragPreview] = useState<{ activeId: string; overId: string } | null>(null);
 
   // Mouse drags after moving 5px; touch needs a short press so the page can still scroll
@@ -129,6 +146,7 @@ const ReorderStations = ({ stations, onReorder }: ReorderStationsProps) => {
                     key={station.id}
                     station={station}
                     position={previewIds.indexOf(station.id) + 1}
+                    onDelete={onDelete}
                   />
                 ))}
               </Grid>

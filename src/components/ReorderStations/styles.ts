@@ -40,13 +40,16 @@ export const PageGroup = styled.section`
   }
 `;
 
-// Column counts divide the page size (12), so a full page always fills complete rows
 export const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.8rem;
 
   @media (max-width: 1100px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: 700px) {
     grid-template-columns: repeat(3, 1fr);
   }
 
@@ -111,11 +114,29 @@ export const Card = styled.div<CardProps>`
   }
 
   small {
+    flex: 1;
     font-size: 1.1rem;
     opacity: 0.7;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  button {
+    display: flex;
+    padding: 0.4rem;
+    border: 0;
+    border-radius: 0.6rem;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: color .2s, background-color .2s;
+
+    &:hover,
+    &:focus-visible {
+      color: #FF9077;
+      background-color: rgba(0, 0, 0, 0.2);
+    }
   }
 
   // Station name, at most three lines (four on mobile, where cards are narrower)
