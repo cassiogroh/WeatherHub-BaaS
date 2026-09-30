@@ -1,6 +1,7 @@
 import { onCall } from "firebase-functions/v2/https";
 import { getGeoCodeUrl } from "./utils/apiInfo";
 import { getApiKey } from "./utils/getApiKey";
+import { parseCoordinate } from "./utils/validation";
 
 interface DaylyForecast {
   dayOfWeek: string;
@@ -42,7 +43,9 @@ interface RequestProps {
 }
 
 export const getForecastFunction = onCall(async (request) => {
-  const { latitude, longitude }: RequestProps = request.data;
+  const data = request.data as RequestProps;
+  const latitude = parseCoordinate(data?.latitude, "latitude", 90);
+  const longitude = parseCoordinate(data?.longitude, "longitude", 180);
 
   // Get API key to perform the request
   const apiKey = await getApiKey({ numberOfRequests: 1 });

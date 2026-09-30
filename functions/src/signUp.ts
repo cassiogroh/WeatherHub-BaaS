@@ -1,4 +1,5 @@
-import * as admin from "firebase-admin";
+import { getAuth, UserRecord } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 
@@ -53,8 +54,8 @@ export const signUpFunction = onCall({ secrets: [turnstileSecretKey] }, async (r
 
   if (
     typeof name !== "string" || !name.trim() || name.length > 100 ||
-    typeof email !== "string" || !EMAIL_REGEX.test(email) ||
-    typeof password !== "string" || password.length < 6
+    typeof email !== "string" || email.length > 254 || !EMAIL_REGEX.test(email) ||
+    typeof password !== "string" || password.length < 6 || password.length > 128
   ) {
     throw new HttpsError("invalid-argument", "Invalid sign up data");
   }
@@ -73,11 +74,11 @@ export const signUpFunction = onCall({ secrets: [turnstileSecretKey] }, async (r
     throw new HttpsError("invalid-argument", "Disposable email addresses are not allowed");
   }
 
-  const firestore = admin.firestore();
-  const auth = admin.auth();
+  const firestore = getFirestore();
+  const auth = getAuth();
   const usersCol = firestore.collection("users");
 
-  let authUser: admin.auth.UserRecord;
+  let authUser: UserRecord;
 
   try {
     authUser = await auth.createUser({ email, password, displayName: name.trim() });

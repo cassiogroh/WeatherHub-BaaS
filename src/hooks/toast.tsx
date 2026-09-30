@@ -4,7 +4,6 @@ import {
   useCallback,
   useState,
 } from "react";
-import { v4 as uuid } from "uuid";
 
 import ToastContainer from "../components/ToastContainer";
 
@@ -30,7 +29,7 @@ const ToastProvider = ({ children }: { children: React.ReactNode }) => {
 
   const addToast = useCallback(
     ({ type, title, description, timeout }: Omit<ToastMessage, "id">) => {
-      const id = uuid();
+      const id = crypto.randomUUID();
 
       const toast = {
         id,

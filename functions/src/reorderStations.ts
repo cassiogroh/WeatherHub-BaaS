@@ -1,8 +1,9 @@
-import * as admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
 
 import { User } from "./models/user";
 import { requireAuth } from "./utils/requireAuth";
+import { parseStationsIds } from "./utils/validation";
 
 interface ReorderStationsProps {
   stationsIds: string[]; // every station of the user, in the new order
@@ -10,13 +11,10 @@ interface ReorderStationsProps {
 
 export const reorderStationsFunction = onCall(async (request) => {
   const userId = requireAuth(request);
-  const { stationsIds } = request.data as ReorderStationsProps;
+  // Not a query, so the list can be as long as the user's stations
+  const stationsIds = parseStationsIds((request.data as ReorderStationsProps)?.stationsIds, 500);
 
-  if (!Array.isArray(stationsIds) || stationsIds.some((id) => typeof id !== "string")) {
-    throw new HttpsError("invalid-argument", "stationsIds must be a list of station ids");
-  }
-
-  const firestore = admin.firestore();
+  const firestore = getFirestore();
   const userRef = firestore.collection("users").doc(userId);
 
   await firestore.runTransaction(async (transaction) => {

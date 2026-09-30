@@ -1,13 +1,13 @@
-import * as admin from "firebase-admin";
+import { FieldPath, CollectionReference, DocumentData } from "firebase-admin/firestore";
 
 interface FetchDbConditionsProps {
-  collection: FirebaseFirestore.CollectionReference<FirebaseFirestore.DocumentData>;
+  collection: CollectionReference<DocumentData>;
   stationsIds: string[];
   maxStationsToFetch: number;
 }
 
 export const fetchDbConditions = async <T>({ collection, stationsIds, maxStationsToFetch }: FetchDbConditionsProps) => {
-  const fieldPath = admin.firestore.FieldPath;
+  const fieldPath = FieldPath;
 
   // Running in the emulator
   // eslint-disable-next-line @typescript-eslint/no-var-requires

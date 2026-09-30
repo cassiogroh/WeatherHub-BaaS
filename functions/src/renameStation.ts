@@ -1,8 +1,9 @@
-import * as admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
 
 import { User } from "./models/user";
 import { requireAuth } from "./utils/requireAuth";
+import { parseStationId, parseText } from "./utils/validation";
 
 interface RenameStationProps {
   stationId: string;
@@ -11,9 +12,11 @@ interface RenameStationProps {
 
 export const renameStationFunction = onCall(async (request) => {
   const userId = requireAuth(request);
-  const { stationId, newName } = request.data as RenameStationProps;
+  const data = request.data as RenameStationProps;
+  const stationId = parseStationId(data?.stationId);
+  const newName = parseText(data?.newName, "station name", 60);
 
-  const firestore = admin.firestore();
+  const firestore = getFirestore();
   const usersCol = firestore.collection("users");
 
   const upperCaseStationId = stationId.toUpperCase();

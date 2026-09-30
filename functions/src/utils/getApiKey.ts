@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 import { API_LIMIT } from "./constans";
 import { APIKey } from "../models/apiKey";
 
@@ -7,7 +7,7 @@ interface GetApiKeyProps {
 }
 
 export const getApiKey = async ({ numberOfRequests }: GetApiKeyProps) => {
-  const firestore = admin.firestore();
+  const firestore = getFirestore();
   const wuApisCol = firestore.collection("wuApiKeys");
 
   const apiKeySnapshot = await wuApisCol

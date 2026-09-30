@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
 
 import { getCurrentConditionsUrl, getHistoricUrl } from "./utils/apiInfo";
@@ -11,6 +11,7 @@ import { HistoricApiResponse } from "./getHistoricConditions";
 import { buildHistoricConditions } from "./utils/getConditions/buildHistoricConditions";
 import { updateApiKey } from "./utils/getConditions/updateApiKey";
 import { requireAuth } from "./utils/requireAuth";
+import { parseStationId } from "./utils/validation";
 
 interface AddNewStationProps {
   stationId: string;
@@ -18,13 +19,13 @@ interface AddNewStationProps {
 
 export const addNewStationFunction = onCall(async (request) => {
   const userId = requireAuth(request);
-  const { stationId } = request.data as AddNewStationProps;
+  const stationId = parseStationId((request.data as AddNewStationProps)?.stationId);
 
-  const firestore = admin.firestore();
+  const firestore = getFirestore();
   const usersCol = firestore.collection("users");
   const currentConditionsCol = firestore.collection("currentConditions");
   const historicConditionsCol = firestore.collection("historicConditions");
-  const fieldValue = admin.firestore.FieldValue;
+  const fieldValue = FieldValue;
 
   const currentUnixTime = Date.now();
 

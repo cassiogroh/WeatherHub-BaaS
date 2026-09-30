@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 
 interface UpdateUserDbProps {
   userId: string;
@@ -6,7 +6,7 @@ interface UpdateUserDbProps {
 }
 
 export const updateUserDb = async ({ userId, lastFetchUnix }: UpdateUserDbProps) => {
-  const firestore = admin.firestore();
+  const firestore = getFirestore();
   const usersCol = firestore.collection("users");
 
   const userDocRef = usersCol.doc(userId);

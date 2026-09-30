@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
 
 import { User } from "./models/user";
@@ -15,6 +15,7 @@ import { fetchWuConditions } from "./utils/getConditions/fetchWuConditions";
 import { filterStaticStations } from "./utils/getConditions/filterStaticStations";
 import { buildCurrentConditions } from "./utils/getConditions/buildCurrentConditions";
 import { requireAuth } from "./utils/requireAuth";
+import { parseStationsIds } from "./utils/validation";
 
 interface ErrorApiResponse {
   metadata: {
@@ -69,9 +70,9 @@ interface GetCurrentConditionsProps {
 
 export const getCurrentConditionsFunction = onCall(async (request) => {
   const userId = requireAuth(request);
-  const { stationsIds } = request.data as GetCurrentConditionsProps;
+  const stationsIds = parseStationsIds((request.data as GetCurrentConditionsProps)?.stationsIds);
 
-  const firestore = admin.firestore();
+  const firestore = getFirestore();
   const usersCol = firestore.collection("users");
   const currentConditionsCol = firestore.collection("currentConditions");
 

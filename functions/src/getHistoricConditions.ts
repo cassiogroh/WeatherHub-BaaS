@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
 
 import { User } from "./models/user";
@@ -15,6 +15,7 @@ import { fetchWuConditions } from "./utils/getConditions/fetchWuConditions";
 import { filterStaticStations } from "./utils/getConditions/filterStaticStations";
 import { buildHistoricConditions } from "./utils/getConditions/buildHistoricConditions";
 import { requireAuth } from "./utils/requireAuth";
+import { parseStationsIds } from "./utils/validation";
 
 interface ErrorApiResponse {
   metadata: {
@@ -80,9 +81,9 @@ interface GetHistoricConditionsProps {
 
 export const getHistoricConditionsFunction = onCall(async (request) => {
   const userId = requireAuth(request);
-  const { stationsIds } = request.data as GetHistoricConditionsProps;
+  const stationsIds = parseStationsIds((request.data as GetHistoricConditionsProps)?.stationsIds);
 
-  const firestore = admin.firestore();
+  const firestore = getFirestore();
   const usersCol = firestore.collection("users");
   const historicConditionsCol = firestore.collection("historicConditions");
 

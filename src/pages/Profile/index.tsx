@@ -50,17 +50,9 @@ const Profile = () => {
           .required("E-mail obrigatório")
           .email("Digite um e-mail válido"),
         old_password: Yup.string(),
-        password: Yup.string().when("old_password", {
-          is: val => !!val.length,
-          then: Yup.string().min(6, "Mínimo 6 dígitos").required("Campo obrigatório"),
-          otherwise: Yup.string(),
-        }),
+        password: Yup.string()
+          .test("min-length", "Mínimo 6 dígitos", value => !value || value.length >= 6),
         password_confirmation: Yup.string()
-          .when("old_password", {
-            is: val => !!val.length,
-            then: Yup.string().min(6, "Mínimo 6 dígitos").required("Campo obrigatório"),
-            otherwise: Yup.string(),
-          })
           .oneOf([Yup.ref("password")], "Confirmação incorreta"),
       });
 
@@ -68,19 +60,21 @@ const Profile = () => {
         abortEarly: false,
       });
 
-      const { name, email, old_password, password, password_confirmation } = data;
+      const { name, email, old_password, password } = data;
 
+      const emailChanged = email.trim().toLowerCase() !== user.email.toLowerCase();
+
+      // The server only accepts email/password changes right after signing in again
+      if ((emailChanged || password) && !old_password) {
+        formRef.current?.setErrors({ old_password: "Informe a senha atual para alterar e-mail ou senha" });
+        return;
+      }
+
+      // Only what changed; the current password is used to sign in here and never sent to the server
       const formData = {
-        userId: user.userId,
         name,
-        email,
-        ...(old_password
-          ? {
-            old_password,
-            password,
-            password_confirmation,
-          }
-          : {}),
+        ...(emailChanged ? { email } : {}),
+        ...(password ? { password } : {}),
       };
 
       setIsUpdatingProfile(true);
@@ -119,10 +113,12 @@ const Profile = () => {
         return;
       }
 
+      const emailAlreadyExists = (err as { code?: string }).code === "functions/already-exists";
+
       addToast({
         type: "error",
         title: "Erro na atualização do perfil.",
-        description: "Tente novamente.",
+        description: emailAlreadyExists ? "Este e-mail já está cadastrado." : "Tente novamente.",
       });
     }
 

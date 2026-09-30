@@ -1,3 +1,4 @@
+import { CollectionReference, DocumentData } from "firebase-admin/firestore";
 import { StationProps } from "../../models/station";
 
 interface CommonProps extends StationProps {
@@ -6,7 +7,7 @@ interface CommonProps extends StationProps {
 
 interface UpdateStationsDbProps<T extends CommonProps> {
   stations: T[];
-  collection: FirebaseFirestore.CollectionReference<FirebaseFirestore.DocumentData>;
+  collection: CollectionReference<DocumentData>;
 }
 
 export const updateStationsDb = async <T extends CommonProps>({ stations, collection }: UpdateStationsDbProps<T>) => {

@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 import { APIKey } from "../../models/apiKey";
 
 interface UpdateApiKeyProps {
@@ -6,7 +6,7 @@ interface UpdateApiKeyProps {
 }
 
 export const updateApiKey = async ({ apiKey }: UpdateApiKeyProps) => {
-  const firestore = admin.firestore();
+  const firestore = getFirestore();
   const apiKeyCol = firestore.collection("wuApiKeys");
 
   await apiKeyCol.doc(apiKey.id).update({

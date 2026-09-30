@@ -192,7 +192,7 @@ const StationCard = ({
               <FiEdit3 stroke={inputFocus ? "var(--button-color)" : "var(--text-color)"} />
             </button>
           </RenameField>
-          : <a title="Abrir estação em nova aba" href={url} target='blank'>{stationName}</a>
+          : <a title="Abrir estação em nova aba" href={url} target='_blank' rel='noopener noreferrer'>{stationName}</a>
         }
 
         {status === "online" && !!propsView && currentOrHistoric===false ?

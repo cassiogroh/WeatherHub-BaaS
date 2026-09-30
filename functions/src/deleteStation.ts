@@ -1,8 +1,9 @@
-import * as admin from "firebase-admin";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { onCall } from "firebase-functions/v2/https";
 
 import { User } from "./models/user";
 import { requireAuth } from "./utils/requireAuth";
+import { parseStationId } from "./utils/validation";
 
 interface DeleteStationProps {
   stationId: string;
@@ -10,11 +11,11 @@ interface DeleteStationProps {
 
 export const deleteStationFunction = onCall(async (request) => {
   const userId = requireAuth(request);
-  const { stationId } = request.data as DeleteStationProps;
+  const stationId = parseStationId((request.data as DeleteStationProps)?.stationId);
 
-  const firestore = admin.firestore();
+  const firestore = getFirestore();
   const usersCol = firestore.collection("users");
-  const fieldValue = admin.firestore.FieldValue;
+  const fieldValue = FieldValue;
 
   const upperCaseStationId = stationId.toUpperCase();
 

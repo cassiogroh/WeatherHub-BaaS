@@ -1,11 +1,11 @@
 import { onSchedule } from "firebase-functions/v2/scheduler";
-import * as admin from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 
 export const resetApiKeysUsageFunction = onSchedule({
   schedule: "every day 00:00",
   timeZone: "Europe/London",
 }, async () => {
-  const firestore = admin.firestore();
+  const firestore = getFirestore();
   const apiKeysCol = firestore.collection("wuApiKeys");
 
   const snapshot = await apiKeysCol.get();

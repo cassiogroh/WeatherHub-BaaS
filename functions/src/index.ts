@@ -1,4 +1,4 @@
-import * as admin from "firebase-admin";
+import { initializeApp } from "firebase-admin/app";
 
 import { signUpFunction } from "./signUp";
 import { getForecastFunction } from "./getForecast";
@@ -12,14 +12,14 @@ import { getCurrentConditionsFunction } from "./getCurrentConditions";
 import { getHistoricConditionsFunction } from "./getHistoricConditions";
 import { resetApiKeysUsageFunction } from "./resetApiKeysUsage";
 
-// Uncomment when using functions emulator
+// Uncomment when using functions emulator (and import cert and ServiceAccount from "firebase-admin/app")
 // import serviceAccount = require("./serviceAccount.json");
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+// initializeApp({
+//   credential: cert(serviceAccount as ServiceAccount),
 //   databaseURL: "https://weatherhub-app.firebaseio.com",
 // });
 
-admin.initializeApp();
+initializeApp();
 
 export const signUp = signUpFunction;
 export const getForecast = getForecastFunction;
