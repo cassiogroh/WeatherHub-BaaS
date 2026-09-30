@@ -28,16 +28,62 @@ export const LoaderContainer = styled.div`
   border-radius: 10px;
 `;
 
-export const StationsStats = styled.div`
+// Room for the controls above; on mobile they stack under the add station input
+const controlsSpacing = css`
+  margin-top: 4rem;
+
+  @media (max-width: 900px) {
+    margin-top: 12.5rem;
+  }
+`;
+
+export const RankingBar = styled.div`
+  ${controlsSpacing}
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 0.8rem 0.8rem 1.6rem;
+
+  border-radius: 10px;
+  background-color: #fff1;
+
+  p {
+    margin: 0;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 3.4rem;
+    padding: 0 12px;
+
+    border: 0;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: #fff;
+    cursor: pointer;
+    transition: filter .2s;
+
+    &:hover {
+      filter: brightness(113%);
+    }
+  }
+`;
+
+interface StationsStatsProps {
+  $hasRankingBar: boolean;
+}
+
+export const StationsStats = styled.div<StationsStatsProps>`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
-  margin-top: 4rem;
 
-  // Room for the reorder switch stacked under the add station input
-  @media (max-width: 900px) {
-    margin-top: 8rem;
-  }
+  ${({ $hasRankingBar }) => $hasRankingBar ? css`margin-top: 1.6rem;` : controlsSpacing}
 `;
 
 export const PaginationWrapper = styled.div`

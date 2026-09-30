@@ -1,10 +1,12 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Loader from "react-loader-spinner";
+import { FiX } from "react-icons/fi";
 
 import ProfileHeader from "../../components/ProfileHeader";
 import StationCard, { ViewProps } from "../../components/StationCard";
 import ToggleStats from "../../components/ToggleStats";
 import ReorderStations from "../../components/ReorderStations";
+import SortStations from "../../components/SortStations";
 
 import { useAuth } from "../../hooks/auth";
 import { useToast } from "../../hooks/toast";
@@ -14,9 +16,16 @@ import { registerError } from "../../functions/registerError";
 import { constants } from "../../utils/constants";
 import { copyHistoricData } from "../../utils/copyHistoricData";
 import { repaginateStations } from "../../utils/repaginateStations";
+import {
+  SortDirection,
+  findRankingMetric,
+  getSortGroups,
+  isRankingMetricVisible,
+  rankStations,
+} from "../../utils/stationSorting";
 import { CurrentConditions, HistoricConditions } from "../../models/station";
 
-import { Container, LoaderContainer, PaginationButton, PaginationWrapper, StationsStats } from "./styles";
+import { Container, LoaderContainer, PaginationButton, PaginationWrapper, RankingBar, StationsStats } from "./styles";
 
 const Dashboard = () => {
   const { user, updateUser } = useAuth();
@@ -42,6 +51,8 @@ const Dashboard = () => {
   const [ isLoading, setIsLoading ] = useState(false);
   const [ isReordering, setIsReordering ] = useState(false);
   const orderChangedRef = useRef(false);
+  const [ sortKey, setSortKey ] = useState(""); // "" keeps the dashboard order
+  const [ sortDirection, setSortDirection ] = useState<SortDirection>("desc");
 
   // ToggleStats component
   const [ toggleInputSlider, setToggleInputSlider ] = useState(false);
@@ -189,17 +200,13 @@ const Dashboard = () => {
       setIsLoading(true);
       await callableFunction(cloudFunctions.deleteStation, { stationId, userId: user.userId });
 
-      setCurrentConditions(state => {
-        const stateCopy = { ...state };
-        stateCopy[currentPage] = stateCopy[currentPage].filter(station => station.stationId !== stationId);
-        return stateCopy;
-      });
+      // Remove from every loaded page: when sorted, the card shown may come from any page
+      const removeStation = <T extends { stationId: string }>(state: Record<string, T[]>) => Object.fromEntries(
+        Object.entries(state).map(([page, stations]) => [page, stations.filter(station => station.stationId !== stationId)]),
+      );
 
-      setHistoricConditions(state => {
-        const stateCopy = { ...state };
-        stateCopy[currentPage] = stateCopy[currentPage].filter(station => station.stationId !== stationId);
-        return stateCopy;
-      });
+      setCurrentConditions(removeStation);
+      setHistoricConditions(removeStation);
 
       const stationIndex = user.wuStations.findIndex(({ id }) => id === stationId);
       user.wuStations.splice(stationIndex, 1);
@@ -222,7 +229,7 @@ const Dashboard = () => {
       setIsLoading(false);
       return;
     }
-  }, [addToast, user, updateUser, currentPage]);
+  }, [addToast, user, updateUser]);
 
   const handleAddStation = useCallback(async (event: FormEvent, stationId: string) => {
     event.preventDefault();
@@ -322,6 +329,7 @@ const Dashboard = () => {
 
   const toggleConditions = useCallback((newToggleValue) => {
     setToggleInputSlider(newToggleValue);
+    setSortKey(""); // current and historic data have different metrics
 
     const hasSetToHistoricData = newToggleValue;
 
@@ -366,6 +374,7 @@ const Dashboard = () => {
 
   const handleToggleReorder = useCallback((reorder: boolean) => {
     setIsReordering(reorder);
+    if (reorder) setSortKey(""); // the reorder view shows the saved order
 
     if (reorder || !orderChangedRef.current) return;
     orderChangedRef.current = false;
@@ -397,6 +406,106 @@ const Dashboard = () => {
     getHistoricConditions,
     user.userId,
   ]);
+
+  const historicDayIndex = currentHistoricDay + 6;
+
+  const visibility = useMemo(() => ({
+    historic: toggleInputSlider,
+    propsView,
+    minStatus,
+    medStatus,
+    maxStatus,
+  }), [toggleInputSlider, propsView, minStatus, medStatus, maxStatus]);
+
+  // Every metric, the ones visible on the cards first
+  const sortGroups = useMemo(() => getSortGroups(visibility), [visibility]);
+
+  // Stop ranking if the user hides its metric from the cards
+  useEffect(() => {
+    if (sortKey && !isRankingMetricVisible(sortKey, visibility)) setSortKey("");
+  }, [sortKey, visibility]);
+
+  // Ranking covers every station, so load the pages that weren't opened yet
+  const loadAllPages = useCallback(async (historic: boolean) => {
+    const loadedPages = historic ? historicConditions : currentConditions;
+    const missingPages = pagesArray.filter(page => !loadedPages[page]?.length && idsPerPage[page]?.length);
+
+    if (!missingPages.length) return;
+
+    setIsLoading(true);
+
+    try {
+      // One page at a time: every call updates the shared API key usage
+      for (const page of missingPages) {
+        const stationsIds = idsPerPage[page];
+
+        if (historic) {
+          const data = await callableFunction(cloudFunctions.getHistoricalConditions, { stationsIds });
+          const pageStations: HistoricConditions[] = sortStationsByOrder(data.historicConditions);
+
+          setHistoricConditions(state => ({ ...state, [page]: pageStations }));
+        } else {
+          const data = await callableFunction(cloudFunctions.getCurrentConditions, { stationsIds });
+          const pageStations: CurrentConditions[] = sortStationsByOrder(data.currentConditions);
+
+          setCurrentConditions(state => ({ ...state, [page]: pageStations }));
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      registerError(error, user);
+      addToast({
+        type: "error",
+        title: "Erro ao carregar estações",
+        description: "A ordenação pode não incluir todas as estações.",
+      });
+    }
+
+    setIsLoading(false);
+  }, [historicConditions, currentConditions, pagesArray, idsPerPage, sortStationsByOrder, user, addToast]);
+
+  const handleChangeSortKey = useCallback((newSortKey: string) => {
+    const metric = findRankingMetric(toggleInputSlider, newSortKey);
+
+    // Show the ranked value on the cards if it was hidden
+    if (metric) {
+      setPropsView(view => ({ ...view, [metric.view]: true }));
+
+      if (metric.stat === "min") setMinStatus(true);
+      if (metric.stat === "med") setMedStatus(true);
+      if (metric.stat === "max") setMaxStatus(true);
+    }
+
+    setSortKey(newSortKey);
+    setCurrentPage(0); // show the top of the ranking
+
+    if (newSortKey) loadAllPages(toggleInputSlider);
+  }, [loadAllPages, toggleInputSlider]);
+
+  const handleToggleSortDirection = useCallback(() => {
+    setSortDirection(direction => (direction === "desc" ? "asc" : "desc"));
+    setCurrentPage(0);
+  }, []);
+
+  const rankedStations = useMemo(() => {
+    if (!sortKey) return null;
+
+    const stations = pagesArray.flatMap(page => (currentDataView[page] || []) as (CurrentConditions | HistoricConditions)[]);
+
+    return rankStations({ stations, sortKey, direction: sortDirection, historicDayIndex });
+  }, [sortKey, sortDirection, historicDayIndex, pagesArray, currentDataView]);
+
+  const displayedStations: (CurrentConditions | HistoricConditions)[] = rankedStations
+    ? rankedStations.slice(currentPage * constants.pageSize, (currentPage + 1) * constants.pageSize)
+    : currentDataView[currentPage];
+
+  // Cards are matched with their historic data by id, since a sorted page mixes stations from every page
+  const historicById = useMemo(() => {
+    return new Map(Object.values(historicConditions).flat().map(station => [station.stationId, station]));
+  }, [historicConditions]);
+
+  const showSortControl = !isReordering && (user.wuStations?.length || 0) > 1;
+  const rankingLabel = findRankingMetric(toggleInputSlider, sortKey)?.label;
 
   const copyData = useCallback(() => {
     const copiedSuccessfully = copyHistoricData({ historicConditions: historicConditions[currentPage], currentHistoricDay });
@@ -446,6 +555,7 @@ const Dashboard = () => {
 
         <ToggleStats
           handleInputCheck={handleInputCheck}
+          propsView={propsView}
           handleAddStation={handleAddStation}
           toggleInputSlider={toggleInputSlider}
           setToggleInputSlider={toggleConditions}
@@ -462,25 +572,54 @@ const Dashboard = () => {
           setInputValue={setInputValue}
           isReordering={isReordering}
           setIsReordering={handleToggleReorder}
+          sortControl={showSortControl && (
+            <SortStations
+              groups={sortGroups}
+              sortKey={sortKey}
+              direction={sortDirection}
+              onChangeSortKey={handleChangeSortKey}
+              onToggleDirection={handleToggleSortDirection}
+            />
+          )}
         />
 
         {isReordering ? (
           <ReorderStations stations={sortedStations} onReorder={handleReorderStations} />
         ) : (
           <>
-            <StationsStats>
-              {currentDataView[currentPage].map((station, index: number) => (
+            {rankedStations && (
+              <RankingBar>
+                <p>
+                  Ranking por <strong>{rankingLabel}</strong>
+                  {" · "}
+                  {sortDirection === "desc" ? "maior para menor" : "menor para maior"}
+                </p>
+
+                <button type='button' onClick={() => handleChangeSortKey("")}>
+                  <FiX size={16} />
+                  Limpar ranking
+                </button>
+              </RankingBar>
+            )}
+
+            <StationsStats $hasRankingBar={!!rankedStations}>
+              {displayedStations.map((station, index: number) => (
                 <StationCard
                   key={station.stationId}
-                  currentData={station}
-                  historicData={historicConditions[currentPage][index] || { conditions: [] }}
+                  currentData={station as CurrentConditions}
+                  historicData={toggleInputSlider
+                    ? station as HistoricConditions
+                    : historicById.get(station.stationId) || { conditions: [] } as unknown as HistoricConditions
+                  }
                   propsView={station.status === "online" ? propsView : undefined}
                   handleDeleteStation={handleDeleteStation}
                   currentOrHistoric={toggleInputSlider}
                   minStatus={minStatus}
                   medStatus={medStatus}
                   maxStatus={maxStatus}
-                  currentHistoricDay={currentHistoricDay + 6}
+                  currentHistoricDay={historicDayIndex}
+                  rank={rankedStations ? currentPage * constants.pageSize + index + 1 : undefined}
+                  highlightedMetric={sortKey || undefined}
                 />
               ),
               )}

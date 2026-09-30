@@ -4,7 +4,7 @@ import { FiTrash2, FiEdit, FiFrown, FiEdit3 } from "react-icons/fi";
 import { callableFunction } from "../../services/api";
 import { useAuth } from "../../hooks/auth";
 
-import { Container, CardStats, CardBottom, RenameField, LastUpdateHour } from "./styles";
+import { Container, CardStats, CardBottom, RenameField, LastUpdateHour, RankBadge } from "./styles";
 import { CurrentConditions, HistoricConditions, HistoricConditionsData } from "../../models/station";
 import { cloudFunctions } from "../../services/cloudFunctions";
 import { formatDate } from "../../utils/formatDate";
@@ -33,6 +33,8 @@ export interface RequestProps {
   medStatus: boolean;
   maxStatus: boolean;
   currentHistoricDay: number;
+  rank?: number; // position when the dashboard is sorted by a metric
+  highlightedMetric?: string; // condition key the dashboard is sorted by
 }
 
 const StationCard = ({
@@ -45,8 +47,12 @@ const StationCard = ({
   medStatus,
   maxStatus,
   currentHistoricDay,
+  rank,
+  highlightedMetric,
 }: RequestProps ) => {
   const { user } = useAuth();
+
+  const highlight = (metric: string) => (metric === highlightedMetric ? "highlighted" : undefined);
 
   const {
     status,
@@ -167,6 +173,8 @@ const StationCard = ({
 
   return (
     <Container>
+      {!!rank && <RankBadge title={`${rank}º lugar`}>{rank}º</RankBadge>}
+
       <CardStats>
         {rename ?
           <RenameField inputFocus={inputFocus}>
@@ -189,61 +197,61 @@ const StationCard = ({
 
         {status === "online" && !!propsView && currentOrHistoric===false ?
           <>
-            { propsView.temp && <p>Temperatura <span>{temperature} °C</span></p>}
-            { propsView.dewpt && <p>Ponto de orvalho <span>{dewPoint} °C</span></p>}
-            { propsView.heatIndex && <p>Índice de calor <span>{heatIndex} °C</span></p>}
-            { propsView.windChill && <p>Sensação térmica <span>{windChill} °C</span></p>}
-            { propsView.humidity && <p>Humidade relativa <span>{humidity} %</span></p>}
-            { propsView.precipTotal && <p>Precipitação Total <span>{precipTotal} mm</span></p>}
-            { propsView.precipRate && <p>Taxa de precipitação <span>{precipRate} mm/h</span></p>}
-            { propsView.windGust && <p>Rajada de vento <span>{windGust} km/h</span></p>}
-            { propsView.windSpeed && <p>Velocidade do vento <span>{windSpeed} km/h</span></p>}
-            { propsView.pressure && <p>Pressão atmosférica <span>{pressure} hPa</span></p>}
-            { propsView.elev && <p>Elevação <span>{elevation} m</span></p>}
+            { propsView.temp && <p className={highlight("temperature")}>Temperatura <span>{temperature} °C</span></p>}
+            { propsView.dewpt && <p className={highlight("dewPoint")}>Ponto de orvalho <span>{dewPoint} °C</span></p>}
+            { propsView.heatIndex && <p className={highlight("heatIndex")}>Índice de calor <span>{heatIndex} °C</span></p>}
+            { propsView.windChill && <p className={highlight("windChill")}>Sensação térmica <span>{windChill} °C</span></p>}
+            { propsView.humidity && <p className={highlight("humidity")}>Humidade relativa <span>{humidity} %</span></p>}
+            { propsView.precipTotal && <p className={highlight("precipTotal")}>Precipitação Total <span>{precipTotal} mm</span></p>}
+            { propsView.precipRate && <p className={highlight("precipRate")}>Taxa de precipitação <span>{precipRate} mm/h</span></p>}
+            { propsView.windGust && <p className={highlight("windGust")}>Rajada de vento <span>{windGust} km/h</span></p>}
+            { propsView.windSpeed && <p className={highlight("windSpeed")}>Velocidade do vento <span>{windSpeed} km/h</span></p>}
+            { propsView.pressure && <p className={highlight("pressure")}>Pressão atmosférica <span>{pressure} hPa</span></p>}
+            { propsView.elev && <p className={highlight("elevation")}>Elevação <span>{elevation} m</span></p>}
           </> : (
             status === "online" && !!propsView && currentOrHistoric ?
               <>
                 { propsView.temp && <h4>Temperatura</h4>}
-                { propsView.temp && minStatus && <p>Mín <span>{tempLow} °C</span></p>}
-                { propsView.temp && medStatus && <p>Méd <span>{tempAvg} °C</span></p>}
-                { propsView.temp && maxStatus && <p>Máx <span>{tempHigh} °C</span></p>}
+                { propsView.temp && minStatus && <p className={highlight("tempLow")}>Mín <span>{tempLow} °C</span></p>}
+                { propsView.temp && medStatus && <p className={highlight("tempAvg")}>Méd <span>{tempAvg} °C</span></p>}
+                { propsView.temp && maxStatus && <p className={highlight("tempHigh")}>Máx <span>{tempHigh} °C</span></p>}
 
                 { propsView.dewpt && <h4>Ponto de orvalho</h4>}
-                { propsView.dewpt && minStatus && <p>Mín <span>{dewptLow} °C</span></p>}
-                { propsView.dewpt && medStatus && <p>Méd <span>{dewptAvg} °C</span></p>}
-                { propsView.dewpt && maxStatus && <p>Máx <span>{dewptHigh} °C</span></p>}
+                { propsView.dewpt && minStatus && <p className={highlight("dewptLow")}>Mín <span>{dewptLow} °C</span></p>}
+                { propsView.dewpt && medStatus && <p className={highlight("dewptAvg")}>Méd <span>{dewptAvg} °C</span></p>}
+                { propsView.dewpt && maxStatus && <p className={highlight("dewptHigh")}>Máx <span>{dewptHigh} °C</span></p>}
 
                 { propsView.heatIndex && <h4>Índice de calor</h4>}
-                { propsView.heatIndex && minStatus && <p>Mín <span>{heatindexLow} °C</span></p>}
-                { propsView.heatIndex && medStatus && <p>Méd <span>{heatindexAvg} °C</span></p>}
-                { propsView.heatIndex && maxStatus && <p>Máx <span>{heatindexHigh} °C</span></p>}
+                { propsView.heatIndex && minStatus && <p className={highlight("heatindexLow")}>Mín <span>{heatindexLow} °C</span></p>}
+                { propsView.heatIndex && medStatus && <p className={highlight("heatindexAvg")}>Méd <span>{heatindexAvg} °C</span></p>}
+                { propsView.heatIndex && maxStatus && <p className={highlight("heatindexHigh")}>Máx <span>{heatindexHigh} °C</span></p>}
 
                 { propsView.windChill && <h4>Sensação térmica</h4>}
-                { propsView.windChill && minStatus && <p>Mín <span>{windchillLow} °C</span></p>}
-                { propsView.windChill && medStatus && <p>Méd <span>{windchillAvg} °C</span></p>}
-                { propsView.windChill && maxStatus && <p>Máx <span>{windchillHigh} °C</span></p>}
+                { propsView.windChill && minStatus && <p className={highlight("windchillLow")}>Mín <span>{windchillLow} °C</span></p>}
+                { propsView.windChill && medStatus && <p className={highlight("windchillAvg")}>Méd <span>{windchillAvg} °C</span></p>}
+                { propsView.windChill && maxStatus && <p className={highlight("windchillHigh")}>Máx <span>{windchillHigh} °C</span></p>}
 
                 { propsView.humidity && <h4>Humidade relativa</h4>}
-                { propsView.humidity && minStatus && <p>Mín <span>{humidityLow} %</span></p>}
-                { propsView.humidity && medStatus && <p>Méd <span>{humidityAvg} %</span></p>}
-                { propsView.humidity && maxStatus && <p>Máx <span>{humidityHigh} %</span></p>}
+                { propsView.humidity && minStatus && <p className={highlight("humidityLow")}>Mín <span>{humidityLow} %</span></p>}
+                { propsView.humidity && medStatus && <p className={highlight("humidityAvg")}>Méd <span>{humidityAvg} %</span></p>}
+                { propsView.humidity && maxStatus && <p className={highlight("humidityHigh")}>Máx <span>{humidityHigh} %</span></p>}
 
                 { propsView.precipTotal && <h4>Precipitação</h4>}
-                { propsView.precipTotal && minStatus && <p>Total <span>{precipTotalHistoric} mm</span></p>}
+                { propsView.precipTotal && minStatus && <p className={highlight("precipTotal")}>Total <span>{precipTotalHistoric} mm</span></p>}
 
                 { propsView.windGust && <h4>Rajada de vento</h4>}
-                { propsView.windGust && minStatus && <p>Mín <span>{windgustLow} km/h</span></p>}
-                { propsView.windGust && medStatus && <p>Méd <span>{windgustAvg} km/h</span></p>}
-                { propsView.windGust && maxStatus && <p>Máx <span>{windgustHigh} km/h</span></p>}
+                { propsView.windGust && minStatus && <p className={highlight("windgustLow")}>Mín <span>{windgustLow} km/h</span></p>}
+                { propsView.windGust && medStatus && <p className={highlight("windgustAvg")}>Méd <span>{windgustAvg} km/h</span></p>}
+                { propsView.windGust && maxStatus && <p className={highlight("windgustHigh")}>Máx <span>{windgustHigh} km/h</span></p>}
 
                 { propsView.windSpeed && <h4>Velocidade do vento</h4>}
-                { propsView.windSpeed && minStatus && <p>Mín <span>{windspeedLow} km/h</span></p>}
-                { propsView.windSpeed && medStatus && <p>Méd <span>{windspeedAvg} km/h</span></p>}
-                { propsView.windSpeed && maxStatus && <p>Máx <span>{windspeedHigh} km/h</span></p>}
+                { propsView.windSpeed && minStatus && <p className={highlight("windspeedLow")}>Mín <span>{windspeedLow} km/h</span></p>}
+                { propsView.windSpeed && medStatus && <p className={highlight("windspeedAvg")}>Méd <span>{windspeedAvg} km/h</span></p>}
+                { propsView.windSpeed && maxStatus && <p className={highlight("windspeedHigh")}>Máx <span>{windspeedHigh} km/h</span></p>}
 
                 { propsView.pressure && <h4>Pressão atmosférica</h4>}
-                { propsView.pressure && minStatus && <p>Mín <span>{pressureMin} hPa</span></p>}
-                { propsView.pressure && maxStatus && <p>Máx <span>{pressureMax} hPa</span></p>}
+                { propsView.pressure && minStatus && <p className={highlight("pressureMin")}>Mín <span>{pressureMin} hPa</span></p>}
+                { propsView.pressure && maxStatus && <p className={highlight("pressureMax")}>Máx <span>{pressureMax} hPa</span></p>}
               </>
               :
               <div>

@@ -1,6 +1,7 @@
 import styled, { css } from "styled-components";
 
 export const Container = styled.div`
+  position: relative;
   border: 0.2rem solid var(--divider-color);
   border-radius: 0.8rem;
   background: radial-gradient(var(--card-primary-color), var(--card-secondary-color));
@@ -58,6 +59,12 @@ export const CardStats = styled.div`
 
     &:last-child {
       margin-bottom: 10px;
+    }
+
+    // Value the dashboard is sorted by
+    &.highlighted {
+      background-color: rgba(0,0,0, 0.25);
+      font-weight: 600;
     }
   }
 
@@ -166,4 +173,25 @@ export const CardBottom = styled.div`
       background-color: rgba(0,0,0, 0.2);
     }
   }
+`;
+
+// Ranking position when the dashboard is sorted by a metric, sitting on the card corner
+export const RankBadge = styled.span`
+  position: absolute;
+  z-index: 1;
+  top: -0.9rem;
+  left: -0.9rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+
+  display: grid;
+  place-items: center;
+  min-width: 2.8rem;
+  height: 2.8rem;
+  padding: 0 0.6rem;
+  border-radius: 1.4rem;
+
+  background-color: #fff;
+  color: var(--primary-color);
+  font-size: 1.3rem;
+  font-weight: 700;
 `;

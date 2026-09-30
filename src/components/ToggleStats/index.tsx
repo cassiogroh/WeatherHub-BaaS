@@ -17,9 +17,11 @@ import {
   ReorderSwitch,
 } from "./styles";
 import { useAuth } from "../../hooks/auth";
+import { ViewProps } from "../StationCard";
 
 interface ToggleStatsProps {
   handleInputCheck(value: boolean | undefined, name: string): void;
+  propsView: ViewProps;
   handleAddStation?(event: FormEvent, inputValue: string): void;
   toggleInputSlider: boolean;
   setToggleInputSlider(toggle: boolean): void;
@@ -36,10 +38,12 @@ interface ToggleStatsProps {
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
   isReordering?: boolean;
   setIsReordering?(toggle: boolean): void;
+  sortControl?: React.ReactNode;
 }
 
 const ToggleStats = ({
   handleInputCheck,
+  propsView,
   handleAddStation,
   toggleInputSlider,
   setToggleInputSlider,
@@ -56,6 +60,7 @@ const ToggleStats = ({
   setInputValue,
   isReordering = false,
   setIsReordering,
+  sortControl,
 }: ToggleStatsProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
@@ -139,17 +144,17 @@ const ToggleStats = ({
           </div>
         </HistoricOptions>
 
-        <InputOption name='Temperatura' propName={"temp"} handleInputCheck={handleInputCheck} checked />
-        <InputOption name='Ponto de orvalho' propName={"dewpt"} handleInputCheck={handleInputCheck} />
-        <InputOption name='Índice de calor' propName={"heatIndex"} handleInputCheck={handleInputCheck} />
-        <InputOption name='Sensação térmica' propName={"windChill"} handleInputCheck={handleInputCheck} />
-        <InputOption name='Humidade relativa' propName={"humidity"} handleInputCheck={handleInputCheck} checked />
-        <InputOption name='Precipitação total' propName={"precipTotal"} handleInputCheck={handleInputCheck} checked />
-        <InputOption name='Taxa de precipitação' propName={"precipRate"} handleInputCheck={handleInputCheck} disabled={toggleInputSlider} />
-        <InputOption name='Rajada de vento' propName={"windGust"} handleInputCheck={handleInputCheck} />
-        <InputOption name='Velocidade do vento' propName={"windSpeed"} handleInputCheck={handleInputCheck} />
-        <InputOption name='Pressão atmosférica' propName={"pressure"} handleInputCheck={handleInputCheck} />
-        <InputOption name='Elevação' propName={"elev"} handleInputCheck={handleInputCheck} disabled={toggleInputSlider} />
+        <InputOption name='Temperatura' propName={"temp"} handleInputCheck={handleInputCheck} checked={propsView.temp} />
+        <InputOption name='Ponto de orvalho' propName={"dewpt"} handleInputCheck={handleInputCheck} checked={propsView.dewpt} />
+        <InputOption name='Índice de calor' propName={"heatIndex"} handleInputCheck={handleInputCheck} checked={propsView.heatIndex} />
+        <InputOption name='Sensação térmica' propName={"windChill"} handleInputCheck={handleInputCheck} checked={propsView.windChill} />
+        <InputOption name='Humidade relativa' propName={"humidity"} handleInputCheck={handleInputCheck} checked={propsView.humidity} />
+        <InputOption name='Precipitação total' propName={"precipTotal"} handleInputCheck={handleInputCheck} checked={propsView.precipTotal} />
+        <InputOption name='Taxa de precipitação' propName={"precipRate"} handleInputCheck={handleInputCheck} checked={propsView.precipRate} disabled={toggleInputSlider} />
+        <InputOption name='Rajada de vento' propName={"windGust"} handleInputCheck={handleInputCheck} checked={propsView.windGust} />
+        <InputOption name='Velocidade do vento' propName={"windSpeed"} handleInputCheck={handleInputCheck} checked={propsView.windSpeed} />
+        <InputOption name='Pressão atmosférica' propName={"pressure"} handleInputCheck={handleInputCheck} checked={propsView.pressure} />
+        <InputOption name='Elevação' propName={"elev"} handleInputCheck={handleInputCheck} checked={propsView.elev} disabled={toggleInputSlider} />
         {
           (user.email === "cirogroh@yahoo.com.br" || user.email === "cassiogroh@gmail.com") && toggleInputSlider &&
           <ExclusiveButton
@@ -193,6 +198,8 @@ const ToggleStats = ({
               <p>Reordenar</p>
             </ReorderSwitch>
           )}
+
+          {sortControl}
         </StationControls>
       }
     </Container>

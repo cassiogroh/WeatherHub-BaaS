@@ -113,6 +113,25 @@ export const Options = styled.div`
     margin-bottom: 10px;
     border-radius: 8px 8px 0 0;
   }
+
+  // Mobile: shares the first row 50/50 with the add station input.
+  // While open it grows to its natural width so the option names fit.
+  @media (max-width: 900px) {
+    width: calc(50% - 5px);
+
+    > p:first-child {
+      flex-shrink: 0; // overflow: hidden would otherwise let it shrink and reveal the options below
+      font-size: 1.4rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &:hover {
+      width: auto;
+      min-width: calc(50% - 5px);
+    }
+  }
 `;
 
 interface HistoricProps {
@@ -202,7 +221,8 @@ export const ExclusiveButton = styled.button`
   }
 `;
 
-// Add station input + reorder switch: side by side on desktop, stacked on mobile
+// Add station input, reorder switch and ranking: side by side on desktop.
+// On mobile the input stays beside the options panel and the others get a full width row each.
 export const StationControls = styled.div`
   display: flex;
   align-items: center;
@@ -214,8 +234,15 @@ export const StationControls = styled.div`
   z-index: 2;
 
   @media (max-width: 900px) {
+    left: 0;
+    right: 0;
+    z-index: 1; // below the options panel, which expands over these rows
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+
+    > form {
+      margin-left: calc(50% + 5px);
+    }
   }
 `;
 
@@ -255,9 +282,12 @@ export const AddStationForm = styled.form`
     }
   }
 
+  // Mobile: the input fills the rest of its half of the row
   @media (max-width: 900px) {
     input {
-      width: 130px;
+      flex: 1;
+      width: auto;
+      min-width: 0;
     }
   }
 `;
@@ -319,5 +349,14 @@ export const ReorderSwitch = styled.label`
 
   input:focus-visible + span {
     box-shadow: 0 0 0 2px #FFF, 0 0 0 4px var(--primary-color);
+  }
+
+  // Full width row: label on the left, toggle on the right
+  @media (max-width: 900px) {
+    justify-content: space-between;
+
+    p {
+      order: -1;
+    }
   }
 `;
