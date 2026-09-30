@@ -10,14 +10,15 @@ import { CurrentApiResponse } from "./getCurrentConditions";
 import { HistoricApiResponse } from "./getHistoricConditions";
 import { buildHistoricConditions } from "./utils/getConditions/buildHistoricConditions";
 import { updateApiKey } from "./utils/getConditions/updateApiKey";
+import { requireAuth } from "./utils/requireAuth";
 
 interface AddNewStationProps {
   stationId: string;
-  userId: string;
 }
 
 export const addNewStationFunction = onCall(async (request) => {
-  const { stationId, userId } = request.data as AddNewStationProps;
+  const userId = requireAuth(request);
+  const { stationId } = request.data as AddNewStationProps;
 
   const firestore = admin.firestore();
   const usersCol = firestore.collection("users");

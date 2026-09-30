@@ -12,3 +12,6 @@ node_modules/
 
 # sensitive files
 serviceAccount.json
+
+# Bot cleanup reports (contain user emails)
+bot-accounts-*.csv

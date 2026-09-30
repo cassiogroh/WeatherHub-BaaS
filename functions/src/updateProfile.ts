@@ -1,15 +1,16 @@
 import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
+import { requireAuth } from "./utils/requireAuth";
 
 interface UpdateProfileProps {
-  userId: string;
   name?: string;
   email?: string;
   password?: string;
 }
 
 export const updateProfileFunction = onCall(async (request) => {
-  const { userId, name, email, password } = request.data as UpdateProfileProps;
+  const userId = requireAuth(request);
+  const { name, email, password } = request.data as UpdateProfileProps;
 
   const firestore = admin.firestore();
   const auth = admin.auth();

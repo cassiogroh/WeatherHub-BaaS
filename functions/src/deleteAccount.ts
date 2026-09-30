@@ -1,17 +1,14 @@
 import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
-
-interface DeleteAccountProps {
-  userId: string;
-}
+import { requireAuth } from "./utils/requireAuth";
 
 export const deleteAccountFunction = onCall(async (request) => {
-  const { userId } = request.data as DeleteAccountProps;
+  const userId = requireAuth(request);
 
   const firestore = admin.firestore();
   const auth = admin.auth();
   const usersCol = firestore.collection("users");
 
-  usersCol.doc(userId).delete();
-  auth.deleteUser(userId);
+  await usersCol.doc(userId).delete();
+  await auth.deleteUser(userId);
 });

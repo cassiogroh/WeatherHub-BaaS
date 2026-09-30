@@ -8,6 +8,7 @@ interface ImportMetaEnv {
   VITE_APP_FIREBASE_MESSAGING_SENDER_ID?: string;
   VITE_APP_FIREBASE_APP_ID?: string;
   VITE_APP_URL?: string;
+  VITE_APP_TURNSTILE_SITE_KEY?: string;
   // add as many more as you like
 }
 

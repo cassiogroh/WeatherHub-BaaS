@@ -2,14 +2,15 @@ import * as admin from "firebase-admin";
 import { onCall } from "firebase-functions/v2/https";
 
 import { User } from "./models/user";
+import { requireAuth } from "./utils/requireAuth";
 
 interface DeleteStationProps {
   stationId: string;
-  userId: string;
 }
 
 export const deleteStationFunction = onCall(async (request) => {
-  const { stationId, userId } = request.data as DeleteStationProps;
+  const userId = requireAuth(request);
+  const { stationId } = request.data as DeleteStationProps;
 
   const firestore = admin.firestore();
   const usersCol = firestore.collection("users");

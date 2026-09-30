@@ -9,9 +9,9 @@ export const apiInfo = {
     // 'ISANTACA56',
     // 'IBRUSQUE2',
     // 'IBRUSQ14',
-    // 'IBRUSQ12',
+    // 'IBRUSQ25',
+    // 'IBRUSQ26',
     // 'ISCGUABI2',
-    // 'IGUABIRU5',
     // 'IGUABIRU6',
     // 'ISCRIBEI2',
     // 'IPRESI11',
@@ -42,9 +42,9 @@ export function getGeoCodeUrl( latitude: number, longitude: number, apiKey: stri
 // ISANTACA56 - Brusque - Rio Branco
 // IBRUSQUE2  - Brusque - Tomaz Coelho
 // IBRUSQ14   - Brusque - Santa Luzia
-// IBRUSQ12   - Brusque - Cristalina
+// IBRUSQ25   - Brusque - Limeira Alta
+// IBRUSQ26   - Brusque - Santa Terezinha
 // IGUABIRU2  - Guabiruba - Aymoré
-// IGUABIRU5  - Guabiruba - Lageado Alto
 // IGUABIRU6  - Guabiruba - Planície Alta
 // ISCRIBEI2  - Botuverá - Ourinhos
 // IPRESI11   - Presidente Nereu - Tirivas

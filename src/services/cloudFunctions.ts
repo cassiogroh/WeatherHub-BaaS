@@ -3,6 +3,14 @@
  */
 export const cloudFunctions = {
   /**
+   * @param {string} name
+   * @param {string} email
+   * @param {string} password
+   * @param {string} captchaToken
+   * @param {string} website honeypot, must be empty
+   */
+  signUp: "signUp",
+  /**
    * @param {number} latitude
    * @param {number} longitude
    */

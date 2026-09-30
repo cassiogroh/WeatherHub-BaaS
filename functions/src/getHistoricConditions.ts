@@ -14,6 +14,7 @@ import { fetchDbConditions } from "./utils/getConditions/fetchDbConditions";
 import { fetchWuConditions } from "./utils/getConditions/fetchWuConditions";
 import { filterStaticStations } from "./utils/getConditions/filterStaticStations";
 import { buildHistoricConditions } from "./utils/getConditions/buildHistoricConditions";
+import { requireAuth } from "./utils/requireAuth";
 
 interface ErrorApiResponse {
   metadata: {
@@ -74,12 +75,12 @@ export interface HistoricApiResponse {
 }
 
 interface GetHistoricConditionsProps {
-  userId: string;
   stationsIds: string[];
 }
 
 export const getHistoricConditionsFunction = onCall(async (request) => {
-  const { userId, stationsIds } = request.data as GetHistoricConditionsProps;
+  const userId = requireAuth(request);
+  const { stationsIds } = request.data as GetHistoricConditionsProps;
 
   const firestore = admin.firestore();
   const usersCol = firestore.collection("users");
