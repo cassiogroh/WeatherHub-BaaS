@@ -13,7 +13,7 @@ export const apiInfo = {
     // 'IBRUSQ26',
     // 'ISCGUABI2',
     // 'IGUABIRU6',
-    // 'ISCRIBEI2',
+    // 'IBOTUV2',
     // 'IPRESI11',
     // 'ISCVARGE2',
     // 'ISCVARGE3',
@@ -38,15 +38,15 @@ export function getGeoCodeUrl( latitude: number, longitude: number, apiKey: stri
 
 // ESTAÇÕES
 
-// ISANTACA85 - Brusque - Centro
 // ISANTACA56 - Brusque - Rio Branco
-// IBRUSQUE2  - Brusque - Tomaz Coelho
 // IBRUSQ14   - Brusque - Santa Luzia
-// IBRUSQ25   - Brusque - Limeira Alta
+// ISANTACA85 - Brusque - Centro
+// IBRUSQUE2  - Brusque - Tomaz Coelho
 // IBRUSQ26   - Brusque - Santa Terezinha
-// IGUABIRU2  - Guabiruba - Aymoré
+// IBRUSQ25   - Brusque - Limeira Alta
+// ISCGUABI2  - Guabiruba - Aymoré
 // IGUABIRU6  - Guabiruba - Planície Alta
-// ISCRIBEI2  - Botuverá - Ourinhos
+// IBOTUV2    - Botuverá - Gabiroba
 // IPRESI11   - Presidente Nereu - Tirivas
 // ISCVARGE2  - Vidal Ramos - Faz. Rio Bonito 1
-// ISCPRESI3  - Vidal Ramos - Faz. Rio Bonito 2
+// ISCVARGE3  - Vidal Ramos - Faz. Rio Bonito 2

@@ -14,7 +14,7 @@ import { callableFunction } from "../../services/api";
 import { cloudFunctions } from "../../services/cloudFunctions";
 import { registerError } from "../../functions/registerError";
 import { constants } from "../../utils/constants";
-import { copyHistoricData } from "../../utils/copyHistoricData";
+import { COPY_STATIONS_IDS, copyHistoricData } from "../../utils/copyHistoricData";
 import { repaginateStations } from "../../utils/repaginateStations";
 import {
   SortDirection,
@@ -51,6 +51,7 @@ const Dashboard = () => {
   const [ isLoading, setIsLoading ] = useState(false);
   const [ isReordering, setIsReordering ] = useState(false);
   const orderChangedRef = useRef(false);
+  const copyStationsCacheRef = useRef(new Map<string, HistoricConditions>()); // spreadsheet stations fetched for copying
   const [ sortKey, setSortKey ] = useState(""); // "" keeps the dashboard order
   const [ sortDirection, setSortDirection ] = useState<SortDirection>("desc");
 
@@ -521,22 +522,52 @@ const Dashboard = () => {
   const showSortControl = !isReordering && (user.wuStations?.length || 0) > 1;
   const rankingLabel = findRankingMetric(toggleInputSlider, sortKey)?.label;
 
-  const copyData = useCallback(() => {
-    const copiedSuccessfully = copyHistoricData({ historicConditions: historicConditions[currentPage], currentHistoricDay });
+  // Copies the spreadsheet stations by id, wherever they are in the dashboard
+  const copyData = useCallback(async () => {
+    const stations = new Map([...copyStationsCacheRef.current, ...historicById]);
 
-    if (copiedSuccessfully) {
+    // Spreadsheet stations of this account on pages that weren't opened yet
+    const idsToFetch = COPY_STATIONS_IDS.filter(id => !stations.has(id) && user.wuStations.some(station => station.id === id));
+
+    if (idsToFetch.length) {
+      setIsLoading(true);
+
+      try {
+        const data = await callableFunction(cloudFunctions.getHistoricalConditions, { stationsIds: idsToFetch });
+
+        (data.historicConditions as HistoricConditions[]).forEach(station => {
+          copyStationsCacheRef.current.set(station.stationId, station);
+          stations.set(station.stationId, station);
+        });
+      } catch (error) {
+        console.log(error);
+        registerError(error, user);
+      }
+
+      setIsLoading(false);
+    }
+
+    const { copied, missingIds } = await copyHistoricData({ historicConditions: [...stations.values()], currentHistoricDay });
+
+    if (!copied) {
+      addToast({
+        type: "error",
+        title: "Erro ao copiar",
+        description: "Não foi possível copiar os dados. Tente novamente.",
+      });
+    } else if (missingIds.length) {
+      addToast({
+        type: "info",
+        title: "Dados copiados",
+        description: `Sem dados para ${missingIds.join(", ")}. As colunas dessas estações ficaram vazias.`,
+      });
+    } else {
       addToast({
         type: "success",
         title: "Dados copiados!",
       });
-    } else {
-      addToast({
-        type: "error",
-        title: "Erro ao copiar",
-        description: "Organize as 12 estações para copiar os dados.",
-      });
     }
-  }, [historicConditions, currentPage, currentHistoricDay, addToast]);
+  }, [historicById, user, currentHistoricDay, addToast]);
 
   useEffect(() => {
     const userId = user.userId;
