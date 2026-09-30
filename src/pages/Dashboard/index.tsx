@@ -262,39 +262,36 @@ const Dashboard = () => {
 
       setInputValue("");
 
-      user.wuStations.push({
-        id: stationId,
-        order: user.wuStations.length,
-        createdAt: Date.now(),
-        name: data.currentConditions.neighborhood,
-      });
-      updateUser(user);
+      const newStationIndex = user.wuStations.length;
 
-      setCurrentConditions(state => {
-        const stateCopy = { ...state };
-        const currentPageIsFull = stateCopy[currentPage].length === constants.pageSize;
-
-        if (currentPageIsFull) {
-          stateCopy[currentPage + 1] = [data.currentConditions];
-        } else {
-          stateCopy[currentPage].push(data.currentConditions);
-        }
-
-        return stateCopy;
+      // New user object (not a mutation) so idsPerPage/pagesArray are recomputed
+      updateUser({
+        ...user,
+        wuStations: [...user.wuStations, {
+          id: stationId,
+          order: newStationIndex,
+          createdAt: Date.now(),
+          name: data.currentConditions.neighborhood,
+        }],
       });
 
-      setHistoricConditions(state => {
-        const stateCopy = { ...state };
-        const currentPageIsFull = stateCopy[currentPage].length === constants.pageSize;
+      // The new station always goes at the end, on the last page
+      const targetPage = Math.floor(newStationIndex / constants.pageSize);
+      const startsNewPage = newStationIndex % constants.pageSize === 0;
 
-        if (currentPageIsFull) {
-          stateCopy[currentPage + 1] = [data.historicConditions];
-        } else {
-          stateCopy[currentPage].push(data.historicConditions);
-        }
+      // Only touch a page that is already loaded, or a brand new page holding just this station.
+      // A page that exists but wasn't loaded yet stays empty, so it is fetched (with the new station) when opened.
+      // Copy arrays instead of pushing: StrictMode runs updaters twice in development.
+      const addToPage = <T,>(state: Record<string, T[]>, station: T) => {
+        const pageStations = state[targetPage] || [];
 
-        return stateCopy;
-      });
+        if (!startsNewPage && !pageStations.length) return state;
+
+        return { ...state, [targetPage]: [...pageStations, station] };
+      };
+
+      setCurrentConditions(state => addToPage(state, data.currentConditions));
+      setHistoricConditions(state => addToPage(state, data.historicConditions));
       setIsLoading(false);
     } catch {
       addToast({
@@ -305,7 +302,7 @@ const Dashboard = () => {
     }
 
     setIsLoading(false);
-  }, [user, addToast, updateUser, currentPage]);
+  }, [user, addToast, updateUser]);
 
   const handleChangePage = useCallback((page: number) => {
     setCurrentPage(page);

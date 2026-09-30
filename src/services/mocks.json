@@ -126,8 +126,8 @@
         "country": "BR",
         "softwareType": "AMBWeatherV4.2.6",
         "neighborhood": "Brusque",
-        "url": "https://www.wunderground.com/dashboard/pws/IBRUSQ12",
-        "stationId": "IBRUSQ12",
+        "url": "https://www.wunderground.com/dashboard/pws/IBRUSQ26",
+        "stationId": "IBRUSQ26",
         "status": "online",
         "geolocation": {
             "latitude": -27.144222,
@@ -1419,7 +1419,7 @@
           ]
       },
       {
-          "stationId": "IBRUSQ12",
+          "stationId": "IBRUSQ26",
           "observationTimeUTC": "2024-01-02T02:59:59Z",
           "geolocation": {
               "latitude": -27.144222,
@@ -1430,7 +1430,7 @@
           "country": "",
           "neighborhood": "",
           "softwareType": "",
-          "url": "https://www.wunderground.com/dashboard/pws/IBRUSQ12",
+          "url": "https://www.wunderground.com/dashboard/pws/IBRUSQ26",
           "conditions": [
               {
                   "tempHigh": "27.3",

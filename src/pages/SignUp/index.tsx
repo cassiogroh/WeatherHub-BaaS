@@ -128,6 +128,7 @@ const SignUp = () => {
               type='password'
               icon={FiLock}
               placeholder='Senha'
+              containerStyle={{ marginBottom: "20px" }}
             />
 
             <Honeypot aria-hidden='true'>
