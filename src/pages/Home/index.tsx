@@ -7,7 +7,7 @@ import ForecastCard, { DaylyForecast, ForecastToday } from "../../components/For
 import { Container, AskLocation, ForecastTodayContainer, DaylyForecastContainer } from "./styles";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import Loader from "react-loader-spinner";
+import { Circles } from "react-loader-spinner";
 
 interface Location {
   latitude: number;
@@ -126,7 +126,7 @@ const Home = () => {
             :
             <div style= {{ display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 130 }}>
               <p style= {{ marginBottom: 20, fontSize: "2.4rem" }}>Previsão do tempo a caminho</p>
-              <Loader type='Circles' color='#3b5998' height={100} width={100} />
+              <Circles color='#3b5998' height={100} width={100} ariaLabel='Carregando' />
             </div>
         )
       }

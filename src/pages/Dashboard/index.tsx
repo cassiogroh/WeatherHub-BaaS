@@ -1,5 +1,5 @@
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Loader from "react-loader-spinner";
+import { Circles } from "react-loader-spinner";
 import { FiX } from "react-icons/fi";
 
 import ProfileHeader from "../../components/ProfileHeader";
@@ -594,7 +594,7 @@ const Dashboard = () => {
       <Container isLoading={isLoading}>
         {isLoading && (
           <LoaderContainer>
-            <Loader type='Circles' color='#3b5998' height={100} width={100} />
+            <Circles color='#3b5998' height={100} width={100} ariaLabel='Carregando' />
           </LoaderContainer>
         )}
 
