@@ -202,13 +202,25 @@ export const ExclusiveButton = styled.button`
   }
 `;
 
-export const AddStationForm = styled.form`
+// Add station input + reorder switch: side by side on desktop, stacked on mobile
+export const StationControls = styled.div`
   display: flex;
+  align-items: center;
+  gap: 10px;
   margin-top: -10px;
   left: 197px;
 
   position: absolute;
   z-index: 2;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+
+export const AddStationForm = styled.form`
+  display: flex;
 
   input {
     border: 0;
@@ -250,3 +262,62 @@ export const AddStationForm = styled.form`
   }
 `;
 
+
+export const ReorderSwitch = styled.label`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 3.4rem;
+  padding: 0 12px;
+
+  border-radius: 8px;
+  background-color: var(--primary-color);
+  cursor: pointer;
+  user-select: none;
+  transition: filter .2s;
+
+  &:hover {
+    filter: brightness(113%);
+  }
+
+  p {
+    margin: 0;
+  }
+
+  input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  span {
+    position: relative;
+    width: 47px;
+    height: 26px;
+    border-radius: 34px;
+    background-color: #FFF;
+    transition: .4s;
+  }
+
+  span:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    transition: .4s;
+  }
+
+  input:checked + span:before {
+    transform: translateX(20px);
+  }
+
+  input:focus-visible + span {
+    box-shadow: 0 0 0 2px #FFF, 0 0 0 4px var(--primary-color);
+  }
+`;

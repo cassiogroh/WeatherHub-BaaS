@@ -33,6 +33,11 @@ export const StationsStats = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
   margin-top: 4rem;
+
+  // Room for the reorder switch stacked under the add station input
+  @media (max-width: 900px) {
+    margin-top: 8rem;
+  }
 `;
 
 export const PaginationWrapper = styled.div`

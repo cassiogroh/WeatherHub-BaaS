@@ -1,9 +1,10 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Loader from "react-loader-spinner";
 
 import ProfileHeader from "../../components/ProfileHeader";
 import StationCard, { ViewProps } from "../../components/StationCard";
 import ToggleStats from "../../components/ToggleStats";
+import ReorderStations from "../../components/ReorderStations";
 
 import { useAuth } from "../../hooks/auth";
 import { useToast } from "../../hooks/toast";
@@ -12,6 +13,7 @@ import { cloudFunctions } from "../../services/cloudFunctions";
 import { registerError } from "../../functions/registerError";
 import { constants } from "../../utils/constants";
 import { copyHistoricData } from "../../utils/copyHistoricData";
+import { repaginateStations } from "../../utils/repaginateStations";
 import { CurrentConditions, HistoricConditions } from "../../models/station";
 
 import { Container, LoaderContainer, PaginationButton, PaginationWrapper, StationsStats } from "./styles";
@@ -38,6 +40,8 @@ const Dashboard = () => {
   const [ historicConditions, setHistoricConditions ] = useState(mockObject as Record<string, HistoricConditions[]>);
   const [ inputValue, setInputValue ] = useState("");
   const [ isLoading, setIsLoading ] = useState(false);
+  const [ isReordering, setIsReordering ] = useState(false);
+  const orderChangedRef = useRef(false);
 
   // ToggleStats component
   const [ toggleInputSlider, setToggleInputSlider ] = useState(false);
@@ -113,8 +117,8 @@ const Dashboard = () => {
     return sortedData;
   }, [user.wuStations]);
 
-  const getCurrentConditions = useCallback(async (userId: string, stationsIds: string[], page: number) => {
-    if (currentConditions[page].length) return;
+  const getCurrentConditions = useCallback(async (userId: string, stationsIds: string[], page: number, force = false) => {
+    if (!force && currentConditions[page].length) return;
 
     setIsLoading(true);
     try {
@@ -141,8 +145,8 @@ const Dashboard = () => {
     }
   }, [sortStationsByOrder, user, currentConditions]);
 
-  const getHistoricConditions = useCallback(async (userId: string, stationsIds: string[], page: number) => {
-    if (historicConditions[page].length) return;
+  const getHistoricConditions = useCallback(async (userId: string, stationsIds: string[], page: number, force = false) => {
+    if (!force && historicConditions[page].length) return;
 
     setIsLoading(true);
     try {
@@ -331,6 +335,69 @@ const Dashboard = () => {
     }
   }, [currentPage, getCurrentConditions, getHistoricConditions, idsPerPage, user.userId]);
 
+  const sortedStations = useMemo(() => {
+    return [...(user.wuStations || [])].sort((a, b) => a.order - b.order);
+  }, [user.wuStations]);
+
+  const handleReorderStations = useCallback(async (stationsIds: string[]) => {
+    // Only apply the new order once it's saved. The loader blocks the page, so saves never overlap
+    setIsLoading(true);
+
+    try {
+      await callableFunction(cloudFunctions.reorderStations, { stationsIds });
+
+      const stationsById = new Map(user.wuStations.map(station => [station.id, station]));
+
+      updateUser({
+        ...user,
+        wuStations: stationsIds.map((id, order) => ({ ...stationsById.get(id) as typeof user.wuStations[number], order })),
+      });
+      orderChangedRef.current = true;
+    } catch {
+      addToast({
+        type: "error",
+        title: "Erro ao salvar a ordem",
+        description: "A ordem das estações não foi alterada. Tente novamente.",
+      });
+    }
+
+    setIsLoading(false);
+  }, [user, updateUser, addToast]);
+
+  const handleToggleReorder = useCallback((reorder: boolean) => {
+    setIsReordering(reorder);
+
+    if (reorder || !orderChangedRef.current) return;
+    orderChangedRef.current = false;
+
+    // Put the loaded stations back into pages following the new order
+    const orderedIds = sortedStations.map(station => station.id);
+    const newCurrentConditions = repaginateStations(currentConditions, orderedIds);
+    const newHistoricConditions = repaginateStations(historicConditions, orderedIds);
+
+    setCurrentConditions(newCurrentConditions);
+    setHistoricConditions(newHistoricConditions);
+
+    // Fetch the page being viewed if it had stations that weren't loaded yet
+    const stationsIds = idsPerPage[currentPage] || [];
+
+    if (toggleInputSlider && !newHistoricConditions[currentPage].length) {
+      getHistoricConditions(user.userId, stationsIds, currentPage, true);
+    } else if (!toggleInputSlider && !newCurrentConditions[currentPage].length) {
+      getCurrentConditions(user.userId, stationsIds, currentPage, true);
+    }
+  }, [
+    sortedStations,
+    currentConditions,
+    historicConditions,
+    idsPerPage,
+    currentPage,
+    toggleInputSlider,
+    getCurrentConditions,
+    getHistoricConditions,
+    user.userId,
+  ]);
+
   const copyData = useCallback(() => {
     const copiedSuccessfully = copyHistoricData({ historicConditions: historicConditions[currentPage], currentHistoricDay });
 
@@ -393,43 +460,51 @@ const Dashboard = () => {
           setCurrentHistoricDay={setCurrentHistoricDay}
           inputValue={inputValue}
           setInputValue={setInputValue}
+          isReordering={isReordering}
+          setIsReordering={handleToggleReorder}
         />
 
-        <StationsStats>
-          {currentDataView[currentPage].map((station, index: number) => (
-            <StationCard
-              key={station.stationId}
-              currentData={station}
-              historicData={historicConditions[currentPage][index] || { conditions: [] }}
-              propsView={station.status === "online" ? propsView : undefined}
-              handleDeleteStation={handleDeleteStation}
-              currentOrHistoric={toggleInputSlider}
-              minStatus={minStatus}
-              medStatus={medStatus}
-              maxStatus={maxStatus}
-              currentHistoricDay={currentHistoricDay + 6}
-            />
-          ),
-          )}
-        </StationsStats>
+        {isReordering ? (
+          <ReorderStations stations={sortedStations} onReorder={handleReorderStations} />
+        ) : (
+          <>
+            <StationsStats>
+              {currentDataView[currentPage].map((station, index: number) => (
+                <StationCard
+                  key={station.stationId}
+                  currentData={station}
+                  historicData={historicConditions[currentPage][index] || { conditions: [] }}
+                  propsView={station.status === "online" ? propsView : undefined}
+                  handleDeleteStation={handleDeleteStation}
+                  currentOrHistoric={toggleInputSlider}
+                  minStatus={minStatus}
+                  medStatus={medStatus}
+                  maxStatus={maxStatus}
+                  currentHistoricDay={currentHistoricDay + 6}
+                />
+              ),
+              )}
+            </StationsStats>
 
-        {pagesArray.length > 1 && (
-          <PaginationWrapper>
-            {pagesArray.map(pageNumber => (
-              <PaginationButton
-                key={pageNumber}
-                onClick={() => handleChangePage(pageNumber)}
-                disabled={pageNumber === currentPage}
-                title={pageNumber === currentPage
-                  ? `Vendo estações da página ${pageNumber + 1}`
-                  : `Ver estações da página ${pageNumber + 1}`
-                }
-              >
-                {pageNumber + 1}
-              </PaginationButton>
-            ))}
+            {pagesArray.length > 1 && (
+              <PaginationWrapper>
+                {pagesArray.map(pageNumber => (
+                  <PaginationButton
+                    key={pageNumber}
+                    onClick={() => handleChangePage(pageNumber)}
+                    disabled={pageNumber === currentPage}
+                    title={pageNumber === currentPage
+                      ? `Vendo estações da página ${pageNumber + 1}`
+                      : `Ver estações da página ${pageNumber + 1}`
+                    }
+                  >
+                    {pageNumber + 1}
+                  </PaginationButton>
+                ))}
 
-          </PaginationWrapper>
+              </PaginationWrapper>
+            )}
+          </>
         )}
       </Container>
     </>

@@ -6,7 +6,16 @@ import { ptBR } from "date-fns/locale";
 import InputOption from "./InputOption";
 import { useToast } from "../../hooks/toast";
 
-import { Container, Options, OptionsHeader, HistoricOptions, ExclusiveButton, AddStationForm } from "./styles";
+import {
+  Container,
+  Options,
+  OptionsHeader,
+  HistoricOptions,
+  ExclusiveButton,
+  StationControls,
+  AddStationForm,
+  ReorderSwitch,
+} from "./styles";
 import { useAuth } from "../../hooks/auth";
 
 interface ToggleStatsProps {
@@ -25,6 +34,8 @@ interface ToggleStatsProps {
   setCurrentHistoricDay: React.Dispatch<React.SetStateAction<number>>;
   inputValue: string;
   setInputValue: React.Dispatch<React.SetStateAction<string>>;
+  isReordering?: boolean;
+  setIsReordering?(toggle: boolean): void;
 }
 
 const ToggleStats = ({
@@ -43,6 +54,8 @@ const ToggleStats = ({
   setCurrentHistoricDay,
   inputValue,
   setInputValue,
+  isReordering = false,
+  setIsReordering,
 }: ToggleStatsProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
@@ -151,22 +164,36 @@ const ToggleStats = ({
 
       {
         handleAddStation &&
-        <AddStationForm onSubmit={event => handleAddStation(event, inputValue)}>
-          <input
-            type="text"
-            ref={inputRef}
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value.toUpperCase())}
-            placeholder='Digite um ID'
-          />
+        <StationControls>
+          <AddStationForm onSubmit={event => handleAddStation(event, inputValue)}>
+            <input
+              type="text"
+              ref={inputRef}
+              value={inputValue}
+              onChange={e => setInputValue(e.target.value.toUpperCase())}
+              placeholder='Digite um ID'
+            />
 
-          <button
-            type='submit'
-            title="Adicionar estação"
-          >
-            <FiPlus size={20} color='var(--primary-color)' strokeWidth={5} />
-          </button>
-        </AddStationForm>
+            <button
+              type='submit'
+              title="Adicionar estação"
+            >
+              <FiPlus size={20} color='var(--primary-color)' strokeWidth={5} />
+            </button>
+          </AddStationForm>
+
+          {setIsReordering && (
+            <ReorderSwitch title='Arraste as estações para mudar a ordem'>
+              <input
+                type='checkbox'
+                checked={isReordering}
+                onChange={event => setIsReordering(event.target.checked)}
+              />
+              <span />
+              <p>Reordenar</p>
+            </ReorderSwitch>
+          )}
+        </StationControls>
       }
     </Container>
   );

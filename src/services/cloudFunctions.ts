@@ -32,6 +32,10 @@ export const cloudFunctions = {
    */
   deleteStation: "deleteStation",
   /**
+   * @param {string[]} stationsIds every station of the user, in the new order
+   */
+  reorderStations: "reorderStations",
+  /**
    * @param {string} userId
    * @param {string} name ?
    * @param {string} email ?
